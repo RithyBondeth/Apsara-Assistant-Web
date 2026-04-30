@@ -20,14 +20,14 @@ export const SIDEBAR_NAV = [
     icon: Package,
   },
   {
-    title: "Chat",
-    href: "/chat",
-    icon: MessageCircle,
-  },
-  {
     title: "Customers",
     href: "/customers",
     icon: Users,
+  },
+  {
+    title: "Chat",
+    href: "/chat",
+    icon: MessageCircle,
   },
   {
     title: "Orders",

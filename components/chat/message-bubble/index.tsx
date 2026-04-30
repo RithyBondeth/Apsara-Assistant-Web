@@ -2,14 +2,8 @@ import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
 import { IMessageBubbleProps } from "./props";
 
-const SENDER_LABELS: Record<string, string> = {
-  ai: "Apsara AI",
-  seller: "You",
-  customer: "",
-};
-
 export default function MessageBubble({ message }: IMessageBubbleProps) {
-  const isOutgoing = message.sender === "ai" || message.sender === "seller";
+  const isOutgoing = message.sender_type === "assistant";
 
   return (
     <div
@@ -18,11 +12,9 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
         isOutgoing ? "items-end" : "items-start"
       )}
     >
-      {message.sender !== "customer" && (
-        <span className="px-1 text-[10px] text-muted-foreground">
-          {SENDER_LABELS[message.sender]}
-        </span>
-      )}
+      <span className="px-1 text-[10px] text-muted-foreground">
+        {isOutgoing ? "Apsara AI" : "Customer"}
+      </span>
       <div
         className={cn(
           "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
@@ -31,7 +23,7 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
             : "rounded-tl-sm bg-muted text-foreground"
         )}
       >
-        {message.content}
+        {message.content ?? <em className="opacity-60">Empty message</em>}
       </div>
       <span className="px-1 text-[10px] text-muted-foreground">
         {timeAgo(message.created_at)}

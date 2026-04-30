@@ -1,13 +1,13 @@
 export interface IProduct {
-  id: number;
+  id: string;
+  user_id: string;
   name: string;
-  description?: string;
-  price: number;
+  description: string | null;
+  price: string; // Decimal comes as string from FastAPI
   stock: number;
-  image_url?: string;
+  image_url: string | null;
   is_active: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 export interface IProductCreate {
@@ -18,4 +18,6 @@ export interface IProductCreate {
   image_url?: string;
 }
 
-export interface IProductUpdate extends Partial<IProductCreate> {}
+export interface IProductUpdate extends Partial<IProductCreate> {
+  is_active?: boolean;
+}

@@ -56,7 +56,7 @@ export default function ProductTable({
                 )}
               </TableCell>
               <TableCell className="hidden sm:table-cell">
-                ${product.price.toFixed(2)}
+                ${parseFloat(product.price).toFixed(2)}
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 {product.stock}

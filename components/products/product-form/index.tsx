@@ -32,7 +32,7 @@ export default function ProductForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
       description: defaultValues?.description ?? "",
-      price: defaultValues?.price ?? 0,
+      price: defaultValues?.price ? parseFloat(String(defaultValues.price)) : 0,
       stock: defaultValues?.stock ?? 0,
       image_url: defaultValues?.image_url ?? "",
     },

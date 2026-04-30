@@ -1,19 +1,36 @@
-export interface IConversation {
-  id: number;
-  customer_name: string;
-  customer_phone?: string;
-  platform: "facebook" | "telegram" | "tiktok" | "website";
-  last_message?: string;
-  last_message_at?: string;
-  unread_count: number;
-  status: "active" | "resolved" | "pending";
+export interface IAttachment {
+  id: string;
+  file_url: string;
+  file_type: string | null;
+  file_name: string | null;
+  file_size: number | null;
 }
 
 export interface IMessage {
-  id: number;
-  conversation_id: number;
-  content: string;
-  sender: "customer" | "ai" | "seller";
+  id: string;
+  conversation_id: string;
+  sender_type: "customer" | "assistant";
+  message_type: string;
+  content: string | null;
   created_at: string;
-  is_read: boolean;
+  attachments: IAttachment[];
+}
+
+export interface IConversation {
+  id: string;
+  user_id: string;
+  customer_id: string;
+  platform: string;
+  status: "open" | "closed" | "pending";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IConversationDetail extends IConversation {
+  messages: IMessage[];
+}
+
+export interface IChatResponse {
+  customer_message: IMessage;
+  ai_message: IMessage;
 }
