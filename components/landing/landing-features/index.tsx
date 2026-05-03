@@ -55,7 +55,7 @@ export default function LandingFeatures() {
   return (
     <section ref={sectionRef} id="features" className="relative py-16 sm:py-24 md:py-32">
       {/* Dotted background */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
         {/* Header */}

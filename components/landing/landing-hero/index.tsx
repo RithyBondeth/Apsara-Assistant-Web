@@ -24,7 +24,7 @@ export default function LandingHero() {
         <div className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-amber-500/20 blur-[140px]" />
         <div className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-amber-600/10 blur-[160px]" />
         <div className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-amber-400/10 blur-[140px]" />
-        <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="absolute inset-0 opacity-[0.04] bg-dots" />
       </div>
 
       {/* ── Content ─────────────────────────────────────────────── */}

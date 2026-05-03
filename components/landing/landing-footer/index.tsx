@@ -5,7 +5,7 @@ export default function LandingFooter() {
   return (
     <footer className="relative border-t border-border/60 bg-card/30">
       {/* Dotted background */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-dots" />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 md:px-8 py-10 sm:py-12 md:py-16">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">

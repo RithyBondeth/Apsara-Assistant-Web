@@ -11,7 +11,7 @@ export default function LandingCta() {
   return (
     <section ref={ctaRef} className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
       {/* Dotted background */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
       {/* Center glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-amber-500/15 blur-[160px]" />

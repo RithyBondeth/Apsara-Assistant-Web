@@ -151,6 +151,11 @@
 }
 
 @layer utilities {
+  .bg-dots {
+    background-image: radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
   .animate-fade-up {
     animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }

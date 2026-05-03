@@ -33,7 +33,7 @@ export default function LandingHowItWorks() {
       className="relative py-16 sm:py-24 md:py-32 overflow-hidden"
     >
       {/* Dotted background */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
 
       {/* Accent orbs */}
       <div className="pointer-events-none absolute inset-0">
