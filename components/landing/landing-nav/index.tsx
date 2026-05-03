@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LucideMenu, LucideX, LucideSparkles, LucideArrowRight } from "lucide-react";
+import {
+  LucideMenu,
+  LucideX,
+  LucideSparkles,
+  LucideArrowRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function LandingNav() {
@@ -40,12 +45,20 @@ export default function LandingNav() {
         {/* ── Desktop nav links ────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
           <a href="#features">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               Features
             </Button>
           </a>
           <a href="#how-it-works">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               How it works
             </Button>
           </a>
@@ -54,7 +67,11 @@ export default function LandingNav() {
         {/* ── Desktop CTAs ─────────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               Sign in
             </Button>
           </Link>
@@ -77,7 +94,11 @@ export default function LandingNav() {
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
-          {open ? <LucideX className="size-5" /> : <LucideMenu className="size-5" />}
+          {open ? (
+            <LucideX className="size-5" />
+          ) : (
+            <LucideMenu className="size-5" />
+          )}
         </Button>
       </nav>
 
@@ -85,12 +106,18 @@ export default function LandingNav() {
       {open && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-fade-up">
           <a href="#features" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               Features
             </Button>
           </a>
           <a href="#how-it-works" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               How it works
             </Button>
           </a>
@@ -101,7 +128,7 @@ export default function LandingNav() {
               </Button>
             </Link>
             <Link href="/register" onClick={() => setOpen(false)}>
-              <Button className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white">
+              <Button className="w-full rounded-full bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white">
                 Get started
               </Button>
             </Link>

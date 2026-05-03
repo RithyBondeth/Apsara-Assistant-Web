@@ -1,3 +1,5 @@
+"use client";
+
 import {
   LucideLanguages,
   LucideSmartphone,
@@ -6,6 +8,7 @@ import {
   LucideClipboardList,
   LucideBarChart3,
 } from "lucide-react";
+import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 
 const FEATURES = [
   {
@@ -47,30 +50,44 @@ const FEATURES = [
 ];
 
 export default function LandingFeatures() {
+  const sectionRef = useGsapScrollAnimation<HTMLElement>();
+
   return (
-    <section id="features" className="relative py-16 sm:py-24 md:py-32">
+    <section ref={sectionRef} id="features" className="relative py-16 sm:py-24 md:py-32">
       {/* Dotted background */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 md:px-8">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-16">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3">
+          <span
+            data-gsap="fade-up"
+            className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3"
+          >
             Features
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h2
+            data-gsap="split-words"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 [perspective:800px]"
+          >
             Everything you need to{" "}
             <span className="bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
               sell smarter
             </span>
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+          <p
+            data-gsap="fade-up"
+            className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto"
+          >
             Apsara handles customer conversations so you can focus on growing your business.
           </p>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 stagger-list">
+        <div
+          data-gsap="stagger-children"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
+        >
           {FEATURES.map((feature) => (
             <div
               key={feature.title}

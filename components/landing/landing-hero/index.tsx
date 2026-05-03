@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LucideArrowRight, LucideChevronDown, LucideSparkles } from "lucide-react";
+import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
 
 const STATS = [
   { value: "500+", label: "Sellers" },
@@ -9,8 +12,13 @@ const STATS = [
 ];
 
 export default function LandingHero() {
+  const heroRef = useGsapHeroAnimation<HTMLElement>();
+
   return (
-    <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden">
+    <section
+      ref={heroRef}
+      className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
+    >
       {/* ── Ambient background ──────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-amber-500/20 blur-[140px]" />
@@ -21,17 +29,24 @@ export default function LandingHero() {
 
       {/* ── Content ─────────────────────────────────────────────── */}
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-8 pt-28 sm:pt-32 pb-20 text-center">
-        <div className="flex flex-col items-center gap-6 stagger-list">
+        <div className="flex flex-col items-center gap-6">
+
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 backdrop-blur-sm">
+          <div
+            data-hero="badge"
+            className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 backdrop-blur-sm opacity-0"
+          >
             <LucideSparkles className="size-3.5 text-amber-600" />
             <span className="text-xs font-medium text-amber-700">
               AI Sales Assistant for Cambodian Sellers
             </span>
           </div>
 
-          {/* Heading */}
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.08]">
+          {/* Heading — GSAP splits words, starts hidden */}
+          <h1
+            data-hero="heading"
+            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.08] opacity-0 [perspective:800px]"
+          >
             Sell more.{" "}
             <br className="hidden sm:block" />
             Answer less. Let{" "}
@@ -45,7 +60,10 @@ export default function LandingHero() {
           </h1>
 
           {/* Description */}
-          <p className="text-muted-foreground !leading-relaxed text-base sm:text-lg md:text-xl max-w-[640px]">
+          <p
+            data-hero="description"
+            className="text-muted-foreground !leading-relaxed text-base sm:text-lg md:text-xl max-w-[640px] opacity-0"
+          >
             Your AI-powered shop assistant that understands{" "}
             <span className="font-medium text-foreground">Khmer</span>,{" "}
             <span className="font-medium text-foreground">English</span>, and{" "}
@@ -54,7 +72,10 @@ export default function LandingHero() {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 w-full sm:w-auto">
+          <div
+            data-hero="cta"
+            className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 w-full sm:w-auto opacity-0"
+          >
             <Link href="/register" className="w-full sm:w-auto">
               <Button
                 size="lg"
@@ -76,12 +97,10 @@ export default function LandingHero() {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-6 sm:gap-8 pt-2">
+          <div data-hero="stats" className="flex items-center gap-6 sm:gap-8 pt-2 opacity-0">
             {STATS.map((stat, i) => (
               <div key={stat.label} className="flex items-center gap-6 sm:gap-8">
-                {i > 0 && (
-                  <div className="h-8 w-px bg-amber-300/30" />
-                )}
+                {i > 0 && <div className="h-8 w-px bg-amber-300/30" />}
                 <div className="flex flex-col items-center">
                   <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-600 to-amber-500 bg-clip-text text-transparent">
                     {stat.value}
@@ -96,7 +115,10 @@ export default function LandingHero() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div
+          data-hero="scroll"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-0"
+        >
           <a href="#features">
             <LucideChevronDown className="size-6 text-muted-foreground/40" />
           </a>
