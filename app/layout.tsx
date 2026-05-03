@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Noto_Sans_Khmer } from "next/font/google";
+import { Ubuntu, Noto_Sans_Khmer, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/utils/themes/theme-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -36,13 +39,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${notoSansKhmer.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${ubuntu.variable} ${geistMono.variable} ${notoSansKhmer.variable} h-full antialiased`}
     >
       <body
         className="min-h-full flex flex-col"
-        style={{ fontFamily: "var(--font-geist-sans), var(--font-khmer), sans-serif" }}
+        style={{ fontFamily: "var(--font-ubuntu), var(--font-khmer), sans-serif" }}
+        suppressHydrationWarning
       >
-        <TooltipProvider>{children}</TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
