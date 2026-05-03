@@ -8,17 +8,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
 import { useState } from "react";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { LucideUser, LucideMail, LucideLock, LucideStore } from "lucide-react";
 
 const schema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,10 +24,7 @@ const schema = z.object({
 type RegisterForm = z.infer<typeof schema>;
 
 export default function RegisterPage() {
-  // ── Utils
   const router = useRouter();
-
-  // ── All States
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +34,6 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterForm>({ resolver: zodResolver(schema) });
 
-  // ── Methods
   async function onSubmit(values: RegisterForm) {
     setLoading(true);
     setError(null);
@@ -57,64 +47,109 @@ export default function RegisterPage() {
     }
   }
 
-  // ── Render UI
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-          <span className="text-lg font-bold text-primary-foreground">A</span>
-        </div>
-        <CardTitle className="text-xl">Create an account</CardTitle>
-        <CardDescription>Start selling smarter with Apsara AI</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="full_name">Full name</Label>
-            <Input id="full_name" placeholder="Sophea Chan" {...register("full_name")} />
-            {errors.full_name && (
-              <p className="text-xs text-destructive">{errors.full_name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="business_name">Business name (optional)</Label>
-            <Input id="business_name" placeholder="Sophea Shop" {...register("business_name")} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="seller@example.com" {...register("email")} />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="••••••••" {...register("password")} />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
-
-          {error && (
-            <p className="text-center text-sm text-destructive">{error}</p>
-          )}
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creating account…" : "Create account"}
-          </Button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Sign in
-          </Link>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
+        <p className="text-sm text-muted-foreground">
+          Start selling smarter with Apsara AI
         </p>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="full_name" className="text-sm font-medium">Full name</Label>
+          <div className="relative">
+            <LucideUser className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+            <Input
+              id="full_name"
+              placeholder="Sophea Chan"
+              className="pl-9"
+              {...register("full_name")}
+            />
+          </div>
+          {errors.full_name && (
+            <p className="text-xs text-destructive">{errors.full_name.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="business_name" className="text-sm font-medium">
+            Business name{" "}
+            <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <div className="relative">
+            <LucideStore className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+            <Input
+              id="business_name"
+              placeholder="Sophea Shop"
+              className="pl-9"
+              {...register("business_name")}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <div className="relative">
+            <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="seller@example.com"
+              className="pl-9"
+              {...register("email")}
+            />
+          </div>
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+          <div className="relative">
+            <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              className="pl-9"
+              {...register("password")}
+            />
+          </div>
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password.message}</p>
+          )}
+        </div>
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all"
+        >
+          {loading ? "Creating account…" : "Create account"}
+        </Button>
+      </form>
+
+      {/* Footer */}
+      <p className="text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-amber-600 hover:text-amber-700 underline-offset-4 hover:underline transition-colors"
+        >
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }

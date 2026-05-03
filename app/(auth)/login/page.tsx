@@ -8,14 +8,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { LucideMail, LucideLock } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Invalid email address"),
@@ -25,82 +19,91 @@ const schema = z.object({
 type LoginForm = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  // ── Utils
   const router = useRouter();
-
-  // ── API Integration
   const { login, loading, error } = useAuthStore();
 
-  // ── All States
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(schema) });
 
-  // ── Methods
   async function onSubmit(values: LoginForm) {
     const ok = await login(values.email, values.password);
     if (ok) router.push("/dashboard");
   }
 
-  // ── Render UI
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-          <span className="text-lg font-bold text-primary-foreground">A</span>
-        </div>
-        <CardTitle className="text-xl">Welcome back</CardTitle>
-        <CardDescription>Sign in to your Apsara account</CardDescription>
-      </CardHeader>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+        <p className="text-sm text-muted-foreground">
+          Sign in to your Apsara account
+        </p>
+      </div>
 
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <div className="relative">
+            <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
             <Input
               id="email"
               type="email"
               placeholder="seller@example.com"
+              className="pl-9"
               {...register("email")}
             />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
           </div>
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          )}
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+          <div className="relative">
+            <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
+              className="pl-9"
               {...register("password")}
             />
-            {errors.password && (
-              <p className="text-xs text-destructive">
-                {errors.password.message}
-              </p>
-            )}
           </div>
-
-          {error && (
-            <p className="text-center text-sm text-destructive">{error}</p>
+          {errors.password && (
+            <p className="text-xs text-destructive">{errors.password.message}</p>
           )}
+        </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
-          </Button>
-        </form>
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Register
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all"
+        >
+          {loading ? "Signing in…" : "Sign in"}
+        </Button>
+      </form>
+
+      {/* Footer */}
+      <p className="text-center text-sm text-muted-foreground">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/register"
+          className="font-medium text-amber-600 hover:text-amber-700 underline-offset-4 hover:underline transition-colors"
+        >
+          Register free
+        </Link>
+      </p>
+    </div>
   );
 }
