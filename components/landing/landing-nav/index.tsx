@@ -3,8 +3,41 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LucideMenu, LucideX, LucideSparkles, LucideArrowRight } from "lucide-react";
+import {
+  LucideMenu,
+  LucideX,
+  LucideSparkles,
+  LucideArrowRight,
+  LucideSun,
+  LucideMoon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <div className="size-8" />;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-8 text-muted-foreground hover:text-foreground"
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      aria-label="Toggle theme"
+    >
+      {resolvedTheme === "dark" ? (
+        <LucideSun className="size-4" />
+      ) : (
+        <LucideMoon className="size-4" />
+      )}
+    </Button>
+  );
+}
 
 export default function LandingNav() {
   const [open, setOpen] = useState(false);
@@ -40,12 +73,20 @@ export default function LandingNav() {
         {/* ── Desktop nav links ────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
           <a href="#features">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               Features
             </Button>
           </a>
           <a href="#how-it-works">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               How it works
             </Button>
           </a>
@@ -53,8 +94,13 @@ export default function LandingNav() {
 
         {/* ── Desktop CTAs ─────────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
+          <ThemeToggle />
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               Sign in
             </Button>
           </Link>
@@ -69,28 +115,40 @@ export default function LandingNav() {
           </Link>
         </div>
 
-        {/* ── Mobile menu button ───────────────────────────────── */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <LucideX className="size-5" /> : <LucideMenu className="size-5" />}
-        </Button>
+        {/* ── Mobile: theme toggle + menu button ───────────────── */}
+        <div className="md:hidden flex items-center gap-1">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            {open ? (
+              <LucideX className="size-5" />
+            ) : (
+              <LucideMenu className="size-5" />
+            )}
+          </Button>
+        </div>
       </nav>
 
       {/* ── Mobile menu ──────────────────────────────────────────── */}
       {open && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-fade-up">
           <a href="#features" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               Features
             </Button>
           </a>
           <a href="#how-it-works" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               How it works
             </Button>
           </a>

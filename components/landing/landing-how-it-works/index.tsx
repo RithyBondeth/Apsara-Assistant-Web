@@ -1,3 +1,7 @@
+"use client";
+
+import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
+
 const STEPS = [
   {
     number: "01",
@@ -20,10 +24,16 @@ const STEPS = [
 ];
 
 export default function LandingHowItWorks() {
+  const sectionRef = useGsapScrollAnimation<HTMLElement>();
+
   return (
-    <section id="how-it-works" className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
+    <section
+      ref={sectionRef}
+      id="how-it-works"
+      className="relative py-16 sm:py-24 md:py-32 overflow-hidden"
+    >
       {/* Dotted background */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:radial-gradient(circle,hsl(var(--foreground))_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
 
       {/* Accent orbs */}
       <div className="pointer-events-none absolute inset-0">
@@ -34,24 +44,40 @@ export default function LandingHowItWorks() {
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-16 md:mb-20">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3">
+          <span
+            data-gsap="fade-up"
+            className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3"
+          >
             How It Works
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h2
+            data-gsap="split-words"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 perspective-midrange"
+          >
             Up and running in{" "}
-            <span className="bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
               three steps
             </span>
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-            No technical knowledge needed. Set up your AI sales assistant in minutes.
+          <p
+            data-gsap="fade-up"
+            className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto"
+          >
+            No technical knowledge needed. Set up your AI sales assistant in
+            minutes.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-10 stagger-list">
+        <div
+          data-gsap="stagger-children"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 lg:gap-10"
+        >
           {STEPS.map((step, index) => (
-            <div key={step.number} className="relative text-center md:text-left">
+            <div
+              key={step.number}
+              className="relative text-center md:text-left"
+            >
               {/* Connector line (desktop only) */}
               {index < STEPS.length - 1 && (
                 <div className="hidden md:block absolute top-8 left-[60%] w-[calc(100%-20%)] h-px bg-gradient-to-r from-amber-400/40 to-amber-400/10" />
