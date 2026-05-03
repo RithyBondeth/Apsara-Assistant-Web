@@ -152,7 +152,7 @@
 
 @layer utilities {
   .bg-dots {
-    background-image: radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px);
+    background-image: radial-gradient(circle, var(--foreground) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
