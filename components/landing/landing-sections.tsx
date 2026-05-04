@@ -1,6 +1,6 @@
 "use client";
 
-import { useLanguageStore } from "@/stores/languages/language-store";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import LandingHero from "./landing-hero";
 import LandingFeatures from "./landing-features";
 import LandingHowItWorks from "./landing-how-it-works";
@@ -20,7 +20,7 @@ import LandingFooter from "./landing-footer";
  * The fresh DOM is unmodified, so GSAP gets a clean slate to animate.
  */
 export function LandingSections() {
-  const { language } = useLanguageStore();
+  const language = useLanguage();
 
   return (
     <>

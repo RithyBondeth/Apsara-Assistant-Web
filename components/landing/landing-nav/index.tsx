@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useLanguageStore } from "@/stores/languages/language-store";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { useT } from "@/hooks/utils/use-translations";
 
 function ThemeToggle() {
@@ -42,7 +43,8 @@ function ThemeToggle() {
 }
 
 function LanguageToggle() {
-  const { language, setLanguage } = useLanguageStore();
+  const language = useLanguage();           // context: server-safe, no flash
+  const { setLanguage } = useLanguageStore(); // Zustand: only for writing
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -57,11 +59,21 @@ function LanguageToggle() {
       onClick={() => setLanguage(language === "en" ? "km" : "en")}
       aria-label="Toggle language"
     >
-      <span className={cn("transition-all", language === "en" ? "text-foreground" : "text-muted-foreground/50")}>
+      <span
+        className={cn(
+          "transition-all",
+          language === "en" ? "text-foreground" : "text-muted-foreground/50",
+        )}
+      >
         EN
       </span>
       <span className="text-muted-foreground/30">|</span>
-      <span className={cn("transition-all", language === "km" ? "text-foreground" : "text-muted-foreground/50")}>
+      <span
+        className={cn(
+          "transition-all",
+          language === "km" ? "text-foreground" : "text-muted-foreground/50",
+        )}
+      >
         ខ្មែរ
       </span>
     </Button>
@@ -103,12 +115,20 @@ export default function LandingNav() {
         {/* ── Desktop nav links ────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
           <a href="#features">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               {t.features}
             </Button>
           </a>
           <a href="#how-it-works">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               {t.howItWorks}
             </Button>
           </a>
@@ -119,7 +139,11 @@ export default function LandingNav() {
           <LanguageToggle />
           <ThemeToggle />
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
               {t.signIn}
             </Button>
           </Link>
@@ -144,7 +168,11 @@ export default function LandingNav() {
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
-            {open ? <LucideX className="size-5" /> : <LucideMenu className="size-5" />}
+            {open ? (
+              <LucideX className="size-5" />
+            ) : (
+              <LucideMenu className="size-5" />
+            )}
           </Button>
         </div>
       </nav>
@@ -153,18 +181,26 @@ export default function LandingNav() {
       {open && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-fade-up">
           <a href="#features" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               {t.features}
             </Button>
           </a>
           <a href="#how-it-works" onClick={() => setOpen(false)}>
-            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-sm text-muted-foreground"
+            >
               {t.howItWorks}
             </Button>
           </a>
           <div className="pt-3 mt-2 border-t border-border/40 flex flex-col gap-2">
             <Link href="/login" onClick={() => setOpen(false)}>
-              <Button variant="outline" className="w-full rounded-full">{t.signIn}</Button>
+              <Button variant="outline" className="w-full rounded-full">
+                {t.signIn}
+              </Button>
             </Link>
             <Link href="/register" onClick={() => setOpen(false)}>
               <Button className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white">

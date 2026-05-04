@@ -10,14 +10,16 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
+  // "optional" eliminates FOUT: browser waits up to 100ms for the preloaded
+  // font file, uses it if ready, never swaps — no visible flash on refresh.
+  display: "optional",
 });
 
 const kantumruyPro = Kantumruy_Pro({
   variable: "--font-kantumruy",
   subsets: ["khmer"],
   weight: ["400", "500", "600", "700"],
-  display: "swap",
+  display: "optional",
 });
 
 const geistMono = Geist_Mono({

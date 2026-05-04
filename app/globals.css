@@ -130,11 +130,13 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-jakarta), sans-serif;
+    /* Fallback chain: Inter / system-ui are visually close to Plus Jakarta Sans */
+    font-family: var(--font-jakarta), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     -webkit-overflow-scrolling: touch;
   }
   html[data-lang="km"] body {
-    font-family: var(--font-kantumruy), sans-serif;
+    /* Fallback chain: Noto Sans Khmer is the closest system Khmer font */
+    font-family: var(--font-kantumruy), "Noto Sans Khmer", "Khmer OS", sans-serif;
   }
   html {
     @apply font-sans;

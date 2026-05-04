@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { LucideArrowRight, LucideChevronDown, LucideSparkles } from "lucide-react";
 import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
-import { useLanguageStore } from "@/stores/languages/language-store";
+import { useLanguage } from "@/components/utils/languages/language-context";
 
 export default function LandingHero() {
   const heroRef = useGsapHeroAnimation<HTMLElement>();
   const t = useT("hero");
-  const { language } = useLanguageStore();
+  const language = useLanguage();
 
   return (
     <section
