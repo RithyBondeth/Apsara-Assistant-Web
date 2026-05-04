@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { LucideArrowRight, LucideChevronDown, LucideSparkles } from "lucide-react";
 import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
+import { useLanguageStore } from "@/stores/languages/language-store";
 
 export default function LandingHero() {
   const heroRef = useGsapHeroAnimation<HTMLElement>();
   const t = useT("hero");
+  const { language } = useLanguageStore();
 
   return (
     <section
@@ -36,21 +38,41 @@ export default function LandingHero() {
             <span className="text-xs font-medium text-amber-700">{t.badge}</span>
           </div>
 
-          {/* Heading */}
+          {/* Heading — Khmer renders as natural two-line sentence */}
           <h1
             data-hero="heading"
-            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.08] opacity-0 [perspective:800px]"
+            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.15] opacity-0 [perspective:800px]"
           >
-            {t.heading1}{" "}
-            <br className="hidden sm:block" />
-            {t.heading2}{" "}
-            <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
-              Apsara
-            </span>{" "}
-            {t.heading3}{" "}
-            <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
-              {t.heading4}
-            </span>
+            {language === "km" ? (
+              <>
+                {/* Line 1: លក់ច្រើន ឆ្លើយតបតិច */}
+                <span className="block">{t.heading1}</span>
+                {/* Line 2: ទុក [Apsara] ជួយ [អតិថិជនរបស់អ្នក] */}
+                <span className="block">
+                  {t.heading2}{" "}
+                  <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                    Apsara
+                  </span>{" "}
+                  {t.heading3}{" "}
+                  <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                    {t.heading4}
+                  </span>
+                </span>
+              </>
+            ) : (
+              <>
+                {t.heading1}{" "}
+                <br className="hidden sm:block" />
+                {t.heading2}{" "}
+                <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                  Apsara
+                </span>{" "}
+                {t.heading3}{" "}
+                <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                  {t.heading4}
+                </span>
+              </>
+            )}
           </h1>
 
           {/* Description */}
