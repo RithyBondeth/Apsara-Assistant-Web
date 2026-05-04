@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How it works",
+    "signIn": "Sign in",
+    "getStarted": "Get started"
+  },
+  "hero": {
+    "badge": "AI Sales Assistant for Cambodian Sellers",
+    "heading1": "Sell more.",
+    "heading2": "Answer less. Let",
+    "heading3": "handle your",
+    "heading4": "customers.",
+    "description": "Your AI-powered shop assistant that understands Khmer, English, and romanized Khmer — replying to customers 24/7 on Facebook, Telegram, TikTok, and your website.",
+    "startFree": "Start free",
+    "signIn": "Sign in",
+    "statSellers": "Sellers",
+    "statMessages": "Messages handled",
+    "statLanguages": "Languages"
+  },
+  "features": {
+    "sectionLabel": "Features",
+    "heading1": "Everything you need to",
+    "heading2": "sell smarter",
+    "description": "Apsara handles customer conversations so you can focus on growing your business.",
+    "f1Title": "Khmer Language AI",
+    "f1Desc": "Understands Khmer Unicode script, romanized Khmer (like 'bong thlai ponman?'), and English — and replies naturally in whichever language your customer uses.",
+    "f2Title": "Multi-Platform",
+    "f2Desc": "Connect Facebook Messenger, Telegram, TikTok Shop, or embed a chat widget directly on your website. One Apsara for every channel.",
+    "f3Title": "Smart Product Catalog",
+    "f3Desc": "Add your products once. Apsara knows every price, description, and stock status — and sells them automatically without you lifting a finger.",
+    "f4Title": "24/7 Auto-Reply",
+    "f4Desc": "Never miss a customer message again. Apsara replies instantly, day or night, weekday or holiday — even while you sleep.",
+    "f5Title": "Order Management",
+    "f5Desc": "Create and track orders directly from conversations. Delivery address, notes, and order status — all in one place.",
+    "f6Title": "Analytics Dashboard",
+    "f6Desc": "See your total products, active customers, open conversations, and orders at a glance. Know your business in seconds."
+  },
+  "howItWorks": {
+    "sectionLabel": "How It Works",
+    "heading1": "Up and running in",
+    "heading2": "three steps",
+    "description": "No technical knowledge needed. Set up your AI sales assistant in minutes.",
+    "s1Title": "Add your products",
+    "s1Desc": "Create your product catalog with names, prices, descriptions, and stock quantities. Apsara learns your entire inventory automatically.",
+    "s2Title": "Open a conversation",
+    "s2Desc": "Connect a customer on any platform — Facebook, Telegram, TikTok, or your website — and start a conversation in seconds.",
+    "s3Title": "Apsara replies 24/7",
+    "s3Desc": "Send any customer message and Apsara instantly replies in their language — Khmer, English, or romanized Khmer — with accurate product info and pricing."
+  },
+  "cta": {
+    "heading1": "Ready to sell",
+    "heading2": "smarter",
+    "description": "Join hundreds of Cambodian sellers using Apsara to handle customer messages automatically — in Khmer, English, and romanized Khmer.",
+    "startFree": "Start free",
+    "signIn": "Sign in"
+  },
+  "footer": {
+    "description": "AI-powered sales assistant for Cambodian online sellers. Handles your customer conversations in Khmer, English, and romanized Khmer — 24/7.",
+    "platform": "Platform",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "dashboard": "Dashboard",
+    "product": "Product",
+    "features": "Features",
+    "howItWorks": "How it works",
+    "company": "Company",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "rights": "Built for Cambodian sellers."
+  }
+}

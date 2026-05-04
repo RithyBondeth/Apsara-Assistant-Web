@@ -9,48 +9,20 @@ import {
   LucideBarChart3,
 } from "lucide-react";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
-
-const FEATURES = [
-  {
-    icon: LucideLanguages,
-    title: "Khmer Language AI",
-    description:
-      "Understands Khmer Unicode script, romanized Khmer (like 'bong thlai ponman?'), and English — and replies naturally in whichever language your customer uses.",
-  },
-  {
-    icon: LucideSmartphone,
-    title: "Multi-Platform",
-    description:
-      "Connect Facebook Messenger, Telegram, TikTok Shop, or embed a chat widget directly on your website. One Apsara for every channel.",
-  },
-  {
-    icon: LucideShoppingBag,
-    title: "Smart Product Catalog",
-    description:
-      "Add your products once. Apsara knows every price, description, and stock status — and sells them automatically without you lifting a finger.",
-  },
-  {
-    icon: LucideBell,
-    title: "24/7 Auto-Reply",
-    description:
-      "Never miss a customer message again. Apsara replies instantly, day or night, weekday or holiday — even while you sleep.",
-  },
-  {
-    icon: LucideClipboardList,
-    title: "Order Management",
-    description:
-      "Create and track orders directly from conversations. Delivery address, notes, and order status — all in one place.",
-  },
-  {
-    icon: LucideBarChart3,
-    title: "Analytics Dashboard",
-    description:
-      "See your total products, active customers, open conversations, and orders at a glance. Know your business in seconds.",
-  },
-];
+import { useT } from "@/hooks/utils/use-translations";
 
 export default function LandingFeatures() {
   const sectionRef = useGsapScrollAnimation<HTMLElement>();
+  const t = useT("features");
+
+  const FEATURES = [
+    { icon: LucideLanguages,    title: t.f1Title, description: t.f1Desc },
+    { icon: LucideSmartphone,   title: t.f2Title, description: t.f2Desc },
+    { icon: LucideShoppingBag,  title: t.f3Title, description: t.f3Desc },
+    { icon: LucideBell,         title: t.f4Title, description: t.f4Desc },
+    { icon: LucideClipboardList,title: t.f5Title, description: t.f5Desc },
+    { icon: LucideBarChart3,    title: t.f6Title, description: t.f6Desc },
+  ];
 
   return (
     <section ref={sectionRef} id="features" className="relative py-16 sm:py-24 md:py-32">
@@ -64,22 +36,22 @@ export default function LandingFeatures() {
             data-gsap="fade-up"
             className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3"
           >
-            Features
+            {t.sectionLabel}
           </span>
           <h2
             data-gsap="split-words"
             className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 [perspective:800px]"
           >
-            Everything you need to{" "}
+            {t.heading1}{" "}
             <span className="bg-gradient-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
-              sell smarter
+              {t.heading2}
             </span>
           </h2>
           <p
             data-gsap="fade-up"
             className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto"
           >
-            Apsara handles customer conversations so you can focus on growing your business.
+            {t.description}
           </p>
         </div>
 
@@ -97,9 +69,7 @@ export default function LandingFeatures() {
                 <feature.icon className="size-5" strokeWidth={1.8} />
               </div>
               <h3 className="text-base font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>

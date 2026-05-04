@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Ubuntu, Noto_Sans_Khmer, Geist_Mono } from "next/font/google";
+import { Ubuntu, Noto_Sans_Khmer, Kantumruy_Pro, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/utils/themes/theme-provider";
+import { LanguageProvider } from "@/components/utils/languages/language-provider";
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -11,9 +12,11 @@ const ubuntu = Ubuntu({
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const kantumruyPro = Kantumruy_Pro({
+  variable: "--font-kantumruy",
+  subsets: ["khmer"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 const notoSansKhmer = Noto_Sans_Khmer({
@@ -21,6 +24,11 @@ const notoSansKhmer = Noto_Sans_Khmer({
   subsets: ["khmer"],
   weight: ["400", "700"],
   display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -40,15 +48,16 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${ubuntu.variable} ${geistMono.variable} ${notoSansKhmer.variable} h-full antialiased`}
+      className={`${ubuntu.variable} ${kantumruyPro.variable} ${notoSansKhmer.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body
         className="min-h-full flex flex-col"
-        style={{ fontFamily: "var(--font-ubuntu), var(--font-khmer), sans-serif" }}
         suppressHydrationWarning
       >
         <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <LanguageProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import { LucideSparkles } from "lucide-react";
+import { useT } from "@/hooks/utils/use-translations";
 
 export default function LandingFooter() {
+  const t = useT("footer");
+
   return (
     <footer className="relative border-t border-border/60 bg-card/30">
       {/* Dotted background */}
@@ -17,53 +22,41 @@ export default function LandingFooter() {
               </div>
               <span className="font-bold text-base tracking-tight">Apsara Assistant</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              AI-powered sales assistant for Cambodian online sellers. Handles your customer conversations in Khmer, English, and romanized Khmer — 24/7.
-            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t.description}</p>
           </div>
 
           {/* Links */}
           <div className="flex flex-wrap gap-8 sm:gap-12 md:gap-16">
             {/* Platform */}
             <div className="flex flex-col gap-3">
-              <span className="text-sm font-semibold">Platform</span>
+              <span className="text-sm font-semibold">{t.platform}</span>
               <Link href="/login">
-                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  Sign in
-                </p>
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.signIn}</p>
               </Link>
               <Link href="/register">
-                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  Get started
-                </p>
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.getStarted}</p>
               </Link>
               <Link href="/dashboard">
-                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  Dashboard
-                </p>
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.dashboard}</p>
               </Link>
             </div>
 
             {/* Product */}
             <div className="flex flex-col gap-3">
-              <span className="text-sm font-semibold">Product</span>
+              <span className="text-sm font-semibold">{t.product}</span>
               <a href="#features">
-                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  Features
-                </p>
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.features}</p>
               </a>
               <a href="#how-it-works">
-                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  How it works
-                </p>
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.howItWorks}</p>
               </a>
             </div>
 
             {/* Company */}
             <div className="flex flex-col gap-3">
-              <span className="text-sm font-semibold">Company</span>
-              <p className="text-xs text-muted-foreground">Privacy Policy</p>
-              <p className="text-xs text-muted-foreground">Terms of Service</p>
+              <span className="text-sm font-semibold">{t.company}</span>
+              <p className="text-xs text-muted-foreground">{t.privacy}</p>
+              <p className="text-xs text-muted-foreground">{t.terms}</p>
             </div>
           </div>
         </div>
@@ -71,7 +64,7 @@ export default function LandingFooter() {
         {/* Bottom bar */}
         <div className="mt-10 pt-6 border-t border-border/40">
           <p className="text-xs text-muted-foreground text-center">
-            &copy; {new Date().getFullYear()} Apsara Assistant. Built for Cambodian sellers.
+            &copy; {new Date().getFullYear()} Apsara Assistant. {t.rights}
           </p>
         </div>
       </div>

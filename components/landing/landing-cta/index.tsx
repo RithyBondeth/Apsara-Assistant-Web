@@ -4,9 +4,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LucideArrowRight } from "lucide-react";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
+import { useT } from "@/hooks/utils/use-translations";
 
 export default function LandingCta() {
   const ctaRef = useGsapScrollAnimation<HTMLElement>();
+  const t = useT("cta");
 
   return (
     <section ref={ctaRef} className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
@@ -22,9 +24,9 @@ export default function LandingCta() {
           data-gsap="split-words"
           className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 !leading-[1.15] [perspective:800px]"
         >
-          Ready to sell{" "}
+          {t.heading1}{" "}
           <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
-            smarter
+            {t.heading2}
           </span>
           ?
         </h2>
@@ -33,7 +35,7 @@ export default function LandingCta() {
           data-gsap="fade-up"
           className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto mb-8"
         >
-          Join hundreds of Cambodian sellers using Apsara to handle customer messages automatically — in Khmer, English, and romanized Khmer.
+          {t.description}
         </p>
 
         <div
@@ -45,7 +47,7 @@ export default function LandingCta() {
               size="lg"
               className="w-full sm:w-auto rounded-full px-10 gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all"
             >
-              Start free
+              {t.startFree}
               <LucideArrowRight className="size-4" />
             </Button>
           </Link>
@@ -55,7 +57,7 @@ export default function LandingCta() {
               variant="outline"
               className="w-full sm:w-auto rounded-full px-10 border-amber-300/50 hover:bg-amber-50 hover:border-amber-400/50 transition-all"
             >
-              Sign in
+              {t.signIn}
             </Button>
           </Link>
         </div>

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { useLanguageStore } from "@/stores/languages/language-store";
+import { useT } from "@/hooks/utils/use-translations";
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -39,7 +41,35 @@ function ThemeToggle() {
   );
 }
 
+function LanguageToggle() {
+  const { language, setLanguage } = useLanguageStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <div className="w-10 h-8" />;
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-8 px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground gap-1.5"
+      onClick={() => setLanguage(language === "en" ? "km" : "en")}
+      aria-label="Toggle language"
+    >
+      <span className={cn("transition-all", language === "en" ? "text-foreground" : "text-muted-foreground/50")}>
+        EN
+      </span>
+      <span className="text-muted-foreground/30">|</span>
+      <span className={cn("transition-all", language === "km" ? "text-foreground" : "text-muted-foreground/50")}>
+        ខ្មែរ
+      </span>
+    </Button>
+  );
+}
+
 export default function LandingNav() {
+  const t = useT("nav");
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -73,35 +103,24 @@ export default function LandingNav() {
         {/* ── Desktop nav links ────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
           <a href="#features">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Features
+            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              {t.features}
             </Button>
           </a>
           <a href="#how-it-works">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              How it works
+            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              {t.howItWorks}
             </Button>
           </a>
         </div>
 
         {/* ── Desktop CTAs ─────────────────────────────────────── */}
-        <div className="hidden md:flex items-center gap-2 shrink-0">
+        <div className="hidden md:flex items-center gap-1 shrink-0">
+          <LanguageToggle />
           <ThemeToggle />
           <Link href="/login">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Sign in
+            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+              {t.signIn}
             </Button>
           </Link>
           <Link href="/register">
@@ -109,14 +128,15 @@ export default function LandingNav() {
               size="sm"
               className="rounded-full px-5 gap-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-sm shadow-amber-500/25 hover:shadow-amber-500/40 transition-all"
             >
-              Get started
+              {t.getStarted}
               <LucideArrowRight className="size-3.5" />
             </Button>
           </Link>
         </div>
 
-        {/* ── Mobile: theme toggle + menu button ───────────────── */}
+        {/* ── Mobile: toggles + menu ────────────────────────────── */}
         <div className="md:hidden flex items-center gap-1">
+          <LanguageToggle />
           <ThemeToggle />
           <Button
             variant="ghost"
@@ -124,11 +144,7 @@ export default function LandingNav() {
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
-            {open ? (
-              <LucideX className="size-5" />
-            ) : (
-              <LucideMenu className="size-5" />
-            )}
+            {open ? <LucideX className="size-5" /> : <LucideMenu className="size-5" />}
           </Button>
         </div>
       </nav>
@@ -137,30 +153,22 @@ export default function LandingNav() {
       {open && (
         <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-lg px-4 py-4 space-y-1 animate-fade-up">
           <a href="#features" onClick={() => setOpen(false)}>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-sm text-muted-foreground"
-            >
-              Features
+            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+              {t.features}
             </Button>
           </a>
           <a href="#how-it-works" onClick={() => setOpen(false)}>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-sm text-muted-foreground"
-            >
-              How it works
+            <Button variant="ghost" className="w-full justify-start text-sm text-muted-foreground">
+              {t.howItWorks}
             </Button>
           </a>
           <div className="pt-3 mt-2 border-t border-border/40 flex flex-col gap-2">
             <Link href="/login" onClick={() => setOpen(false)}>
-              <Button variant="outline" className="w-full rounded-full">
-                Sign in
-              </Button>
+              <Button variant="outline" className="w-full rounded-full">{t.signIn}</Button>
             </Link>
             <Link href="/register" onClick={() => setOpen(false)}>
               <Button className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white">
-                Get started
+                {t.getStarted}
               </Button>
             </Link>
           </div>
