@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* ── Right: amber poster panel ─────────────────────────────── */}
-      <div className="relative hidden md:flex md:w-1/2 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-amber-600 via-amber-500 to-yellow-400">
+      <div className="relative hidden md:flex md:w-1/2 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400">
         {/* Decorative circles */}
         <div className="absolute -top-24 -right-24 size-72 rounded-full bg-white/10" />
         <div className="absolute -bottom-20 -left-20 size-56 rounded-full bg-white/10" />

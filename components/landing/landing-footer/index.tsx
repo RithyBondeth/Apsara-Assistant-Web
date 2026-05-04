@@ -17,7 +17,7 @@ export default function LandingFooter() {
           {/* Brand */}
           <div className="flex flex-col gap-3 max-w-xs">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-600 to-amber-500 shadow-sm shadow-amber-500/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-sm shadow-blue-500/20">
                 <LucideSparkles className="size-4 text-white" />
               </div>
               <span className="font-bold text-base tracking-tight">Apsara Assistant</span>

@@ -24,8 +24,8 @@ export default function LandingHowItWorks() {
 
       {/* Accent orbs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-10%] top-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-amber-500/8 blur-[180px]" />
-        <div className="absolute right-[-10%] top-1/3 h-[400px] w-[400px] rounded-full bg-amber-400/6 blur-[140px]" />
+        <div className="absolute left-[-10%] top-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-500/8 blur-[180px]" />
+        <div className="absolute right-[-10%] top-1/3 h-[400px] w-[400px] rounded-full bg-blue-400/6 blur-[140px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
@@ -33,7 +33,7 @@ export default function LandingHowItWorks() {
         <div className="text-center mb-10 sm:mb-16 md:mb-20">
           <span
             data-gsap="fade-up"
-            className="inline-block text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3"
+            className="inline-block text-xs font-semibold uppercase tracking-widest text-blue-600 mb-3"
           >
             {t.sectionLabel}
           </span>
@@ -42,7 +42,7 @@ export default function LandingHowItWorks() {
             className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 perspective-midrange"
           >
             {t.heading1}{" "}
-            <span className="bg-linear-to-r from-amber-600 to-yellow-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
               {t.heading2}
             </span>
           </h2>
@@ -63,12 +63,12 @@ export default function LandingHowItWorks() {
             <div key={step.number} className="relative text-center md:text-left">
               {/* Connector line (desktop only) */}
               {index < STEPS.length - 1 && (
-                <div className="hidden md:block absolute top-8 left-[60%] w-[calc(100%-20%)] h-px bg-gradient-to-r from-amber-400/40 to-amber-400/10" />
+                <div className="hidden md:block absolute top-8 left-[60%] w-[calc(100%-20%)] h-px bg-gradient-to-r from-blue-400/40 to-blue-400/10" />
               )}
 
               {/* Step number */}
-              <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/20 mb-5">
-                <span className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-amber-500 bg-clip-text text-transparent">
+              <div className="inline-flex items-center justify-center size-16 rounded-2xl bg-gradient-to-br from-blue-500/15 to-blue-600/5 border border-blue-500/20 mb-5">
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
                   {step.number}
                 </span>
               </div>

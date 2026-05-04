@@ -134,7 +134,7 @@ export default function RegisterPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-md shadow-amber-500/20 hover:shadow-amber-500/30 transition-all"
+          className="w-full rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 transition-all"
         >
           {loading ? "Creating account…" : "Create account"}
         </Button>
@@ -145,7 +145,7 @@ export default function RegisterPage() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-amber-600 hover:text-amber-700 underline-offset-4 hover:underline transition-colors"
+          className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
           Sign in
         </Link>

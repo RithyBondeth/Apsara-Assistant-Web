@@ -19,9 +19,9 @@ export default function LandingHero() {
     >
       {/* ── Ambient background ──────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-amber-500/20 blur-[140px]" />
-        <div className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-amber-600/10 blur-[160px]" />
-        <div className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-amber-400/10 blur-[140px]" />
+        <div className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[140px]" />
+        <div className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[160px]" />
+        <div className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-[140px]" />
         <div className="absolute inset-0 opacity-[0.04] bg-dots" />
       </div>
 
@@ -32,10 +32,10 @@ export default function LandingHero() {
           {/* Badge */}
           <div
             data-hero="badge"
-            className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-4 py-1.5 backdrop-blur-sm opacity-0"
+            className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/5 px-4 py-1.5 backdrop-blur-sm opacity-0"
           >
-            <LucideSparkles className="size-3.5 text-amber-600" />
-            <span className="text-xs font-medium text-amber-700">{t.badge}</span>
+            <LucideSparkles className="size-3.5 text-blue-600" />
+            <span className="text-xs font-medium text-blue-700">{t.badge}</span>
           </div>
 
           {/* Heading — Khmer renders as natural two-line sentence */}
@@ -50,11 +50,11 @@ export default function LandingHero() {
                 {/* Line 2: ទុក [Apsara] ជួយ [អតិថិជនរបស់អ្នក] */}
                 <span className="block">
                   {t.heading2}{" "}
-                  <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                     Apsara
                   </span>{" "}
                   {t.heading3}{" "}
-                  <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                     {t.heading4}
                   </span>
                 </span>
@@ -64,11 +64,11 @@ export default function LandingHero() {
                 {t.heading1}{" "}
                 <br className="hidden sm:block" />
                 {t.heading2}{" "}
-                <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Apsara
                 </span>{" "}
                 {t.heading3}{" "}
-                <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   {t.heading4}
                 </span>
               </>
@@ -91,7 +91,7 @@ export default function LandingHero() {
             <Link href="/register" className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto rounded-full px-8 gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all"
+                className="w-full sm:w-auto rounded-full px-8 gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
               >
                 {t.startFree}
                 <LucideArrowRight className="size-4" />
@@ -101,7 +101,7 @@ export default function LandingHero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto rounded-full px-8 border-amber-300/50 hover:bg-amber-50 hover:border-amber-400/50 transition-all"
+                className="w-full sm:w-auto rounded-full px-8 border-blue-300/50 hover:bg-blue-50 hover:border-blue-400/50 transition-all"
               >
                 {t.signIn}
               </Button>
@@ -116,9 +116,9 @@ export default function LandingHero() {
               { value: "3",    label: t.statLanguages },
             ].map((stat, i) => (
               <div key={i} className="flex items-center gap-6 sm:gap-8">
-                {i > 0 && <div className="h-8 w-px bg-amber-300/30" />}
+                {i > 0 && <div className="h-8 w-px bg-blue-300/30" />}
                 <div className="flex flex-col items-center">
-                  <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-600 to-amber-500 bg-clip-text text-transparent">
+                  <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
                     {stat.value}
                   </span>
                   <span className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</span>

@@ -112,7 +112,7 @@ export default function LandingNav() {
             priority
           />
           <span className="font-bold text-base tracking-tight">Apsara</span>
-          <span className="hidden sm:inline text-[10px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+          <span className="hidden sm:inline text-[10px] font-semibold text-blue-700 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
             Assistant
           </span>
         </Link>
@@ -155,7 +155,7 @@ export default function LandingNav() {
           <Link href="/register">
             <Button
               size="sm"
-              className="rounded-full px-5 gap-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white shadow-sm shadow-amber-500/25 hover:shadow-amber-500/40 transition-all"
+              className="rounded-full px-5 gap-1.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-sm shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
             >
               {t.getStarted}
               <LucideArrowRight className="size-3.5" />
@@ -208,7 +208,7 @@ export default function LandingNav() {
               </Button>
             </Link>
             <Link href="/register" onClick={() => setOpen(false)}>
-              <Button className="w-full rounded-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white">
+              <Button className="w-full rounded-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white">
                 {t.getStarted}
               </Button>
             </Link>
