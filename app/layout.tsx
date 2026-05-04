@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Kantumruy_Pro, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/utils/themes/theme-provider";
 import { LanguageProvider } from "@/components/utils/languages/language-provider";
@@ -32,14 +33,18 @@ export const metadata: Metadata = {
   description: "AI-powered sales assistant for Cambodian sellers. Understands Khmer, English, and romanized Khmer.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const language = cookieStore.get("language")?.value ?? "en";
+
   return (
     <html
-      lang="en"
+      lang={language}
+      data-lang={language}
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${kantumruyPro.variable} ${geistMono.variable} h-full antialiased`}
     >
