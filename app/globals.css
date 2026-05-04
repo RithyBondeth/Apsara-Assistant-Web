@@ -39,9 +39,9 @@
   --color-sidebar-ring:        hsl(var(--sidebar-ring));
 
   /* ── Fonts ──────────────────────────────────────── */
-  --font-sans:    var(--font-jakarta);
+  --font-sans:    var(--font-ubuntu);
   --font-mono:    var(--font-geist-mono);
-  --font-heading: var(--font-jakarta);
+  --font-heading: var(--font-ubuntu);
   --font-khmer:   var(--font-kantumruy);
 
   /* ── Radius ─────────────────────────────────────── */
@@ -130,8 +130,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Fallback chain: Inter / system-ui are visually close to Plus Jakarta Sans */
-    font-family: var(--font-jakarta), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    /* Fallback chain: system-ui / Helvetica are visually close to Ubuntu */
+    font-family: var(--font-ubuntu), ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif;
     -webkit-overflow-scrolling: touch;
   }
   html[data-lang="km"] body {

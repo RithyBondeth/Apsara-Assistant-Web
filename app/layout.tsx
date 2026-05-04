@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Kantumruy_Pro, Geist_Mono } from "next/font/google";
+import { Ubuntu, Kantumruy_Pro, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/utils/themes/theme-provider";
 import { LanguageProvider } from "@/components/utils/languages/language-provider";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  // "optional" eliminates FOUT: browser waits up to 100ms for the preloaded
-  // font file, uses it if ready, never swaps — no visible flash on refresh.
+  weight: ["400", "500", "700"],
   display: "optional",
 });
 
@@ -48,7 +46,7 @@ export default async function RootLayout({
       lang={language}
       data-lang={language}
       suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${kantumruyPro.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ubuntu.variable} ${kantumruyPro.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body
         className="min-h-full flex flex-col"
