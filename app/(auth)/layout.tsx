@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { LucideSparkles, LucideMessageCircle, LucideShoppingBag, LucideUsers } from "lucide-react";
+import { LucideMessageCircle, LucideShoppingBag, LucideUsers } from "lucide-react";
 
 const HIGHLIGHTS = [
   { icon: LucideMessageCircle, text: "Replies in Khmer, English & romanized Khmer" },
@@ -17,9 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           href="/"
           className="absolute top-6 left-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-600 to-amber-500">
-            <LucideSparkles className="size-3.5 text-white" />
-          </div>
+          <Image src="/logo.svg" alt="Apsara logo" width={20} height={30} className="h-7 w-auto" />
           <span className="font-medium">Apsara</span>
         </Link>
 
@@ -38,8 +37,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center gap-8 px-10 text-center text-white">
           {/* Logo mark */}
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 animate-float">
-            <LucideSparkles className="size-8 text-white" />
+          <div className="animate-float drop-shadow-xl">
+            <Image src="/logo.svg" alt="Apsara logo" width={72} height={108} className="h-28 w-auto" />
           </div>
 
           {/* Heading */}

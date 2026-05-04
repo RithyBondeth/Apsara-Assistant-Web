@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -33,9 +34,13 @@ export default function AppSidebar({ className }: ISidebarProps) {
       {/* ── Brand */}
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">A</span>
-          </div>
+          <Image
+            src="/logo.svg"
+            alt="Apsara logo"
+            width={24}
+            height={36}
+            className="h-8 w-auto shrink-0"
+          />
           {!collapsed && (
             <span className="font-semibold text-foreground">Apsara</span>
           )}

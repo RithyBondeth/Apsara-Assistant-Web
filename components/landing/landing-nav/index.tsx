@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   LucideMenu,
   LucideX,
-  LucideSparkles,
   LucideArrowRight,
   LucideSun,
   LucideMoon,
@@ -103,9 +103,14 @@ export default function LandingNav() {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* ── Logo ─────────────────────────────────────────────── */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-600 to-amber-500 shadow-sm shadow-amber-500/30">
-            <LucideSparkles className="size-4 text-white" />
-          </div>
+          <Image
+            src="/logo.svg"
+            alt="Apsara logo"
+            width={28}
+            height={42}
+            className="h-9 w-auto"
+            priority
+          />
           <span className="font-bold text-base tracking-tight">Apsara</span>
           <span className="hidden sm:inline text-[10px] font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
             Assistant
