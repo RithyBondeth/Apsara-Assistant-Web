@@ -31,8 +31,22 @@ function ThemeToggle() {
       aria-label="Toggle theme"
       className="relative flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
-      <LucideSun className={cn("absolute size-4 transition-all duration-300", resolvedTheme === "dark" ? "opacity-100 rotate-0" : "opacity-0 rotate-90")} />
-      <LucideMoon className={cn("absolute size-4 transition-all duration-300", resolvedTheme === "dark" ? "opacity-0 -rotate-90" : "opacity-100 rotate-0")} />
+      <LucideSun
+        className={cn(
+          "absolute size-4 transition-all duration-300",
+          resolvedTheme === "dark"
+            ? "opacity-100 rotate-0"
+            : "opacity-0 rotate-90",
+        )}
+      />
+      <LucideMoon
+        className={cn(
+          "absolute size-4 transition-all duration-300",
+          resolvedTheme === "dark"
+            ? "opacity-0 -rotate-90"
+            : "opacity-100 rotate-0",
+        )}
+      />
     </button>
   );
 }
@@ -46,7 +60,12 @@ function LanguageToggle({ className }: { className?: string }) {
   if (!mounted) return <div className="h-7 w-[72px]" />;
 
   return (
-    <div className={cn("relative flex items-center gap-0.5 rounded-full bg-muted p-0.5", className)}>
+    <div
+      className={cn(
+        "relative flex items-center gap-0.5 rounded-full bg-muted p-0.5",
+        className,
+      )}
+    >
       {/* sliding pill indicator */}
       <span
         className={cn(
@@ -77,7 +96,13 @@ function LanguageToggle({ className }: { className?: string }) {
 }
 
 /* ── Nav link ─────────────────────────────────────────────────────────────── */
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <a
       href={href}
@@ -103,7 +128,9 @@ export default function LandingNav() {
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setOpen(false); };
+    const onResize = () => {
+      if (window.innerWidth >= 768) setOpen(false);
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -126,10 +153,16 @@ export default function LandingNav() {
       />
 
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-
         {/* ── Logo ─────────────────────────────────────────────── */}
         <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <Image src="/logo.svg" alt="Apsara" width={28} height={42} className="h-9 w-auto" priority />
+          <Image
+            src="/logo.svg"
+            alt="Apsara"
+            width={28}
+            height={42}
+            className="h-9 w-auto"
+            priority
+          />
           <div className="flex items-baseline gap-1.5">
             <span className="text-base font-bold tracking-tight">Apsara</span>
             <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">
@@ -152,7 +185,11 @@ export default function LandingNav() {
           <div className="mx-1 h-4 w-px bg-border" />
 
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="text-sm font-medium text-muted-foreground hover:text-foreground rounded-full px-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground rounded-full px-4"
+            >
               {t.signIn}
             </Button>
           </Link>
@@ -176,8 +213,22 @@ export default function LandingNav() {
             aria-label="Toggle menu"
             className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <LucideMenu className={cn("absolute size-4.5 transition-all duration-200", open ? "opacity-0 rotate-45 scale-50" : "opacity-100 rotate-0 scale-100")} />
-            <LucideX className={cn("absolute size-4.5 transition-all duration-200", open ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-45 scale-50")} />
+            <LucideMenu
+              className={cn(
+                "absolute size-4.5 transition-all duration-200",
+                open
+                  ? "opacity-0 rotate-45 scale-50"
+                  : "opacity-100 rotate-0 scale-100",
+              )}
+            />
+            <LucideX
+              className={cn(
+                "absolute size-4.5 transition-all duration-200",
+                open
+                  ? "opacity-100 rotate-0 scale-100"
+                  : "opacity-0 -rotate-45 scale-50",
+              )}
+            />
           </button>
         </div>
       </nav>
@@ -209,7 +260,10 @@ export default function LandingNav() {
 
           <div className="pt-3 mt-1 border-t border-border/50 flex flex-col gap-2">
             <Link href="/login" onClick={() => setOpen(false)}>
-              <Button variant="outline" className="w-full rounded-full font-medium">
+              <Button
+                variant="outline"
+                className="w-full rounded-full font-medium"
+              >
                 {t.signIn}
               </Button>
             </Link>
