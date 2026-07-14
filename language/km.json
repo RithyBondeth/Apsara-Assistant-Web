@@ -11,12 +11,23 @@
     "heading2": "ទុក",
     "heading3": "ជួយ",
     "heading4": "អតិថិជនរបស់អ្នក",
-    "description": "ជំនួយការហាងដំណើរការដោយ AI ដែលយល់ភាសា ខ្មែរ អង់គ្លេស និងខ្មែររ៉ូម៉ាំង — ឆ្លើយតបអតិថិជនគ្រប់ម៉ោង ២៤/៧ តាម Facebook, Telegram, TikTok និងគេហទំព័ររបស់អ្នក",
+    "description": "ជំនួយការហាងដំណើរការដោយ AI ដែលយល់ភាសា ខ្មែរ អង់គ្លេស និងខ្មែររ៉ូម៉ាំង — ឆ្លើយតបអតិថិជនគ្រប់ម៉ោង ២៤/៧ តាម Messenger, Telegram, Instagram និងគេហទំព័ររបស់អ្នក",
     "startFree": "ចាប់ផ្តើមឥតគិតថ្លៃ",
     "signIn": "ចូលប្រើប្រាស់",
     "statSellers": "អ្នកលក់",
     "statMessages": "សារដែលបានដោះស្រាយ",
-    "statLanguages": "ភាសា"
+    "statLanguages": "ភាសា",
+    "floatQ": "bong thlai ponman?",
+    "floatA": "$12! ដឹកជញ្ជូនឥតគិតថ្លៃក្នុងភ្នំពេញ 🚚",
+    "floatOrder": "ការកម្ម៉ង់ថ្មីត្រូវបានបញ្ជាក់ ✅",
+    "floatOnline": "ឆ្លើយតប ២៤/៧"
+  },
+  "marquee": {
+    "label": "ឆ្លើយតបអតិថិជនរបស់អ្នកគ្រប់បណ្តាញ",
+    "telegram": "Telegram",
+    "messenger": "Messenger",
+    "instagram": "Instagram",
+    "website": "គេហទំព័រ"
   },
   "features": {
     "sectionLabel": "មុខងារ",

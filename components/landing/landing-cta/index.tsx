@@ -30,7 +30,7 @@ export default function LandingCta() {
           className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 !leading-[1.15] [perspective:800px]"
         >
           {t.heading1}{" "}
-          <span className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+          <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
             {t.heading2}
           </span>
           ?

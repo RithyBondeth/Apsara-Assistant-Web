@@ -11,12 +11,23 @@
     "heading2": "Answer less. Let",
     "heading3": "handle your",
     "heading4": "customers.",
-    "description": "Your AI-powered shop assistant that understands Khmer, English, and romanized Khmer — replying to customers 24/7 on Facebook, Telegram, TikTok, and your website.",
+    "description": "Your AI-powered shop assistant that understands Khmer, English, and romanized Khmer — replying to customers 24/7 on Messenger, Telegram, Instagram, and your website.",
     "startFree": "Start free",
     "signIn": "Sign in",
     "statSellers": "Sellers",
     "statMessages": "Messages handled",
-    "statLanguages": "Languages"
+    "statLanguages": "Languages",
+    "floatQ": "bong thlai ponman?",
+    "floatA": "$12 — free delivery in Phnom Penh 🚚",
+    "floatOrder": "New order confirmed ✅",
+    "floatOnline": "Replying 24/7"
+  },
+  "marquee": {
+    "label": "Answers your customers on every channel",
+    "telegram": "Telegram",
+    "messenger": "Messenger",
+    "instagram": "Instagram",
+    "website": "Website widget"
   },
   "features": {
     "sectionLabel": "Features",

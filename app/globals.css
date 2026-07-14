@@ -198,6 +198,19 @@ html.lenis, html.lenis body {
   to { --aurora-angle: 360deg; }
 }
 
+/* Gradient colors flow through bg-clip-text headings */
+@keyframes text-shimmer-sweep {
+  0%, 100% { background-position: 0% center; }
+  50%      { background-position: 100% center; }
+}
+
+/* Track holds its content twice; translating by exactly half its own width
+   makes the loop point invisible. */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 @layer utilities {
   .bg-dots {
     background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
@@ -253,6 +266,27 @@ html.lenis, html.lenis body {
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
+  /* Slow living sweep for gradient headings (pair with any Tailwind
+     text gradient + bg-clip-text). */
+  .text-shimmer {
+    background-size: 200% auto;
+    animation: text-shimmer-sweep 4s ease-in-out infinite;
+  }
+
+  /* Seamless infinite marquee: masked wrapper + double-rendered flex track. */
+  .marquee {
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 30s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
   .stagger-list > * {
     animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }

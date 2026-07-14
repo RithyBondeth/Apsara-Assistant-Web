@@ -1,7 +1,7 @@
 "use client";
 
 import { LucideSparkles } from "lucide-react";
-import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
+import { useGsapChatScene, useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
 
 /**
@@ -12,13 +12,21 @@ import { useT } from "@/hooks/utils/use-translations";
 function ChatThread({
   t,
   compact = false,
+  startOrder = 1,
 }: {
   t: ReturnType<typeof useT<"devices">>;
   compact?: boolean;
+  /** First data-chat-bubble index for this thread (scene scrub order). */
+  startOrder?: number;
 }) {
+  let order = startOrder;
   return (
-    <div className={compact ? "flex flex-col gap-2 p-3" : "flex flex-col gap-3 p-5 sm:p-6"}>
-      <div className="flex justify-start">
+    <div
+      className={
+        compact ? "flex flex-col gap-2 p-3" : "flex flex-col gap-3 p-5 sm:p-6"
+      }
+    >
+      <div data-chat-bubble={order++} className="flex justify-start opacity-0">
         <div
           className={
             compact
@@ -29,7 +37,7 @@ function ChatThread({
           {t.customerMsg1}
         </div>
       </div>
-      <div className="flex justify-end">
+      <div data-chat-bubble={order++} className="flex justify-end opacity-0">
         <div
           className={
             compact
@@ -40,7 +48,7 @@ function ChatThread({
           {t.aiMsg1}
         </div>
       </div>
-      <div className="flex justify-start">
+      <div data-chat-bubble={order++} className="flex justify-start opacity-0">
         <div
           className={
             compact
@@ -52,14 +60,14 @@ function ChatThread({
         </div>
       </div>
       {!compact && (
-        <div className="flex justify-end">
+        <div data-chat-bubble={order++} className="flex justify-end opacity-0">
           <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
             {t.aiMsg2}
           </div>
         </div>
       )}
       {/* Typing indicator */}
-      <div className="flex justify-end">
+      <div data-chat-bubble={order++} className="flex justify-end opacity-0">
         <div
           className={
             compact
@@ -102,13 +110,26 @@ function ChatHeader({
             : "flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500"
         }
       >
-        <LucideSparkles className={compact ? "size-3 text-white" : "size-4.5 text-white"} strokeWidth={2} />
+        <LucideSparkles
+          className={compact ? "size-3 text-white" : "size-4.5 text-white"}
+          strokeWidth={2}
+        />
       </div>
       <div className="flex flex-col leading-tight">
-        <span className={compact ? "text-[11px] font-semibold" : "text-sm font-semibold"}>
+        <span
+          className={
+            compact ? "text-[11px] font-semibold" : "text-sm font-semibold"
+          }
+        >
           {t.assistantName}
         </span>
-        <span className={compact ? "flex items-center gap-1 text-[9px] text-muted-foreground" : "flex items-center gap-1.5 text-xs text-muted-foreground"}>
+        <span
+          className={
+            compact
+              ? "flex items-center gap-1 text-[9px] text-muted-foreground"
+              : "flex items-center gap-1.5 text-xs text-muted-foreground"
+          }
+        >
           <span className="size-1.5 rounded-full bg-emerald-500" />
           {t.statusOnline}
         </span>
@@ -119,10 +140,15 @@ function ChatHeader({
 
 export default function LandingDevices() {
   const sectionRef = useGsapScrollAnimation<HTMLElement>();
+  const stageRef = useGsapChatScene<HTMLDivElement>();
   const t = useT("devices");
 
   return (
-    <section id="devices" ref={sectionRef} className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
+    <section
+      id="devices"
+      ref={sectionRef}
+      className="relative py-16 sm:py-24 md:py-32 overflow-hidden"
+    >
       {/* Dotted background + ambient glow */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
       <div className="pointer-events-none absolute inset-0">
@@ -147,18 +173,23 @@ export default function LandingDevices() {
               {t.heading2}
             </span>
           </h2>
-          <p data-gsap="fade-up" className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+          <p
+            data-gsap="fade-up"
+            className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto"
+          >
             {t.description}
           </p>
         </div>
 
-        {/* Device mockups */}
+        {/* Device mockups — pinned scroll-scrubbed scene (desktop):
+            devices settle in, then the conversation plays bubble-by-bubble
+            as the visitor scrolls. Owned by useGsapChatScene. */}
         <div
-          data-gsap="scale-up"
-          className="relative mx-auto w-full max-w-2xl pb-14 sm:pb-20"
+          ref={stageRef}
+          className="relative mx-auto w-full max-w-2xl pb-14 sm:pb-20 [perspective:1200px]"
         >
           {/* ── Laptop ─────────────────────────────────────────── */}
-          <div className="relative">
+          <div data-scene="laptop" className="relative opacity-0">
             <div className="rounded-t-xl sm:rounded-t-2xl bg-neutral-900 p-2 sm:p-3 shadow-2xl shadow-blue-500/10">
               <div className="overflow-hidden rounded-md sm:rounded-lg bg-card">
                 {/* Browser bar */}
@@ -169,7 +200,7 @@ export default function LandingDevices() {
                 </div>
                 <ChatHeader t={t} />
                 <div className="min-h-[220px] sm:min-h-[260px]">
-                  <ChatThread t={t} />
+                  <ChatThread t={t} startOrder={1} />
                 </div>
               </div>
             </div>
@@ -179,15 +210,20 @@ export default function LandingDevices() {
           </div>
 
           {/* ── Phone (overlapping, bottom-right) ─────────────── */}
-          <div className="animate-float absolute -bottom-8 -right-2 w-[38%] rotate-6 sm:-right-8 sm:w-[34%] sm:rotate-3">
-            <div className="rounded-[1.6rem] bg-neutral-900 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-black/10 sm:rounded-[2rem] sm:p-2">
-              <div className="overflow-hidden rounded-[1.2rem] bg-card sm:rounded-[1.6rem]">
-                {/* Notch */}
-                <div className="flex justify-center py-1.5">
-                  <div className="h-1 w-8 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+          <div
+            data-scene="phone"
+            className="absolute -bottom-8 -right-2 w-[38%] sm:-right-8 sm:w-[34%] opacity-0"
+          >
+            <div className="animate-float rotate-6 sm:rotate-3">
+              <div className="rounded-[1.6rem] bg-neutral-900 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-black/10 sm:rounded-[2rem] sm:p-2">
+                <div className="overflow-hidden rounded-[1.2rem] bg-card sm:rounded-[1.6rem]">
+                  {/* Notch */}
+                  <div className="flex justify-center py-1.5">
+                    <div className="h-1 w-8 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                  </div>
+                  <ChatHeader t={t} compact />
+                  <ChatThread t={t} compact startOrder={6} />
                 </div>
-                <ChatHeader t={t} compact />
-                <ChatThread t={t} compact />
               </div>
             </div>
           </div>

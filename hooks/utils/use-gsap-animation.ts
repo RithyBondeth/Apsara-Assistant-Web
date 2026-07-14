@@ -9,7 +9,27 @@ gsap.registerPlugin(ScrollTrigger);
 /* ───────────────────────────���─────────────────────────────────────────────────
    Helper — splits an element's text into individual word <span>s while
    preserving child elements (gradient spans, etc.) intact.
+
+   Words made purely of Latin/ASCII characters are further split into
+   per-character spans for a finer-grained cascade. Khmer (and any other
+   complex script) is deliberately kept at word/phrase level: wrapping each
+   Khmer character in its own element breaks script shaping — subscript
+   consonants and dependent vowels no longer combine.
 ───────────────────────────────────────────────────────────────────────────── */
+const ASCII_WORD = /^[\x20-\x7E]+$/;
+
+function splitWordIntoChars(word: HTMLElement) {
+  const text = word.textContent ?? "";
+  word.innerHTML = "";
+  for (const char of text) {
+    const span = document.createElement("span");
+    span.className = "gsap-char";
+    span.style.display = "inline-block";
+    span.textContent = char;
+    word.appendChild(span);
+  }
+}
+
 function splitTextIntoWords(el: HTMLElement) {
   const nodes = Array.from(el.childNodes);
   el.innerHTML = "";
@@ -25,6 +45,7 @@ function splitTextIntoWords(el: HTMLElement) {
           span.className = "gsap-word";
           span.style.display = "inline-block";
           span.textContent = word;
+          if (ASCII_WORD.test(word)) splitWordIntoChars(span);
           el.appendChild(span);
         }
       });
@@ -35,6 +56,18 @@ function splitTextIntoWords(el: HTMLElement) {
       el.appendChild(element);
     }
   });
+}
+
+/** The individually-animatable pieces of a split heading: chars where a word
+    was char-split, otherwise the whole word span. */
+function getSplitUnits(el: HTMLElement): HTMLElement[] {
+  const units: HTMLElement[] = [];
+  el.querySelectorAll<HTMLElement>(".gsap-word").forEach((word) => {
+    const chars = word.querySelectorAll<HTMLElement>(".gsap-char");
+    if (chars.length) units.push(...Array.from(chars));
+    else units.push(word);
+  });
+  return units;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -66,8 +99,10 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
 
         gsap.utils.toArray<HTMLElement>("[data-gsap='split-words']").forEach((el) => {
           splitTextIntoWords(el);
-          gsap.set(el.querySelectorAll(".gsap-word"), { opacity: 1, y: 0, rotateX: 0 });
+          gsap.set(getSplitUnits(el), { opacity: 1, y: 0, rotateX: 0, filter: "none" });
         });
+
+        gsap.set("[data-drift]", { clearProps: "all" });
 
         gsap.utils.toArray<HTMLElement>("[data-gsap='stagger-children']").forEach((el) => {
           gsap.set(el.children, { opacity: 1, y: 0 });
@@ -178,21 +213,24 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
         );
       });
 
-      // split-words — animate each word with a 3-D flip-in
+      // split-words — chars (Latin) / phrases (Khmer) flip in with a soft
+      // motion-blur feel as they land
       gsap.utils.toArray<HTMLElement>("[data-gsap='split-words']").forEach((el) => {
         splitTextIntoWords(el);
-        const words = el.querySelectorAll(".gsap-word");
+        const units = getSplitUnits(el);
 
         gsap.fromTo(
-          words,
-          { opacity: 0, y: 20, rotateX: -40 },
+          units,
+          { opacity: 0, y: 26, rotateX: -55, filter: "blur(6px)" },
           {
             opacity: 1,
             y: 0,
             rotateX: 0,
-            duration: 0.6,
-            stagger: 0.04,
+            filter: "blur(0px)",
+            duration: 0.7,
+            stagger: { each: 0.018, from: "start" },
             ease: "power3.out",
+            clearProps: "filter",
             scrollTrigger: {
               trigger: el,
               start: "top 88%",
@@ -200,6 +238,22 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
             },
           },
         );
+      });
+
+      // drift — never-ending ambient wander for background orbs. Uses
+      // xPercent/yPercent so it composes with the mouse-parallax x/y instead
+      // of fighting it. `data-drift` optionally sets intensity (default 1).
+      gsap.utils.toArray<HTMLElement>("[data-drift]").forEach((el, i) => {
+        const intensity = parseFloat(el.dataset.drift || "1") || 1;
+        gsap.to(el, {
+          xPercent: (i % 2 ? -1 : 1) * 8 * intensity,
+          yPercent: (i % 2 ? 1 : -1) * 10 * intensity,
+          scale: 1 + 0.08 * intensity,
+          duration: 7 + i * 1.7,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        });
       });
 
       // draw-line — an SVG line/path that draws itself in as the page
@@ -271,8 +325,8 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
     mm.add("(prefers-reduced-motion: reduce)", () => {
       const ctx = gsap.context(() => {
         gsap.set(
-          "[data-hero='badge'], [data-hero='heading'], [data-hero='description'], [data-hero='cta'], [data-hero='scroll']",
-          { opacity: 1, y: 0, scale: 1 },
+          "[data-hero='badge'], [data-hero='heading'], [data-hero='description'], [data-hero='cta'], [data-hero='scroll'], [data-hero='float-card']",
+          { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 },
         );
       }, containerRef);
 
@@ -298,7 +352,7 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
 
       if (headingEl) {
         splitTextIntoWords(headingEl);
-        const words = headingEl.querySelectorAll(".gsap-word");
+        const units = getSplitUnits(headingEl);
 
         tl.fromTo(
           headingEl,
@@ -308,15 +362,17 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
         );
 
         tl.fromTo(
-          words,
-          { opacity: 0, y: 30, rotateX: -50 },
+          units,
+          { opacity: 0, y: 34, rotateX: -70, filter: "blur(8px)" },
           {
             opacity: 1,
             y: 0,
             rotateX: 0,
-            duration: 0.5,
-            stagger: 0.04,
-            ease: "back.out(1.2)",
+            filter: "blur(0px)",
+            duration: 0.7,
+            stagger: { each: 0.02, from: "start" },
+            ease: "back.out(1.4)",
+            clearProps: "filter",
           },
           0.35,
         );
@@ -345,6 +401,60 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
         { opacity: 1, duration: 0.5 },
         1.25,
       );
+
+      // floating chat cards — pop in around the heading, then wander forever.
+      // The infinite drift animates xPercent/yPercent/rotate so it composes
+      // with the mouse-parallax x/y applied to the same elements.
+      gsap.utils
+        .toArray<HTMLElement>("[data-hero='float-card']")
+        .forEach((card, i) => {
+          tl.fromTo(
+            card,
+            {
+              opacity: 0,
+              scale: 0.6,
+              y: 40,
+              rotate: i % 2 ? 10 : -10,
+              filter: "blur(6px)",
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              rotate: 0,
+              filter: "blur(0px)",
+              duration: 0.9,
+              ease: "back.out(1.6)",
+              clearProps: "filter",
+            },
+            0.9 + i * 0.12,
+          );
+
+          gsap.to(card, {
+            yPercent: i % 2 ? 7 : -7,
+            xPercent: i % 2 ? -3 : 3,
+            rotate: i % 2 ? -2.5 : 2.5,
+            duration: 4.5 + i * 0.8,
+            ease: "sine.inOut",
+            repeat: -1,
+            yoyo: true,
+            delay: 1.8 + i * 0.12,
+          });
+        });
+
+      // ambient background orbs — same drift treatment as the scroll hook
+      gsap.utils.toArray<HTMLElement>("[data-drift]").forEach((el, i) => {
+        const intensity = parseFloat(el.dataset.drift || "1") || 1;
+        gsap.to(el, {
+          xPercent: (i % 2 ? -1 : 1) * 8 * intensity,
+          yPercent: (i % 2 ? 1 : -1) * 10 * intensity,
+          scale: 1 + 0.08 * intensity,
+          duration: 7 + i * 1.7,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        });
+      });
       }, containerRef);
 
       return () => ctx.revert();
@@ -354,4 +464,133 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
   }, []);
 
   return containerRef;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   useGsapChatScene
+   The devices showpiece: on desktop the mockup stage pins to the viewport
+   while scrolling scrubs a timeline — the laptop settles in, chat bubbles
+   pop up one-by-one across laptop and phone, and the phone slides in last.
+
+   On touch/small screens (where pinning fights the browser chrome) it falls
+   back to a non-pinned, play-once cascade. Reduced motion lands everything
+   at its final state.
+
+   Annotate: the stage wrapper is the hook ref; bubbles get
+   `data-chat-bubble`, the phone frame `data-scene="phone"`, the laptop
+   `data-scene="laptop"`.
+───────────────────────────────────────────────────────────────────────────── */
+export function useGsapChatScene<T extends HTMLElement>() {
+  const stageRef = useRef<T>(null);
+
+  useEffect(() => {
+    if (!stageRef.current) return;
+
+    const mm = gsap.matchMedia();
+
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      const ctx = gsap.context(() => {
+        gsap.set("[data-scene], [data-chat-bubble]", {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+        });
+      }, stageRef);
+      return () => ctx.revert();
+    });
+
+    const buildTimeline = (tl: gsap.core.Timeline) => {
+      tl.fromTo(
+        "[data-scene='laptop']",
+        { opacity: 0, y: 90, rotateX: 18, scale: 0.92 },
+        { opacity: 1, y: 0, rotateX: 0, scale: 1, duration: 1, ease: "power3.out" },
+        0,
+      );
+      tl.fromTo(
+        "[data-scene='phone']",
+        { opacity: 0, y: 120, x: 40, rotate: 14 },
+        { opacity: 1, y: 0, x: 0, rotate: 0, duration: 1, ease: "back.out(1.4)" },
+        0.45,
+      );
+      gsap.utils
+        .toArray<HTMLElement>("[data-chat-bubble]")
+        .sort(
+          (a, b) =>
+            parseInt(a.dataset.chatBubble || "0", 10) -
+            parseInt(b.dataset.chatBubble || "0", 10),
+        )
+        .forEach((bubble, i) => {
+          tl.fromTo(
+            bubble,
+            { opacity: 0, scale: 0.55, y: 26, transformOrigin: "bottom center" },
+            { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(2)" },
+            1.05 + i * 0.42,
+          );
+        });
+      return tl;
+    };
+
+    // Desktop: pinned + scroll-scrubbed
+    mm.add(
+      "(prefers-reduced-motion: no-preference) and (min-width: 768px)",
+      () => {
+        const ctx = gsap.context(() => {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: stageRef.current,
+              start: "top 22%",
+              end: "+=1400",
+              pin: true,
+              scrub: 0.7,
+              anticipatePin: 1,
+            },
+          });
+          buildTimeline(tl);
+          // hold the finished scene briefly before unpinning
+          tl.to({}, { duration: 0.6 });
+
+          // TEMP DEBUG — remove before ship
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).__chatSceneDebug = () => {
+            const st = tl.scrollTrigger!;
+            return JSON.stringify({
+              start: st.start,
+              end: st.end,
+              progress: +st.progress.toFixed(3),
+              isActive: st.isActive,
+              scrollerIsWindow: st.scroller === window,
+              tlDuration: +tl.duration().toFixed(2),
+              tlProgress: +tl.progress().toFixed(3),
+              scrollY: Math.round(window.scrollY),
+              stScroll: Math.round(st.scroll()),
+            });
+          };
+        }, stageRef);
+        return () => ctx.revert();
+      },
+    );
+
+    // Mobile: play-once cascade, no pin
+    mm.add(
+      "(prefers-reduced-motion: no-preference) and (max-width: 767px)",
+      () => {
+        const ctx = gsap.context(() => {
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: stageRef.current,
+              start: "top 78%",
+              toggleActions: "play none none none",
+            },
+          });
+          buildTimeline(tl.timeScale(1.35));
+        }, stageRef);
+        return () => ctx.revert();
+      },
+    );
+
+    return () => mm.revert();
+  }, []);
+
+  return stageRef;
 }
