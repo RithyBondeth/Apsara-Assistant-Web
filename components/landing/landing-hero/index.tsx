@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LucideArrowRight, LucideCheck, LucideChevronDown, LucideSparkles } from "lucide-react";
+import { BrandMark } from "@/components/landing/brand-logo";
 import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useMagneticHover, useMouseParallax } from "@/hooks/utils/use-gsap-interactions";
 import { useT } from "@/hooks/utils/use-translations";
@@ -166,6 +167,54 @@ export default function LandingHero() {
                   {t.signIn}
                 </Button>
               </Link>
+            </div>
+          </div>
+
+          {/* ── Mobile/tablet chat preview ──────────────────────────
+              The floating cards above are desktop-only (they'd collide
+              with the centred heading on small screens), so surface the
+              same "Apsara in action" demo inline for < lg viewports. */}
+          <div
+            data-hero="preview"
+            className="mt-4 w-full max-w-sm opacity-0 lg:hidden"
+          >
+            <div className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-xl shadow-blue-500/10 backdrop-blur-md">
+              {/* Header — assistant identity + live status */}
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BrandMark className="size-7" imgClassName="h-5" />
+                  <span className="text-sm font-semibold">Apsara</span>
+                </div>
+                <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                  </span>
+                  {t.floatOnline}
+                </span>
+              </div>
+
+              {/* Conversation */}
+              <div className="flex flex-col gap-2 text-left">
+                <div className="flex justify-start">
+                  <div className="max-w-[80%] rounded-2xl rounded-bl-sm border border-border/60 bg-background/80 px-3.5 py-2 text-sm">
+                    {t.floatQ}
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-3.5 py-2 text-sm text-white shadow-md shadow-blue-500/20">
+                    {t.floatA}
+                  </div>
+                </div>
+              </div>
+
+              {/* Order confirmed toast */}
+              <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm font-medium">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600">
+                  <LucideCheck className="size-3.5" strokeWidth={2.5} />
+                </span>
+                {t.floatOrder}
+              </div>
             </div>
           </div>
         </div>

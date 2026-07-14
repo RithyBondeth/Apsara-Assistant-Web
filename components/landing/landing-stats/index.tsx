@@ -18,9 +18,12 @@ export default function LandingStats() {
     <section ref={sectionRef} className="relative border-y border-border/60 bg-card/30 py-10 sm:py-14">
       <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-dots" />
 
-      <div className="stagger-list relative z-10 mx-auto grid max-w-4xl grid-cols-1 gap-8 px-4 sm:grid-cols-3 sm:gap-6 sm:px-6">
+      {/* Mobile: a w-fit column so every row shares one left edge — icons and
+          numbers line up vertically and the block stays centred. sm+: the
+          original 3-up grid of centred, stacked stats. */}
+      <div className="stagger-list relative z-10 mx-auto flex w-fit max-w-4xl flex-col gap-8 px-4 sm:grid sm:w-auto sm:grid-cols-3 sm:gap-6 sm:px-6">
         {STATS.map((stat) => (
-          <div key={stat.label} className="flex items-center justify-center gap-4 sm:flex-col sm:gap-2 sm:text-center">
+          <div key={stat.label} className="flex w-full items-center gap-4 sm:w-auto sm:flex-col sm:items-center sm:gap-2 sm:text-center">
             <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 sm:mb-1">
               <stat.icon className="size-5" strokeWidth={1.8} />
             </div>

@@ -53,3 +53,33 @@ export function BrandLogo({
     </span>
   );
 }
+
+/**
+ * Just the logo mark inside a circular chip — used as the assistant avatar in
+ * chat mockups. Rendered on a white fill so the colored illustration reads on
+ * dark surfaces, matching the app icon / OG image treatment.
+ */
+export function BrandMark({
+  className,
+  imgClassName,
+}: {
+  className?: string;
+  imgClassName?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-1 ring-black/5",
+        className,
+      )}
+    >
+      <Image
+        src="/logo.svg"
+        alt=""
+        width={28}
+        height={42}
+        className={cn("w-auto", imgClassName)}
+      />
+    </span>
+  );
+}

@@ -11,21 +11,24 @@ export default async function AppleIcon() {
   const height = 120;
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#ffffff",
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logo} height={height} width={logoWidthForHeight(height)} alt="" />
-      </div>
-    ),
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#ffffff",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={logo}
+        height={height}
+        width={logoWidthForHeight(height)}
+        alt=""
+      />
+    </div>,
     { ...size },
   );
 }

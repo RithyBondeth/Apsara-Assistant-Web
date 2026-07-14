@@ -325,7 +325,7 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
     mm.add("(prefers-reduced-motion: reduce)", () => {
       const ctx = gsap.context(() => {
         gsap.set(
-          "[data-hero='badge'], [data-hero='heading'], [data-hero='description'], [data-hero='cta'], [data-hero='scroll'], [data-hero='float-card']",
+          "[data-hero='badge'], [data-hero='heading'], [data-hero='description'], [data-hero='cta'], [data-hero='scroll'], [data-hero='float-card'], [data-hero='preview']",
           { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 },
         );
       }, containerRef);
@@ -392,6 +392,15 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
         { opacity: 0, y: 25 },
         { opacity: 1, y: 0, duration: 0.7 },
         1.05,
+      );
+
+      // mobile/tablet inline chat preview (stands in for the desktop-only
+      // floating cards on < lg screens) — plain fade-up, no drift
+      tl.fromTo(
+        "[data-hero='preview']",
+        { opacity: 0, y: 30, scale: 0.96 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.4)" },
+        1.15,
       );
 
       // scroll indicator

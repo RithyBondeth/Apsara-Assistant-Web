@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideSparkles } from "lucide-react";
+import { BrandMark } from "@/components/landing/brand-logo";
 import { useGsapChatScene, useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
 
@@ -103,18 +103,10 @@ function ChatHeader({
           : "flex items-center gap-3 border-b border-border/60 px-5 py-3"
       }
     >
-      <div
-        className={
-          compact
-            ? "flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500"
-            : "flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-blue-500"
-        }
-      >
-        <LucideSparkles
-          className={compact ? "size-3 text-white" : "size-4.5 text-white"}
-          strokeWidth={2}
-        />
-      </div>
+      <BrandMark
+        className={compact ? "size-6" : "size-9"}
+        imgClassName={compact ? "h-4" : "h-6"}
+      />
       <div className="flex flex-col leading-tight">
         <span
           className={
@@ -209,12 +201,16 @@ export default function LandingDevices() {
             <div className="mx-auto -mt-px h-1.5 sm:h-2 w-1/3 rounded-b-2xl bg-neutral-900/80" />
           </div>
 
-          {/* ── Phone (overlapping, bottom-right) ─────────────── */}
+          {/* ── Phone ───────────────────────────────────────────
+              Mobile: stacked below the laptop, centred and within the
+              section padding (overlapping + hanging off-screen looked
+              cramped on small screens). sm+: overlaps the laptop's
+              bottom-right corner as a layered showpiece. */}
           <div
             data-scene="phone"
-            className="absolute -bottom-8 -right-2 w-[38%] sm:-right-8 sm:w-[34%] opacity-0"
+            className="relative mx-auto mt-8 w-3/5 max-w-[210px] opacity-0 sm:absolute sm:-bottom-8 sm:-right-8 sm:mx-0 sm:mt-0 sm:w-[34%]"
           >
-            <div className="animate-float rotate-6 sm:rotate-3">
+            <div className="animate-float rotate-0 sm:rotate-3">
               <div className="rounded-[1.6rem] bg-neutral-900 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-black/10 sm:rounded-[2rem] sm:p-2">
                 <div className="overflow-hidden rounded-[1.2rem] bg-card sm:rounded-[1.6rem]">
                   {/* Notch */}
