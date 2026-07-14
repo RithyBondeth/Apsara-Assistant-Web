@@ -1,14 +1,19 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+/* Brand kit lives in public/brand/ (generated — mark, horizontal lockups in
+   light/dark, mono silhouettes, and PNG exports for external use). */
+const LOCKUP = { width: 598, height: 128 };
+
 const SIZES = {
-  sm: { logo: "h-7", apsara: "text-sm", assistant: "text-sm" },
-  md: { logo: "h-9", apsara: "text-base", assistant: "text-base" },
+  sm: "h-7",
+  md: "h-9",
 } as const;
 
 /**
- * Shared brand lockup (logo mark + "Apsara Assistant" wordmark) used by both
- * the landing header and footer so they stay visually identical.
+ * The full horizontal logo lockup (crowned-bubble mark + "Apsara Assistant"
+ * wordmark) used by the landing header, footer, and auth pages. Ships as two
+ * pre-rendered SVGs — one per theme — swapped with the `dark:` variant.
  */
 export function BrandLogo({
   size = "md",
@@ -20,44 +25,32 @@ export function BrandLogo({
   priority?: boolean;
   className?: string;
 }) {
-  const s = SIZES[size];
+  const h = SIZES[size];
 
   return (
-    <span className={cn("flex items-center gap-2.5", className)}>
+    <span className={cn("flex items-center", className)}>
       <Image
-        src="/logo.svg"
+        src="/brand/apsara-logo-light.svg"
         alt="Apsara Assistant"
-        width={28}
-        height={42}
-        className={cn("w-auto", s.logo)}
+        {...LOCKUP}
         priority={priority}
+        className={cn("w-auto dark:hidden", h)}
       />
-      <span className="flex items-baseline gap-1.5 leading-none">
-        <span
-          className={cn(
-            "font-bold tracking-tight text-foreground",
-            s.apsara,
-          )}
-        >
-          Apsara
-        </span>
-        <span
-          className={cn(
-            "font-semibold tracking-tight text-blue-600 dark:text-blue-400",
-            s.assistant,
-          )}
-        >
-          Assistant
-        </span>
-      </span>
+      <Image
+        src="/brand/apsara-logo-dark.svg"
+        alt="Apsara Assistant"
+        {...LOCKUP}
+        priority={priority}
+        className={cn("hidden w-auto dark:block", h)}
+      />
     </span>
   );
 }
 
 /**
- * Just the logo mark inside a circular chip — used as the assistant avatar in
- * chat mockups. Rendered on a white fill so the colored illustration reads on
- * dark surfaces, matching the app icon / OG image treatment.
+ * Just the brand mark (chat bubble wearing an Apsara crown) inside a circular
+ * chip — used as the assistant avatar in chat mockups. The white fill keeps
+ * the mark legible on any surface, matching the app-icon treatment.
  */
 export function BrandMark({
   className,
@@ -74,10 +67,10 @@ export function BrandMark({
       )}
     >
       <Image
-        src="/logo.svg"
+        src="/brand/apsara-mark.svg"
         alt=""
-        width={28}
-        height={42}
+        width={128}
+        height={128}
         className={cn("w-auto", imgClassName)}
       />
     </span>

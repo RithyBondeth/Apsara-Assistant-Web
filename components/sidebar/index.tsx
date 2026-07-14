@@ -15,9 +15,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BrandLogo } from "@/components/landing/brand-logo";
 import { SIDEBAR_NAV, SIDEBAR_BOTTOM_NAV } from "@/utils/constants/sidebar.constant";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { cn } from "@/lib/utils";
@@ -33,16 +33,17 @@ export default function AppSidebar({ className }: ISidebarProps) {
     <Sidebar collapsible="icon" className={cn(className)}>
       {/* ── Brand */}
       <SidebarHeader className="px-4 py-4">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/logo.svg"
-            alt="Apsara logo"
-            width={24}
-            height={36}
-            className="h-8 w-auto shrink-0"
-          />
-          {!collapsed && (
-            <span className="font-semibold text-foreground">Apsara</span>
+        <div className="flex items-center">
+          {collapsed ? (
+            <Image
+              src="/brand/apsara-mark.svg"
+              alt="Apsara Assistant"
+              width={128}
+              height={128}
+              className="size-7 shrink-0"
+            />
+          ) : (
+            <BrandLogo size="sm" />
           )}
         </div>
       </SidebarHeader>

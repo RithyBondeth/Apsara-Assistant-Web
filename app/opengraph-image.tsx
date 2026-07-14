@@ -10,7 +10,8 @@ export const contentType = "image/png";
 
 export default async function OpengraphImage() {
   const logo = await getLogoDataUri();
-  const logoHeight = 380;
+  // Square brand mark — sized so the title never clips the 1200px canvas.
+  const logoHeight = 300;
 
   return new ImageResponse(
     (
@@ -25,7 +26,6 @@ export default async function OpengraphImage() {
           background: "linear-gradient(135deg, #eff6ff 0%, #ffffff 58%)",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logo}
           height={logoHeight}

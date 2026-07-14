@@ -30,7 +30,7 @@ function splitWordIntoChars(word: HTMLElement) {
   }
 }
 
-function splitTextIntoWords(el: HTMLElement) {
+export function splitTextIntoWords(el: HTMLElement) {
   const nodes = Array.from(el.childNodes);
   el.innerHTML = "";
 
@@ -60,7 +60,7 @@ function splitTextIntoWords(el: HTMLElement) {
 
 /** The individually-animatable pieces of a split heading: chars where a word
     was char-split, otherwise the whole word span. */
-function getSplitUnits(el: HTMLElement): HTMLElement[] {
+export function getSplitUnits(el: HTMLElement): HTMLElement[] {
   const units: HTMLElement[] = [];
   el.querySelectorAll<HTMLElement>(".gsap-word").forEach((word) => {
     const chars = word.querySelectorAll<HTMLElement>(".gsap-char");
