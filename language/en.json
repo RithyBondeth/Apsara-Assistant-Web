@@ -36,6 +36,19 @@
     "f6Title": "Analytics Dashboard",
     "f6Desc": "See your total products, active customers, open conversations, and orders at a glance. Know your business in seconds."
   },
+  "devices": {
+    "sectionLabel": "Works On Every Screen",
+    "heading1": "One assistant,",
+    "heading2": "every device",
+    "description": "Whether your customer messages from a laptop or fires off a quick question on their phone, Apsara replies instantly — in their language.",
+    "assistantName": "Apsara",
+    "statusOnline": "Online",
+    "customerMsg1": "bong thlai ponman?",
+    "aiMsg1": "$12! Free delivery in Phnom Penh 🚚",
+    "customerMsg2": "Have it in blue?",
+    "aiMsg2": "Yes, blue's in stock ✅ Want me to place the order?",
+    "typingLabel": "Apsara is typing"
+  },
   "showcase": {
     "sectionLabel": "See It In Action",
     "heading1": "See Apsara",
