@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/landing/brand-logo";
 import {
   LucideMenu,
   LucideX,
@@ -174,21 +174,12 @@ export default function LandingNav() {
 
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* ── Logo ─────────────────────────────────────────────── */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <Image
-            src="/logo.svg"
-            alt="Apsara"
-            width={28}
-            height={42}
-            className="h-9 w-auto"
-            priority
-          />
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold tracking-tight">Apsara</span>
-            <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">
-              Assistant
-            </span>
-          </div>
+        <Link
+          href="/"
+          aria-label="Apsara Assistant home"
+          className="shrink-0 rounded-full transition-opacity hover:opacity-80"
+        >
+          <BrandLogo priority />
         </Link>
 
         {/* ── Desktop centre links ──────────────────────────────── */}

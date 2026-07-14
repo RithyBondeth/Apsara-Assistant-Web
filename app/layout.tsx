@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Ubuntu, Kantumruy_Pro, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/utils/themes/theme-provider";
 import { LanguageProvider } from "@/components/utils/languages/language-provider";
+import {
+  baseOpenGraph,
+  baseTwitter,
+  siteDescription,
+  siteName,
+  siteUrl,
+} from "@/lib/metadata";
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -26,11 +33,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    template: "%s — Apsara Assistant",
-    default: "Apsara Assistant",
+    template: `%s — ${siteName}`,
+    default: siteName,
   },
-  description: "AI-powered sales assistant for Cambodian sellers. Understands Khmer, English, and romanized Khmer.",
+  applicationName: siteName,
+  description: siteDescription,
+  keywords: [
+    "Apsara Assistant",
+    "AI sales assistant",
+    "Cambodia",
+    "Khmer",
+    "romanized Khmer",
+    "sales chatbot",
+    "SME",
+    "customer messaging",
+  ],
+  authors: [{ name: siteName }],
+  creator: siteName,
+  publisher: siteName,
+  robots: { index: true, follow: true },
+  openGraph: {
+    ...baseOpenGraph,
+    url: "/",
+    title: siteName,
+    description: siteDescription,
+  },
+  twitter: {
+    ...baseTwitter,
+    title: siteName,
+    description: siteDescription,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export default async function RootLayout({

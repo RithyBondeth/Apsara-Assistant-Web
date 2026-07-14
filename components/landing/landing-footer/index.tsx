@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LucideSparkles } from "lucide-react";
+import { BrandLogo } from "@/components/landing/brand-logo";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
 
@@ -18,12 +18,9 @@ export default function LandingFooter() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-10">
           {/* Brand */}
           <div data-gsap="fade-up" className="flex flex-col gap-3 max-w-xs">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-sm shadow-blue-500/20">
-                <LucideSparkles className="size-4 text-white" />
-              </div>
-              <span className="font-bold text-base tracking-tight">Apsara Assistant</span>
-            </div>
+            <Link href="/" aria-label="Apsara Assistant home" className="w-fit">
+              <BrandLogo />
+            </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">{t.description}</p>
           </div>
 
