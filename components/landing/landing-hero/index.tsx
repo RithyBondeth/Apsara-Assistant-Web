@@ -1,27 +1,41 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LucideArrowRight, LucideChevronDown, LucideSparkles } from "lucide-react";
 import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
+import { useMagneticHover, useMouseParallax } from "@/hooks/utils/use-gsap-interactions";
 import { useT } from "@/hooks/utils/use-translations";
 import { useLanguage } from "@/components/utils/languages/language-context";
 
 export default function LandingHero() {
   const heroRef = useGsapHeroAnimation<HTMLElement>();
+  const parallaxRef = useMouseParallax<HTMLElement>(24);
+  const setSectionRef = useCallback(
+    (node: HTMLElement | null) => {
+      heroRef.current = node;
+      parallaxRef.current = node;
+    },
+    [heroRef, parallaxRef],
+  );
+
+  const startBtnRef = useMagneticHover<HTMLDivElement>();
+  const signInBtnRef = useMagneticHover<HTMLDivElement>();
+
   const t = useT("hero");
   const language = useLanguage();
 
   return (
     <section
-      ref={heroRef}
+      ref={setSectionRef}
       className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
     >
       {/* ── Ambient background ──────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[140px]" />
-        <div className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[160px]" />
-        <div className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-[140px]" />
+        <div data-parallax="1" className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[140px]" />
+        <div data-parallax="0.6" className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[160px]" />
+        <div data-parallax="0.8" className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-[140px]" />
         <div className="absolute inset-0 opacity-[0.04] bg-dots" />
       </div>
 
@@ -88,43 +102,28 @@ export default function LandingHero() {
             data-hero="cta"
             className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 w-full sm:w-auto opacity-0"
           >
-            <Link href="/register" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto rounded-full px-8 gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
-              >
-                {t.startFree}
-                <LucideArrowRight className="size-4" />
-              </Button>
-            </Link>
-            <Link href="/login" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto rounded-full px-8 border-blue-300/50 hover:bg-blue-50 hover:border-blue-400/50 transition-all"
-              >
-                {t.signIn}
-              </Button>
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div data-hero="stats" className="flex items-center gap-6 sm:gap-8 pt-2 opacity-0">
-            {[
-              { value: "500+", label: t.statSellers },
-              { value: "50K+", label: t.statMessages },
-              { value: "3",    label: t.statLanguages },
-            ].map((stat, i) => (
-              <div key={i} className="flex items-center gap-6 sm:gap-8">
-                {i > 0 && <div className="h-8 w-px bg-blue-300/30" />}
-                <div className="flex flex-col items-center">
-                  <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
-                    {stat.value}
-                  </span>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</span>
-                </div>
-              </div>
-            ))}
+            <div ref={startBtnRef} className="w-full sm:w-auto">
+              <Link href="/register" className="block w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto rounded-full px-8 gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                >
+                  {t.startFree}
+                  <LucideArrowRight className="size-4" />
+                </Button>
+              </Link>
+            </div>
+            <div ref={signInBtnRef} className="w-full sm:w-auto">
+              <Link href="/login" className="block w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto rounded-full px-8 border-blue-300/50 hover:bg-blue-50 hover:border-blue-400/50 transition-all"
+                >
+                  {t.signIn}
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 

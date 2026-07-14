@@ -61,9 +61,24 @@ export default function LandingHowItWorks() {
         >
           {STEPS.map((step, index) => (
             <div key={step.number} className="relative text-center md:text-left">
-              {/* Connector line (desktop only) */}
+              {/* Connector line (desktop only) — draws itself in on scroll */}
               {index < STEPS.length - 1 && (
-                <div className="hidden md:block absolute top-8 left-[60%] w-[calc(100%-20%)] h-px bg-gradient-to-r from-blue-400/40 to-blue-400/10" />
+                <svg
+                  className="hidden md:block absolute top-8 left-[60%] h-[2px] w-[calc(100%-20%)] overflow-visible"
+                  viewBox="0 0 100 2"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <line
+                    data-gsap="draw-line"
+                    x1="0"
+                    y1="1"
+                    x2="100"
+                    y2="1"
+                    className="stroke-blue-400/40"
+                    strokeWidth="2"
+                  />
+                </svg>
               )}
 
               {/* Step number */}

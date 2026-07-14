@@ -7,9 +7,36 @@ import {
   LucideBell,
   LucideClipboardList,
   LucideBarChart3,
+  type LucideIcon,
 } from "lucide-react";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
+import { useTiltHover } from "@/hooks/utils/use-gsap-interactions";
 import { useT } from "@/hooks/utils/use-translations";
+
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
+  const tiltRef = useTiltHover<HTMLDivElement>(5);
+
+  return (
+    <div
+      ref={tiltRef}
+      className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 sm:p-7 transition-[border-color,box-shadow] duration-300 hover:border-blue-400/40 hover:shadow-lg hover:shadow-blue-500/5 [transform-style:preserve-3d]"
+    >
+      <div className="mb-4 inline-flex items-center justify-center size-11 rounded-xl bg-blue-500/10 text-blue-600 transition-colors group-hover:bg-blue-500/15">
+        <Icon className="size-5" strokeWidth={1.8} />
+      </div>
+      <h3 className="text-base font-semibold mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+    </div>
+  );
+}
 
 export default function LandingFeatures() {
   const sectionRef = useGsapScrollAnimation<HTMLElement>();
@@ -58,19 +85,15 @@ export default function LandingFeatures() {
         {/* Grid */}
         <div
           data-gsap="stagger-children"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 [perspective:1000px]"
         >
           {FEATURES.map((feature) => (
-            <div
+            <FeatureCard
               key={feature.title}
-              className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 sm:p-7 transition-all duration-300 hover:border-blue-400/40 hover:shadow-lg hover:shadow-blue-500/5"
-            >
-              <div className="mb-4 inline-flex items-center justify-center size-11 rounded-xl bg-blue-500/10 text-blue-600 transition-colors group-hover:bg-blue-500/15">
-                <feature.icon className="size-5" strokeWidth={1.8} />
-              </div>
-              <h3 className="text-base font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-            </div>
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+            />
           ))}
         </div>
       </div>

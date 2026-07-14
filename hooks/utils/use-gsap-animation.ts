@@ -51,6 +51,33 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const mm = gsap.matchMedia();
+
+    // Reduced motion: skip the animated entrance entirely and land every
+    // [data-gsap] element at its final visible state instantly. Without this,
+    // elements stay at their fromTo() "from" state (opacity: 0, etc.) forever
+    // if a ScrollTrigger never fires.
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      const ctx = gsap.context(() => {
+        gsap.set(
+          "[data-gsap='fade-up'], [data-gsap='fade-down'], [data-gsap='fade-left'], [data-gsap='fade-right'], [data-gsap='scale-up']",
+          { opacity: 1, x: 0, y: 0, scale: 1 },
+        );
+
+        gsap.utils.toArray<HTMLElement>("[data-gsap='split-words']").forEach((el) => {
+          splitTextIntoWords(el);
+          gsap.set(el.querySelectorAll(".gsap-word"), { opacity: 1, y: 0, rotateX: 0 });
+        });
+
+        gsap.utils.toArray<HTMLElement>("[data-gsap='stagger-children']").forEach((el) => {
+          gsap.set(el.children, { opacity: 1, y: 0 });
+        });
+      }, containerRef);
+
+      return () => ctx.revert();
+    });
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
     const ctx = gsap.context(() => {
       // fade-up
       gsap.utils.toArray<HTMLElement>("[data-gsap='fade-up']").forEach((el, i) => {
@@ -175,6 +202,25 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
         );
       });
 
+      // draw-line — an SVG line/path that draws itself in as the page
+      // scrolls past it (stroke-dashoffset scrubbed to scroll position).
+      // Elements with no dasharray applied already render as a normal solid
+      // stroke, so reduced-motion needs no special-casing here.
+      gsap.utils.toArray<SVGGeometryElement>("[data-gsap='draw-line']").forEach((el) => {
+        const length = el.getTotalLength();
+        gsap.set(el, { strokeDasharray: length, strokeDashoffset: length });
+        gsap.to(el, {
+          strokeDashoffset: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%",
+            end: "top 50%",
+            scrub: true,
+          },
+        });
+      });
+
       // stagger-children — cascade each direct child in
       gsap.utils.toArray<HTMLElement>("[data-gsap='stagger-children']").forEach((el) => {
         gsap.fromTo(
@@ -194,9 +240,12 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
           },
         );
       });
-    }, containerRef);
+      }, containerRef);
 
-    return () => ctx.revert();
+      return () => ctx.revert();
+    });
+
+    return () => mm.revert();
   }, []);
 
   return containerRef;
@@ -213,6 +262,24 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const mm = gsap.matchMedia();
+
+    // Reduced motion: the hero elements ship with opacity-0 baked into their
+    // className (so there's no flash-of-unstyled-content before JS mounts).
+    // If the entrance timeline never runs, they'd stay invisible forever —
+    // so just set them to their final state instantly instead.
+    mm.add("(prefers-reduced-motion: reduce)", () => {
+      const ctx = gsap.context(() => {
+        gsap.set(
+          "[data-hero='badge'], [data-hero='heading'], [data-hero='description'], [data-hero='cta'], [data-hero='scroll']",
+          { opacity: 1, y: 0, scale: 1 },
+        );
+      }, containerRef);
+
+      return () => ctx.revert();
+    });
+
+    mm.add("(prefers-reduced-motion: no-preference)", () => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -271,24 +338,19 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
         1.05,
       );
 
-      // stats
-      tl.fromTo(
-        "[data-hero='stats']",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6 },
-        1.25,
-      );
-
       // scroll indicator
       tl.fromTo(
         "[data-hero='scroll']",
         { opacity: 0 },
         { opacity: 1, duration: 0.5 },
-        1.5,
+        1.25,
       );
-    }, containerRef);
+      }, containerRef);
 
-    return () => ctx.revert();
+      return () => ctx.revert();
+    });
+
+    return () => mm.revert();
   }, []);
 
   return containerRef;

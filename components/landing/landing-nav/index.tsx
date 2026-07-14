@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -119,9 +119,21 @@ export default function LandingNav() {
   const t = useT("nav");
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const progressRef = useRef<HTMLSpanElement>(null);
 
+  // Single scroll listener drives both the "scrolled" threshold (glassmorphism
+  // backdrop) and the top progress rail — keeping them on one source avoids
+  // two independent listeners drifting out of sync with Lenis-driven scroll.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 16);
+
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      if (progressRef.current) progressRef.current.style.transform = `scaleX(${pct})`;
+    };
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -151,6 +163,14 @@ export default function LandingNav() {
           scrolled ? "opacity-100" : "opacity-0",
         )}
       />
+
+      {/* ── Scroll-progress rail ─────────────────────────────────── */}
+      <div className="absolute inset-x-0 top-0 h-[2px] overflow-hidden">
+        <span
+          ref={progressRef}
+          className="block h-full w-full origin-left scale-x-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400"
+        />
+      </div>
 
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         {/* ── Logo ─────────────────────────────────────────────── */}

@@ -2,7 +2,9 @@
 
 import { useLanguage } from "@/components/utils/languages/language-context";
 import LandingHero from "./landing-hero";
+import LandingStats from "./landing-stats";
 import LandingFeatures from "./landing-features";
+import LandingShowcase from "./landing-showcase";
 import LandingHowItWorks from "./landing-how-it-works";
 import LandingCta from "./landing-cta";
 import LandingFooter from "./landing-footer";
@@ -25,7 +27,9 @@ export function LandingSections() {
   return (
     <>
       <LandingHero         key={`hero-${language}`} />
+      <LandingStats        key={`stats-${language}`} />
       <LandingFeatures     key={`features-${language}`} />
+      <LandingShowcase     key={`showcase-${language}`} />
       <LandingHowItWorks   key={`hiw-${language}`} />
       <LandingCta          key={`cta-${language}`} />
       <LandingFooter       key={`footer-${language}`} />

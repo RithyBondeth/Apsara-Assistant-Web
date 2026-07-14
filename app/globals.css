@@ -144,6 +144,26 @@
   }
 }
 
+/* ── Lenis smooth-scroll (landing page only, see hooks/utils/use-lenis.ts) ──
+   Lenis toggles these classes on <html> itself while mounted. Scoping the
+   override to `.lenis` means routes where Lenis never mounts keep the plain
+   CSS `scroll-behavior: smooth` above untouched. */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(22px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0)    scale(1);    }
@@ -164,10 +184,54 @@
   to   { background-position:  200% center; }
 }
 
+/* Registering the angle as an animatable <angle> lets the conic-gradient
+   below actually rotate. Browsers without @property support just keep the
+   `0deg` fallback baked into the var() below — a static (non-rotating)
+   gradient border, not a broken one. */
+@property --aurora-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aurora-spin {
+  to { --aurora-angle: 360deg; }
+}
+
 @layer utilities {
   .bg-dots {
     background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+
+  /* Rotating gradient border. Usage: relative + rounded parent with
+     `aurora-border`; the ring is a pseudo-element so it doesn't affect
+     layout or clip inner content. */
+  .aurora-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .aurora-border::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--aurora-angle, 0deg),
+      transparent 0%,
+      color-mix(in oklab, var(--color-blue-500) 70%, transparent) 12%,
+      transparent 28%,
+      transparent 72%,
+      color-mix(in oklab, var(--color-blue-400) 70%, transparent) 88%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: aurora-spin 7s linear infinite;
+    pointer-events: none;
   }
 
   .animate-fade-up {
