@@ -16,7 +16,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
+    // A 401 from an auth endpoint (bad password, wrong OTP code, expired
+    // reset token) is a form error, not an expired session — let the page
+    // display it instead of redirecting.
+    const isAuthRequest = error.config?.url?.includes("/auth/");
+    if (
+      error.response?.status === 401 &&
+      !isAuthRequest &&
+      typeof window !== "undefined"
+    ) {
       localStorage.removeItem("access_token");
       window.location.href = "/login";
     }

@@ -10,6 +10,7 @@ interface IAuthStore {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithOtp: (email: string, code: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   clearError: () => void;
@@ -38,6 +39,26 @@ export const useAuthStore = create<IAuthStore>()(
           localStorage.setItem("access_token", token.access_token);
 
           // Fetch user profile after getting the token
+          const { data: user } = await api.get<IUser>(AUTH_API.ME);
+          set({ user, loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
+        }
+      },
+
+      // ── OTP login: exchange a verified email code for a token
+      loginWithOtp: async (email, code) => {
+        set({ loading: true, error: null });
+        try {
+          const { data: token } = await api.post<IToken>(AUTH_API.OTP_VERIFY, {
+            email,
+            code,
+          });
+
+          localStorage.setItem("access_token", token.access_token);
+
           const { data: user } = await api.get<IUser>(AUTH_API.ME);
           set({ user, loading: false });
           return true;

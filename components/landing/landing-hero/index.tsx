@@ -3,10 +3,18 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LucideArrowRight, LucideCheck, LucideChevronDown, LucideSparkles } from "lucide-react";
+import {
+  LucideArrowRight,
+  LucideCheck,
+  LucideChevronDown,
+  LucideSparkles,
+} from "lucide-react";
 import { BrandMark } from "@/components/landing/brand-logo";
 import { useGsapHeroAnimation } from "@/hooks/utils/use-gsap-animation";
-import { useMagneticHover, useMouseParallax } from "@/hooks/utils/use-gsap-interactions";
+import {
+  useMagneticHover,
+  useMouseParallax,
+} from "@/hooks/utils/use-gsap-interactions";
 import { useT } from "@/hooks/utils/use-translations";
 import { useLanguage } from "@/components/utils/languages/language-context";
 
@@ -34,14 +42,29 @@ export default function LandingHero() {
     >
       {/* ── Ambient background — orbs drift forever + follow the mouse ── */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        <div data-parallax="1" data-drift="1" className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[140px]" />
-        <div data-parallax="0.6" data-drift="1.4" className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[160px]" />
-        <div data-parallax="0.8" data-drift="0.8" className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-[140px]" />
+        <div
+          data-parallax="1"
+          data-drift="1"
+          className="absolute -left-32 top-20 h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[140px]"
+        />
+        <div
+          data-parallax="0.6"
+          data-drift="1.4"
+          className="absolute right-[-100px] top-[-60px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[160px]"
+        />
+        <div
+          data-parallax="0.8"
+          data-drift="0.8"
+          className="absolute right-[15%] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-blue-400/10 blur-[140px]"
+        />
         <div className="absolute inset-0 opacity-[0.04] bg-dots" />
       </div>
 
       {/* ── Floating chat cards (desktop only) ──────────────────── */}
-      <div className="pointer-events-none absolute inset-0 z-[5] hidden lg:block" aria-hidden="true">
+      <div
+        className="pointer-events-none absolute inset-0 z-[5] hidden lg:block"
+        aria-hidden="true"
+      >
         {/* customer question — top left */}
         <div
           data-hero="float-card"
@@ -86,7 +109,6 @@ export default function LandingHero() {
       {/* ── Content ─────────────────────────────────────────────── */}
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-8 pt-28 sm:pt-32 pb-20 text-center">
         <div className="flex flex-col items-center gap-6">
-
           {/* Badge */}
           <div
             data-hero="badge"
@@ -119,8 +141,7 @@ export default function LandingHero() {
               </>
             ) : (
               <>
-                {t.heading1}{" "}
-                <br className="hidden sm:block" />
+                {t.heading1} <br className="hidden sm:block" />
                 {t.heading2}{" "}
                 <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Apsara

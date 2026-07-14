@@ -67,7 +67,15 @@ export default function LoginPage() {
         </div>
 
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -120,6 +128,14 @@ export default function LoginPage() {
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+        <Link
+          href="/login-otp"
+          className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
+        >
+          Sign in with a one-time code
+        </Link>
+      </p>
+      <p data-auth className="-mt-3 text-center text-sm text-muted-foreground opacity-0">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
