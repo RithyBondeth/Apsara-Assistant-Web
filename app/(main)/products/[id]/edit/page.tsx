@@ -24,10 +24,10 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <EditProductClient id={Number(id)} />;
+  return <EditProductClient id={id} />;
 }
 
-function EditProductClient({ id }: { id: number }) {
+function EditProductClient({ id }: { id: string }) {
   // ── Utils
   const router = useRouter();
 

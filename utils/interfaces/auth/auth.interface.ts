@@ -1,15 +1,13 @@
 export interface IUser {
-  id: number;
+  id: string;
   email: string;
   full_name: string;
-  business_name?: string;
-  phone?: string;
-  avatar_url?: string;
+  business_name: string | null;
+  is_active: boolean;
   created_at: string;
 }
 
-export interface IAuthResponse {
+export interface IToken {
   access_token: string;
   token_type: string;
-  user: IUser;
 }

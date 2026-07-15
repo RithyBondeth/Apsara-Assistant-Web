@@ -1,39 +1,43 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  Package,
-  MessageCircle,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
+import { Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
+import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/utils/functions/date";
+import { cn } from "@/lib/utils";
+
+const STATUS_STYLES: Record<string, string> = {
+  open: "bg-green-100 text-green-700",
+  pending: "bg-yellow-100 text-yellow-700",
+  closed: "bg-muted text-muted-foreground",
+};
 
 export default function DashboardPage() {
   // ── API Integration
   const { products, loading: productsLoading, fetchProducts } = useProductsStore();
-  const {
-    conversations,
-    loading: chatLoading,
-    fetchConversations,
-  } = useChatStore();
+  const { conversations, conversationsLoading, fetchConversations } = useChatStore();
+  const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
 
   // ── Effects
   useEffect(() => {
     fetchProducts();
     fetchConversations();
-  }, [fetchProducts, fetchConversations]);
+    fetchCustomers();
+  }, [fetchProducts, fetchConversations, fetchCustomers]);
 
-  const loading = productsLoading || chatLoading;
-  const totalUnread = conversations.reduce((s, c) => s + c.unread_count, 0);
+  const loading = productsLoading || conversationsLoading || customersLoading;
+  const openConversations = conversations.filter((c) => c.status === "open").length;
   const recentConversations = conversations.slice(0, 5);
+
+  // ── Build customer lookup
+  const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
 
   // ── Render UI
   return (
@@ -57,20 +61,20 @@ export default function DashboardPage() {
               sub="In your catalogue"
             />
             <StatCard
+              icon={Users}
+              label="Customers"
+              value={customers.length}
+              sub="All platforms"
+            />
+            <StatCard
               icon={MessageCircle}
               label="Conversations"
               value={conversations.length}
-              sub={`${totalUnread} unread`}
+              sub={`${openConversations} open`}
             />
             <StatCard
               icon={ShoppingCart}
               label="Orders"
-              value="—"
-              sub="Coming soon"
-            />
-            <StatCard
-              icon={Users}
-              label="Customers"
               value="—"
               sub="Coming soon"
             />
@@ -83,7 +87,7 @@ export default function DashboardPage() {
             <CardTitle className="text-base">Recent Conversations</CardTitle>
           </CardHeader>
           <CardContent>
-            {chatLoading ? (
+            {conversationsLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-12 rounded-lg" />
@@ -95,33 +99,29 @@ export default function DashboardPage() {
               </p>
             ) : (
               <div className="divide-y">
-                {recentConversations.map((conv) => (
-                  <div
-                    key={conv.id}
-                    className="flex items-center justify-between py-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {conv.customer_name}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {conv.last_message ?? "No messages yet"}
-                      </p>
-                    </div>
-                    <div className="ml-4 flex shrink-0 items-center gap-2">
-                      {conv.unread_count > 0 && (
-                        <Badge variant="default" className="h-5 min-w-5 justify-center rounded-full px-1.5 text-xs">
-                          {conv.unread_count}
+                {recentConversations.map((conv) => {
+                  const customer = customerMap[conv.customer_id];
+                  return (
+                    <div key={conv.id} className="flex items-center justify-between py-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {customer?.name ?? `Customer ${conv.customer_id.slice(0, 8)}`}
+                        </p>
+                        <p className="text-xs capitalize text-muted-foreground">
+                          {conv.platform}
+                        </p>
+                      </div>
+                      <div className="ml-4 flex shrink-0 items-center gap-2">
+                        <Badge className={cn("capitalize text-[10px]", STATUS_STYLES[conv.status])}>
+                          {conv.status}
                         </Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground">
-                        {conv.last_message_at
-                          ? timeAgo(conv.last_message_at)
-                          : ""}
-                      </span>
+                        <span className="text-xs text-muted-foreground">
+                          {timeAgo(conv.updated_at)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

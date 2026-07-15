@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
-import { IUser, IAuthResponse } from "@/utils/interfaces/auth/auth.interface";
+import { IUser, IToken } from "@/utils/interfaces/auth/auth.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IAuthStore {
@@ -10,6 +10,7 @@ interface IAuthStore {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithOtp: (email: string, code: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
   clearError: () => void;
@@ -22,15 +23,44 @@ export const useAuthStore = create<IAuthStore>()(
       loading: false,
       error: null,
 
+      // ── Login: get token then fetch user profile
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
-          const { data } = await api.post<IAuthResponse>(AUTH_API.LOGIN, {
-            email,
-            password,
+          // FastAPI OAuth2 expects form data for token endpoint
+          const form = new URLSearchParams();
+          form.append("username", email);
+          form.append("password", password);
+
+          const { data: token } = await api.post<IToken>(AUTH_API.LOGIN, form, {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
           });
-          localStorage.setItem("access_token", data.access_token);
-          set({ user: data.user, loading: false });
+
+          localStorage.setItem("access_token", token.access_token);
+
+          // Fetch user profile after getting the token
+          const { data: user } = await api.get<IUser>(AUTH_API.ME);
+          set({ user, loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
+        }
+      },
+
+      // ── OTP login: exchange a verified email code for a token
+      loginWithOtp: async (email, code) => {
+        set({ loading: true, error: null });
+        try {
+          const { data: token } = await api.post<IToken>(AUTH_API.OTP_VERIFY, {
+            email,
+            code,
+          });
+
+          localStorage.setItem("access_token", token.access_token);
+
+          const { data: user } = await api.get<IUser>(AUTH_API.ME);
+          set({ user, loading: false });
           return true;
         } catch (error) {
           set({ error: extractErrorMessage(error), loading: false });
@@ -53,6 +83,7 @@ export const useAuthStore = create<IAuthStore>()(
           const { data } = await api.get<IUser>(AUTH_API.ME);
           set({ user: data, loading: false });
         } catch {
+          localStorage.removeItem("access_token");
           set({ user: null, loading: false });
         }
       },

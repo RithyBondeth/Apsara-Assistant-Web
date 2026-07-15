@@ -19,7 +19,7 @@ export default function ProductsPage() {
   }, [fetchProducts]);
 
   // ── Methods
-  async function handleDelete(id: number) {
+  async function handleDelete(id: string) {
     if (!confirm("Delete this product?")) return;
     await deleteProduct(id);
   }

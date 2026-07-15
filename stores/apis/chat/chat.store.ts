@@ -1,66 +1,121 @@
 import { create } from "zustand";
 import api from "@/lib/axios";
-import { CHAT_API } from "@/utils/constants/apis/chat.api.constant";
+import { CONVERSATIONS_API, CHAT_API } from "@/utils/constants/apis/conversations.api.constant";
 import {
   IConversation,
+  IConversationDetail,
   IMessage,
+  IChatResponse,
 } from "@/utils/interfaces/chat/chat.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IChatStore {
+  // ── Conversations
   conversations: IConversation[];
-  activeConversation: IConversation | null;
-  messages: IMessage[];
-  loading: boolean;
+  activeConversation: IConversationDetail | null;
+  conversationsLoading: boolean;
+
+  // ── Messages
   messagesLoading: boolean;
+
+  // ── Errors
   error: string | null;
+
+  // ── Actions
   fetchConversations: () => Promise<void>;
+  createConversation: (customerId: string, platform: string) => Promise<IConversation | null>;
   setActiveConversation: (conversation: IConversation) => void;
-  fetchMessages: (conversationId: number) => Promise<void>;
-  sendMessage: (conversationId: number, content: string) => Promise<boolean>;
+  fetchConversationDetail: (id: string) => Promise<void>;
+  updateConversationStatus: (id: string, status: "open" | "closed" | "pending") => Promise<boolean>;
+  sendMessage: (conversationId: string, message: string) => Promise<boolean>;
   clearError: () => void;
 }
 
-export const useChatStore = create<IChatStore>((set) => ({
+export const useChatStore = create<IChatStore>((set, get) => ({
   conversations: [],
   activeConversation: null,
-  messages: [],
-  loading: false,
+  conversationsLoading: false,
   messagesLoading: false,
   error: null,
 
   fetchConversations: async () => {
-    set({ loading: true, error: null });
+    set({ conversationsLoading: true, error: null });
     try {
-      const { data } = await api.get<IConversation[]>(CHAT_API.CONVERSATIONS);
-      set({ conversations: data, loading: false });
+      const { data } = await api.get<IConversation[]>(CONVERSATIONS_API.LIST);
+      set({ conversations: data, conversationsLoading: false });
     } catch (error) {
-      set({ error: extractErrorMessage(error), loading: false });
+      set({ error: extractErrorMessage(error), conversationsLoading: false });
+    }
+  },
+
+  createConversation: async (customerId, platform) => {
+    set({ error: null });
+    try {
+      const { data } = await api.post<IConversation>(CONVERSATIONS_API.CREATE, {
+        customer_id: customerId,
+        platform,
+      });
+      set((s) => ({ conversations: [data, ...s.conversations] }));
+      return data;
+    } catch (error) {
+      set({ error: extractErrorMessage(error) });
+      return null;
     }
   },
 
   setActiveConversation: (conversation) => {
-    set({ activeConversation: conversation, messages: [] });
+    // Optimistically set the header while messages load
+    set({ activeConversation: { ...conversation, messages: [] } });
   },
 
-  fetchMessages: async (conversationId) => {
+  fetchConversationDetail: async (id) => {
     set({ messagesLoading: true, error: null });
     try {
-      const { data } = await api.get<IMessage[]>(
-        CHAT_API.MESSAGES(conversationId)
-      );
-      set({ messages: data, messagesLoading: false });
+      const { data } = await api.get<IConversationDetail>(CONVERSATIONS_API.GET(id));
+      set({ activeConversation: data, messagesLoading: false });
     } catch (error) {
       set({ error: extractErrorMessage(error), messagesLoading: false });
     }
   },
 
-  sendMessage: async (conversationId, content) => {
+  updateConversationStatus: async (id, status) => {
+    set({ error: null });
     try {
-      const { data } = await api.post<IMessage>(CHAT_API.SEND(conversationId), {
-        content,
+      const { data } = await api.patch<IConversation>(CONVERSATIONS_API.UPDATE(id), { status });
+      // Update in the list
+      set((s) => ({
+        conversations: s.conversations.map((c) => (c.id === id ? data : c)),
+        activeConversation: s.activeConversation?.id === id
+          ? { ...s.activeConversation, ...data }
+          : s.activeConversation,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error) });
+      return false;
+    }
+  },
+
+  // ── Uses the AI chat endpoint — returns customer + AI messages
+  sendMessage: async (conversationId, message) => {
+    set({ error: null });
+    try {
+      const { data } = await api.post<IChatResponse>(CHAT_API.SEND(conversationId), {
+        message,
+        message_type: "text",
       });
-      set((s) => ({ messages: [...s.messages, data] }));
+      set((s) => ({
+        activeConversation: s.activeConversation
+          ? {
+              ...s.activeConversation,
+              messages: [
+                ...s.activeConversation.messages,
+                data.customer_message,
+                data.ai_message,
+              ],
+            }
+          : s.activeConversation,
+      }));
       return true;
     } catch (error) {
       set({ error: extractErrorMessage(error) });

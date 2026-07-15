@@ -1,42 +1,65 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Plus, MessageCircle } from "lucide-react";
 import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
+import NewConversationDialog from "@/components/chat/new-conversation-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
+import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
-import { MessageCircle } from "lucide-react";
 
 export default function ChatPage() {
+  // ── All States
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   // ── API Integration
   const {
     conversations,
     activeConversation,
-    messages,
-    loading,
+    conversationsLoading,
     messagesLoading,
     fetchConversations,
+    createConversation,
     setActiveConversation,
-    fetchMessages,
+    fetchConversationDetail,
+    updateConversationStatus,
     sendMessage,
   } = useChatStore();
+
+  const { customers, fetchCustomers } = useCustomersStore();
 
   // ── Effects
   useEffect(() => {
     fetchConversations();
-  }, [fetchConversations]);
+    fetchCustomers();
+  }, [fetchConversations, fetchCustomers]);
 
   // ── Methods
   function handleSelectConversation(conversation: IConversation) {
     setActiveConversation(conversation);
-    fetchMessages(conversation.id);
+    fetchConversationDetail(conversation.id);
+  }
+
+  async function handleCreateConversation(customerId: string, platform: string) {
+    const conv = await createConversation(customerId, platform);
+    if (conv) {
+      setActiveConversation(conv);
+      fetchConversationDetail(conv.id);
+    }
   }
 
   async function handleSend(content: string) {
     if (!activeConversation) return;
     await sendMessage(activeConversation.id, content);
+  }
+
+  async function handleStatusChange(status: "open" | "closed" | "pending") {
+    if (!activeConversation) return;
+    await updateConversationStatus(activeConversation.id, status);
   }
 
   // ── Render UI
@@ -47,7 +70,8 @@ export default function ChatPage() {
       <main className="flex flex-1 overflow-hidden">
         {/* ── Sidebar: conversation list */}
         <div className="flex w-72 shrink-0 flex-col border-r">
-          <div className="border-b px-4 py-3">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b px-4 py-3">
             <p className="text-sm font-medium">
               Conversations
               {conversations.length > 0 && (
@@ -56,9 +80,17 @@ export default function ChatPage() {
                 </span>
               )}
             </p>
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => setDialogOpen(true)}
+              title="New conversation"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
 
-          {loading ? (
+          {conversationsLoading ? (
             <div className="space-y-2 p-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-14 rounded-lg" />
@@ -67,6 +99,7 @@ export default function ChatPage() {
           ) : (
             <ConversationList
               conversations={conversations}
+              customers={customers}
               activeId={activeConversation?.id}
               onSelect={handleSelectConversation}
             />
@@ -78,18 +111,35 @@ export default function ChatPage() {
           {activeConversation ? (
             <ChatWindow
               conversation={activeConversation}
-              messages={messages}
+              customer={customers.find((c) => c.id === activeConversation.customer_id)}
               loading={messagesLoading}
               onSend={handleSend}
+              onStatusChange={handleStatusChange}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
               <MessageCircle className="h-10 w-10 opacity-30" />
               <p className="text-sm">Select a conversation to start chatting</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Plus className="mr-1.5 h-4 w-4" />
+                New conversation
+              </Button>
             </div>
           )}
         </div>
       </main>
+
+      {/* ── New conversation dialog */}
+      <NewConversationDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        customers={customers}
+        onCreate={handleCreateConversation}
+      />
     </>
   );
 }

@@ -14,14 +14,14 @@ interface IProductsStore {
   loading: boolean;
   error: string | null;
   fetchProducts: () => Promise<void>;
-  fetchProduct: (id: number) => Promise<void>;
+  fetchProduct: (id: string) => Promise<void>;
   createProduct: (data: IProductCreate) => Promise<boolean>;
-  updateProduct: (id: number, data: IProductUpdate) => Promise<boolean>;
-  deleteProduct: (id: number) => Promise<boolean>;
+  updateProduct: (id: string, data: IProductUpdate) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
   clearError: () => void;
 }
 
-export const useProductsStore = create<IProductsStore>((set, get) => ({
+export const useProductsStore = create<IProductsStore>((set) => ({
   products: [],
   selected: null,
   loading: false,
@@ -51,7 +51,7 @@ export const useProductsStore = create<IProductsStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const { data } = await api.post<IProduct>(PRODUCTS_API.CREATE, payload);
-      set((s) => ({ products: [...s.products, data], loading: false }));
+      set((s) => ({ products: [data, ...s.products], loading: false }));
       return true;
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
