@@ -1,0 +1,107 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import AppHeader from "@/components/header";
+import OrderTable from "@/components/orders/order-table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useOrdersStore } from "@/stores/apis/orders/orders.store";
+import { useCustomersStore } from "@/stores/apis/customers/customers.store";
+import { ORDER_STATUSES } from "@/utils/constants/orders.constant";
+import { OrderStatus } from "@/utils/interfaces/order/order.interface";
+import { formatCurrency } from "@/utils/functions/currency";
+
+type StatusFilter = OrderStatus | "all";
+
+export default function OrdersPage() {
+  // ── API Integration
+  const { orders, loading, error, fetchOrders, updateOrder, deleteOrder } =
+    useOrdersStore();
+  const { customers, fetchCustomers } = useCustomersStore();
+
+  // ── All States
+  const [status, setStatus] = useState<StatusFilter>("all");
+
+  // ── Effects: the API does the filtering, so refetch when it changes
+  useEffect(() => {
+    fetchOrders(status === "all" ? undefined : { status });
+  }, [fetchOrders, status]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
+
+  // ── Methods
+  async function handleStatusChange(id: string, next: OrderStatus) {
+    if (
+      next === "cancelled" &&
+      !confirm("Cancel this order? Its items will be returned to stock.")
+    ) {
+      return;
+    }
+    await updateOrder(id, { status: next });
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this order? This cannot be undone.")) return;
+    await deleteOrder(id);
+  }
+
+  // ── Revenue excludes cancelled orders, matching the dashboard's definition.
+  const revenue = orders
+    .filter((o) => o.status !== "cancelled")
+    .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
+
+  // ── Render UI
+  return (
+    <>
+      <AppHeader title="Orders" />
+
+      <main className="flex-1 space-y-4 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm text-muted-foreground">
+            {orders.length} order{orders.length !== 1 ? "s" : ""}
+            {orders.length > 0 && (
+              <> · {formatCurrency(revenue)} excluding cancelled</>
+            )}
+          </div>
+
+          <select
+            aria-label="Filter by status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as StatusFilter)}
+            className="h-8 rounded-lg border border-input bg-background px-3 text-sm capitalize outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <option value="all">All statuses</option>
+            {ORDER_STATUSES.map((s) => (
+              <option key={s} value={s} className="capitalize">
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
+        {loading && orders.length === 0 ? (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        ) : (
+          <OrderTable
+            orders={orders}
+            customers={customers}
+            onStatusChange={handleStatusChange}
+            onDelete={handleDelete}
+            busy={loading}
+          />
+        )}
+      </main>
+    </>
+  );
+}

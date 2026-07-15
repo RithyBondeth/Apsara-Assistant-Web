@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -18,12 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
 
-export default async function EditCustomerPage({
+export default function EditCustomerPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id } = use(params);
   return <EditCustomerClient id={id} />;
 }
 
@@ -32,7 +32,8 @@ function EditCustomerClient({ id }: { id: string }) {
   const router = useRouter();
 
   // ── API Integration
-  const { selected, loading, fetchCustomer, updateCustomer } = useCustomersStore();
+  const { selected, loading, fetchCustomer, updateCustomer } =
+    useCustomersStore();
 
   // ── Effects
   useEffect(() => {
@@ -70,7 +71,11 @@ function EditCustomerClient({ id }: { id: string }) {
       <main className="flex-1 p-6">
         <Link
           href="/customers"
-          className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}
+          className={buttonVariants({
+            variant: "ghost",
+            size: "sm",
+            className: "mb-4 -ml-1",
+          })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
           Back to customers

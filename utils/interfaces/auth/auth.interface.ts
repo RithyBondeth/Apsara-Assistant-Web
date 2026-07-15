@@ -11,3 +11,8 @@ export interface IToken {
   access_token: string;
   token_type: string;
 }
+
+export interface IUserUpdate {
+  full_name?: string;
+  business_name?: string;
+}

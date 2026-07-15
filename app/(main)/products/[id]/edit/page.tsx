@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -18,12 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { ProductFormValues } from "@/components/products/product-form/props";
 
-export default async function EditProductPage({
+export default function EditProductPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id } = use(params);
   return <EditProductClient id={id} />;
 }
 
@@ -64,7 +64,14 @@ function EditProductClient({ id }: { id: string }) {
       <AppHeader title="Edit Product" />
 
       <main className="flex-1 p-6">
-        <Link href="/products" className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}>
+        <Link
+          href="/products"
+          className={buttonVariants({
+            variant: "ghost",
+            size: "sm",
+            className: "mb-4 -ml-1",
+          })}
+        >
           <ChevronLeft className="mr-1 h-4 w-4" />
           Back to products
         </Link>
@@ -72,7 +79,9 @@ function EditProductClient({ id }: { id: string }) {
         <Card className="max-w-2xl">
           <CardHeader>
             <CardTitle>Edit product</CardTitle>
-            <CardDescription>Update &ldquo;{selected.name}&rdquo;</CardDescription>
+            <CardDescription>
+              Update &ldquo;{selected.name}&rdquo;
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ProductForm

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLanguageStore, type TLanguage } from "@/stores/languages/language-store";
+import {
+  useLanguageStore,
+  type TLanguage,
+} from "@/stores/languages/language-store";
 import { LanguageContext } from "./language-context";
 
 export function LanguageProviderClient({
@@ -16,11 +19,13 @@ export function LanguageProviderClient({
 
   useEffect(() => {
     if (!isHydrated) setLanguage(defaultLanguage);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, [defaultLanguage, isHydrated, setLanguage]);
 
   // Before hydration use the server-read cookie value — eliminates the flash
-  const activeLanguage: TLanguage = mounted && isHydrated ? language : defaultLanguage;
+  const activeLanguage: TLanguage =
+    mounted && isHydrated ? language : defaultLanguage;
 
   useEffect(() => {
     document.documentElement.lang = activeLanguage;

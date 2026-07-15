@@ -1,7 +1,10 @@
 "use client";
 
 import { BrandMark } from "@/components/landing/brand-logo";
-import { useGsapChatScene, useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
+import {
+  useGsapChatScene,
+  useGsapScrollAnimation,
+} from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
 
 /**
@@ -41,8 +44,8 @@ function ChatThread({
         <div
           className={
             compact
-              ? "max-w-[75%] rounded-xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-2.5 py-1.5 text-[11px] text-white shadow-sm shadow-blue-500/20"
-              : "max-w-[75%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20"
+              ? "max-w-[75%] rounded-xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-2.5 py-1.5 text-[11px] text-white shadow-sm shadow-blue-500/20"
+              : "max-w-[75%] rounded-2xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20"
           }
         >
           {t.aiMsg1}
@@ -61,7 +64,7 @@ function ChatThread({
       </div>
       {!compact && (
         <div data-chat-bubble={order++} className="flex justify-end opacity-0">
-          <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
+          <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
             {t.aiMsg2}
           </div>
         </div>
@@ -158,10 +161,10 @@ export default function LandingDevices() {
           </span>
           <h2
             data-gsap="split-words"
-            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 [perspective:800px]"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 perspective-midrange"
           >
             {t.heading1}{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
               {t.heading2}
             </span>
           </h2>
@@ -178,7 +181,7 @@ export default function LandingDevices() {
             as the visitor scrolls. Owned by useGsapChatScene. */}
         <div
           ref={stageRef}
-          className="relative mx-auto w-full max-w-2xl pb-14 sm:pb-20 [perspective:1200px]"
+          className="relative mx-auto w-full max-w-2xl pb-14 sm:pb-20 perspective-distant"
         >
           {/* ── Laptop ─────────────────────────────────────────── */}
           <div data-scene="laptop" className="relative opacity-0">
@@ -197,7 +200,7 @@ export default function LandingDevices() {
               </div>
             </div>
             {/* Laptop base / hinge */}
-            <div className="h-2.5 sm:h-3 rounded-b-lg bg-gradient-to-b from-neutral-800 to-neutral-900" />
+            <div className="h-2.5 sm:h-3 rounded-b-lg bg-linear-to-b from-neutral-800 to-neutral-900" />
             <div className="mx-auto -mt-px h-1.5 sm:h-2 w-1/3 rounded-b-2xl bg-neutral-900/80" />
           </div>
 
@@ -211,7 +214,7 @@ export default function LandingDevices() {
             className="relative mx-auto mt-8 w-3/5 max-w-[210px] opacity-0 sm:absolute sm:-bottom-8 sm:-right-8 sm:mx-0 sm:mt-0 sm:w-[34%]"
           >
             <div className="animate-float rotate-0 sm:rotate-3">
-              <div className="rounded-[1.6rem] bg-neutral-900 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-black/10 sm:rounded-[2rem] sm:p-2">
+              <div className="rounded-[1.6rem] bg-neutral-900 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-black/10 sm:rounded-4xl sm:p-2">
                 <div className="overflow-hidden rounded-[1.2rem] bg-card sm:rounded-[1.6rem]">
                   {/* Notch */}
                   <div className="flex justify-center py-1.5">

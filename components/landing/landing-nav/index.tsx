@@ -8,92 +8,12 @@ import {
   LucideMenu,
   LucideX,
   LucideArrowRight,
-  LucideSun,
-  LucideMoon,
   LucideChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
-import { useLanguageStore } from "@/stores/languages/language-store";
-import { useLanguage } from "@/components/utils/languages/language-context";
+import { ThemeToggle } from "@/components/utils/themes/theme-toggle";
+import { LanguageToggle } from "@/components/utils/languages/language-toggle";
 import { useT } from "@/hooks/utils/use-translations";
-
-/* ── Theme toggle ─────────────────────────────────────────────────────────── */
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="size-8" />;
-
-  return (
-    <button
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      aria-label="Toggle theme"
-      className="relative flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-    >
-      <LucideSun
-        className={cn(
-          "absolute size-4 transition-all duration-300",
-          resolvedTheme === "dark"
-            ? "opacity-100 rotate-0"
-            : "opacity-0 rotate-90",
-        )}
-      />
-      <LucideMoon
-        className={cn(
-          "absolute size-4 transition-all duration-300",
-          resolvedTheme === "dark"
-            ? "opacity-0 -rotate-90"
-            : "opacity-100 rotate-0",
-        )}
-      />
-    </button>
-  );
-}
-
-/* ── Language toggle ──────────────────────────────────────────────────────── */
-function LanguageToggle({ className }: { className?: string }) {
-  const language = useLanguage();
-  const { setLanguage } = useLanguageStore();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="h-7 w-[72px]" />;
-
-  return (
-    <div
-      className={cn(
-        "relative flex items-center gap-0.5 rounded-full bg-muted p-0.5",
-        className,
-      )}
-    >
-      {/* sliding pill indicator */}
-      <span
-        className={cn(
-          "absolute top-0.5 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-background shadow-sm transition-all duration-200",
-          language === "km" ? "left-[calc(50%+1px)]" : "left-0.5",
-        )}
-      />
-      <button
-        onClick={() => setLanguage("en")}
-        className={cn(
-          "relative z-10 px-2.5 py-1 text-xs font-semibold rounded-full transition-colors duration-200",
-          language === "en" ? "text-foreground" : "text-muted-foreground",
-        )}
-      >
-        EN
-      </button>
-      <button
-        onClick={() => setLanguage("km")}
-        className={cn(
-          "relative z-10 px-2.5 py-1 text-xs font-semibold rounded-full transition-colors duration-200",
-          language === "km" ? "text-foreground" : "text-muted-foreground",
-        )}
-      >
-        ខ្មែរ
-      </button>
-    </div>
-  );
-}
 
 /* ── Nav link ─────────────────────────────────────────────────────────────── */
 function NavLink({
@@ -131,7 +51,8 @@ export default function LandingNav() {
 
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const pct = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${pct})`;
+      if (progressRef.current)
+        progressRef.current.style.transform = `scaleX(${pct})`;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -152,14 +73,14 @@ export default function LandingNav() {
       className={cn(
         "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm shadow-black/[0.03]"
+          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm shadow-black/3"
           : "bg-transparent",
       )}
     >
       {/* ── Top gradient accent line ─────────────────────────────── */}
       <div
         className={cn(
-          "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent transition-opacity duration-500",
+          "absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-blue-500/60 to-transparent transition-opacity duration-500",
           scrolled ? "opacity-100" : "opacity-0",
         )}
       />
@@ -168,7 +89,7 @@ export default function LandingNav() {
       <div className="absolute inset-x-0 top-0 h-[2px] overflow-hidden">
         <span
           ref={progressRef}
-          className="block h-full w-full origin-left scale-x-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400"
+          className="block h-full w-full origin-left scale-x-0 bg-linear-to-r from-blue-600 via-blue-500 to-blue-400"
         />
       </div>
 

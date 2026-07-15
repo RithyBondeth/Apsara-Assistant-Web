@@ -77,7 +77,7 @@ export default function LandingHero() {
         <div
           data-hero="float-card"
           data-parallax="2.2"
-          className="absolute left-[9%] top-[38%] max-w-[240px] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-xl shadow-blue-500/30 opacity-0"
+          className="absolute left-[9%] top-[38%] max-w-[240px] rounded-2xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-xl shadow-blue-500/30 opacity-0"
         >
           {t.floatA}
         </div>
@@ -121,7 +121,7 @@ export default function LandingHero() {
           {/* Heading — Khmer renders as natural two-line sentence */}
           <h1
             data-hero="heading"
-            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.15] opacity-0 [perspective:800px]"
+            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.15] opacity-0 perspective-midrange"
           >
             {language === "km" ? (
               <>
@@ -130,11 +130,11 @@ export default function LandingHero() {
                 {/* Line 2: ទុក [Apsara] ជួយ [អតិថិជនរបស់អ្នក] */}
                 <span className="block">
                   {t.heading2}{" "}
-                  <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                  <span className="text-shimmer bg-linear-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                     Apsara
                   </span>{" "}
                   {t.heading3}{" "}
-                  <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                  <span className="text-shimmer bg-linear-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                     {t.heading4}
                   </span>
                 </span>
@@ -143,11 +143,11 @@ export default function LandingHero() {
               <>
                 {t.heading1} <br className="hidden sm:block" />
                 {t.heading2}{" "}
-                <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                <span className="text-shimmer bg-linear-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Apsara
                 </span>{" "}
                 {t.heading3}{" "}
-                <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                <span className="text-shimmer bg-linear-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   {t.heading4}
                 </span>
               </>
@@ -171,7 +171,7 @@ export default function LandingHero() {
               <Link href="/register" className="block w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto rounded-full px-8 gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                  className="w-full sm:w-auto rounded-full px-8 gap-2 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
                 >
                   {t.startFree}
                   <LucideArrowRight className="size-4" />
@@ -223,7 +223,7 @@ export default function LandingHero() {
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-3.5 py-2 text-sm text-white shadow-md shadow-blue-500/20">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-3.5 py-2 text-sm text-white shadow-md shadow-blue-500/20">
                     {t.floatA}
                   </div>
                 </div>

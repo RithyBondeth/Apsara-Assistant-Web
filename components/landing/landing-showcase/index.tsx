@@ -30,7 +30,11 @@ export default function LandingShowcase() {
   const [paused, setPaused] = useState(false);
 
   const TABS = [
-    { key: "autoreply" as const, icon: LucideMessageCircle, title: t.tab1Title },
+    {
+      key: "autoreply" as const,
+      icon: LucideMessageCircle,
+      title: t.tab1Title,
+    },
     { key: "orders" as const, icon: LucideClipboardList, title: t.tab2Title },
     { key: "analytics" as const, icon: LucideBarChart3, title: t.tab3Title },
   ];
@@ -47,9 +51,13 @@ export default function LandingShowcase() {
 
     const tick = (now: number) => {
       const pct = Math.min(1, (now - start) / AUTO_ADVANCE_MS);
-      if (progressRef.current) progressRef.current.style.transform = `scaleX(${pct})`;
+      if (progressRef.current)
+        progressRef.current.style.transform = `scaleX(${pct})`;
       if (pct >= 1) {
-        setActiveTab((current) => TAB_KEYS[(TAB_KEYS.indexOf(current) + 1) % TAB_KEYS.length]);
+        setActiveTab(
+          (current) =>
+            TAB_KEYS[(TAB_KEYS.indexOf(current) + 1) % TAB_KEYS.length],
+        );
         return;
       }
       raf = requestAnimationFrame(tick);
@@ -70,7 +78,11 @@ export default function LandingShowcase() {
   }, [activeTab]);
 
   return (
-    <section id="showcase" ref={sectionRef} className="relative py-16 sm:py-24 md:py-32">
+    <section
+      id="showcase"
+      ref={sectionRef}
+      className="relative py-16 sm:py-24 md:py-32"
+    >
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 md:px-8">
@@ -84,14 +96,17 @@ export default function LandingShowcase() {
           </span>
           <h2
             data-gsap="split-words"
-            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 [perspective:800px]"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight mb-4 perspective-midrange"
           >
             {t.heading1}{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
               {t.heading2}
             </span>
           </h2>
-          <p data-gsap="fade-up" className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
+          <p
+            data-gsap="fade-up"
+            className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto"
+          >
             {t.description}
           </p>
         </div>
@@ -127,7 +142,7 @@ export default function LandingShowcase() {
           <div className="mx-auto mt-2 h-0.5 w-full max-w-xl overflow-hidden rounded-full bg-border/50">
             <span
               ref={progressRef}
-              className="block h-full w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-400"
+              className="block h-full w-full origin-left scale-x-0 rounded-full bg-linear-to-r from-blue-600 to-blue-400"
             />
           </div>
 
@@ -142,12 +157,15 @@ export default function LandingShowcase() {
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
+                    <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-linear-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
                       {t.chatReply}
                     </div>
                   </div>
                   <div className="flex items-center justify-end gap-1.5 pr-1 text-xs text-muted-foreground">
-                    <LucideZap className="size-3 text-blue-500" strokeWidth={1.8} />
+                    <LucideZap
+                      className="size-3 text-blue-500"
+                      strokeWidth={1.8}
+                    />
                     {t.chatInstant}
                   </div>
                 </div>
@@ -156,7 +174,9 @@ export default function LandingShowcase() {
               {activeTab === "orders" && (
                 <div className="mx-auto flex max-w-sm flex-col gap-3 rounded-2xl border border-border/60 bg-background p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground">{t.orderLabel} #A204</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {t.orderLabel} #A204
+                    </span>
                     <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600">
                       <LucideCheck className="size-3" strokeWidth={2} />
                       {t.orderStatus}
@@ -164,11 +184,15 @@ export default function LandingShowcase() {
                   </div>
                   <div className="h-px bg-border/60" />
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t.orderCustomer}</span>
+                    <span className="text-muted-foreground">
+                      {t.orderCustomer}
+                    </span>
                     <span className="font-medium">សុខ ដារា</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t.orderAddress}</span>
+                    <span className="text-muted-foreground">
+                      {t.orderAddress}
+                    </span>
                     <span className="font-medium">Phnom Penh</span>
                   </div>
                 </div>
@@ -178,18 +202,39 @@ export default function LandingShowcase() {
                 <div className="mx-auto max-w-md">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {[
-                      { label: t.statProducts, value: "128", icon: LucideShoppingBag },
-                      { label: t.statCustomers, value: "842", icon: LucideUsers },
-                      { label: t.statConversations, value: "36", icon: LucideMessageCircle },
-                      { label: t.statOrders, value: "19", icon: LucideClipboardList },
+                      {
+                        label: t.statProducts,
+                        value: "128",
+                        icon: LucideShoppingBag,
+                      },
+                      {
+                        label: t.statCustomers,
+                        value: "842",
+                        icon: LucideUsers,
+                      },
+                      {
+                        label: t.statConversations,
+                        value: "36",
+                        icon: LucideMessageCircle,
+                      },
+                      {
+                        label: t.statOrders,
+                        value: "19",
+                        icon: LucideClipboardList,
+                      },
                     ].map((s) => (
                       <div
                         key={s.label}
                         className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-background p-3 text-center"
                       >
-                        <s.icon className="size-4 text-blue-600" strokeWidth={1.8} />
+                        <s.icon
+                          className="size-4 text-blue-600"
+                          strokeWidth={1.8}
+                        />
                         <span className="text-lg font-bold">{s.value}</span>
-                        <span className="text-[10px] text-muted-foreground">{s.label}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {s.label}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -197,7 +242,7 @@ export default function LandingShowcase() {
                     {[40, 65, 45, 80, 60, 90, 70].map((h, i) => (
                       <div
                         key={i}
-                        className="flex-1 rounded-t-md bg-gradient-to-t from-blue-600 to-blue-400"
+                        className="flex-1 rounded-t-md bg-linear-to-t from-blue-600 to-blue-400"
                         style={{ height: `${h}%` }}
                       />
                     ))}

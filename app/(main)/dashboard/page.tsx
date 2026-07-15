@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
-import { Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
+import Link from "next/link";
+import { Package, MessageCircle, ShoppingCart, Users, DollarSign } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
-import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
+import { useDashboardStore } from "@/stores/apis/dashboard/dashboard.store";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/utils/functions/date";
+import { formatCurrency } from "@/utils/functions/currency";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -21,22 +23,21 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function DashboardPage() {
   // ── API Integration
-  const { products, loading: productsLoading, fetchProducts } = useProductsStore();
+  // Counts come from the aggregate endpoint rather than from measuring
+  // downloaded tables — customers and conversations are only fetched here for
+  // the recent-conversations list below.
+  const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
-  const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
+  const { customers, fetchCustomers } = useCustomersStore();
 
   // ── Effects
   useEffect(() => {
-    fetchProducts();
+    fetchStats();
     fetchConversations();
     fetchCustomers();
-  }, [fetchProducts, fetchConversations, fetchCustomers]);
+  }, [fetchStats, fetchConversations, fetchCustomers]);
 
-  const loading = productsLoading || conversationsLoading || customersLoading;
-  const openConversations = conversations.filter((c) => c.status === "open").length;
   const recentConversations = conversations.slice(0, 5);
-
-  // ── Build customer lookup
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
 
   // ── Render UI
@@ -46,57 +47,75 @@ export default function DashboardPage() {
 
       <main className="flex-1 space-y-6 p-6">
         {/* ── Stat cards */}
-        {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
+        {statsLoading && !stats ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-24 rounded-xl" />
             ))}
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard
-              icon={Package}
-              label="Total Products"
-              value={products.length}
-              sub="In your catalogue"
-            />
-            <StatCard
-              icon={Users}
-              label="Customers"
-              value={customers.length}
-              sub="All platforms"
-            />
-            <StatCard
-              icon={MessageCircle}
-              label="Conversations"
-              value={conversations.length}
-              sub={`${openConversations} open`}
+              icon={DollarSign}
+              label="Revenue"
+              value={formatCurrency(stats?.revenue ?? 0)}
+              sub="Excluding cancelled"
             />
             <StatCard
               icon={ShoppingCart}
               label="Orders"
-              value="—"
-              sub="Coming soon"
+              value={stats?.orders ?? 0}
+              sub={`${stats?.pending_orders ?? 0} pending`}
+            />
+            <StatCard
+              icon={MessageCircle}
+              label="Conversations"
+              value={stats?.conversations ?? 0}
+              sub={`${stats?.open_conversations ?? 0} open`}
+            />
+            <StatCard
+              icon={Users}
+              label="Customers"
+              value={stats?.customers ?? 0}
+              sub="All platforms"
+            />
+            <StatCard
+              icon={Package}
+              label="Products"
+              value={stats?.products ?? 0}
+              sub="Active in catalogue"
             />
           </div>
         )}
 
         {/* ── Recent conversations */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base">Recent Conversations</CardTitle>
+            <Link
+              href="/chat"
+              className="text-xs font-medium text-blue-600 underline-offset-4 hover:underline"
+            >
+              View all
+            </Link>
           </CardHeader>
           <CardContent>
-            {conversationsLoading ? (
+            {conversationsLoading && recentConversations.length === 0 ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-12 rounded-lg" />
                 ))}
               </div>
             ) : recentConversations.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No conversations yet
-              </p>
+              <div className="py-6 text-center">
+                <p className="text-sm text-muted-foreground">No conversations yet</p>
+                <Link
+                  href="/settings/integrations"
+                  className="mt-1 inline-block text-xs font-medium text-blue-600 underline-offset-4 hover:underline"
+                >
+                  Connect a channel to start receiving messages
+                </Link>
+              </div>
             ) : (
               <div className="divide-y">
                 {recentConversations.map((conv) => {

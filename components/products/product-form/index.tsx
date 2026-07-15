@@ -1,12 +1,13 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ImageUpload from "@/components/ui/image-upload";
 import { IProductFormProps, ProductFormValues } from "./props";
 
 const schema = z.object({
@@ -25,6 +26,7 @@ export default function ProductForm({
 }: IProductFormProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductFormValues>({
@@ -92,14 +94,19 @@ export default function ProductForm({
         </div>
       </div>
 
-      {/* ── Image URL */}
+      {/* ── Image */}
       <div className="space-y-1.5">
-        <Label htmlFor="image_url">Image URL</Label>
-        <Input
-          id="image_url"
-          type="url"
-          placeholder="https://…"
-          {...register("image_url")}
+        <Label>Photo</Label>
+        <Controller
+          name="image_url"
+          control={control}
+          render={({ field }) => (
+            <ImageUpload
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              disabled={loading}
+            />
+          )}
         />
       </div>
 

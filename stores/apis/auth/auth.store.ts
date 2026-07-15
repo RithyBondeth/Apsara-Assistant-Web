@@ -2,7 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
-import { IUser, IToken } from "@/utils/interfaces/auth/auth.interface";
+import {
+  IUser,
+  IToken,
+  IUserUpdate,
+} from "@/utils/interfaces/auth/auth.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IAuthStore {
@@ -13,6 +17,11 @@ interface IAuthStore {
   loginWithOtp: (email: string, code: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  updateProfile: (data: IUserUpdate) => Promise<boolean>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -88,8 +97,36 @@ export const useAuthStore = create<IAuthStore>()(
         }
       },
 
+      updateProfile: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+          const { data } = await api.patch<IUser>(AUTH_API.ME, payload);
+          set({ user: data, loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
+        }
+      },
+
+      changePassword: async (currentPassword, newPassword) => {
+        set({ loading: true, error: null });
+        try {
+          // Returns 204 with no body — success is the absence of a throw.
+          await api.post(AUTH_API.CHANGE_PASSWORD, {
+            current_password: currentPassword,
+            new_password: newPassword,
+          });
+          set({ loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
+        }
+      },
+
       clearError: () => set({ error: null }),
     }),
-    { name: "apsara-auth", partialize: (s) => ({ user: s.user }) }
-  )
+    { name: "apsara-auth", partialize: (s) => ({ user: s.user }) },
+  ),
 );

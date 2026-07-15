@@ -13,7 +13,10 @@ export default function LandingCta() {
   const t = useT("cta");
 
   return (
-    <section ref={ctaRef} className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
+    <section
+      ref={ctaRef}
+      className="relative py-16 sm:py-24 md:py-32 overflow-hidden"
+    >
       {/* Dotted background */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] bg-dots" />
       {/* Center glow */}
@@ -23,14 +26,14 @@ export default function LandingCta() {
 
       <div
         data-gsap="scale-up"
-        className="aurora-border relative z-10 mx-auto max-w-3xl rounded-[2rem] border border-border/60 bg-card/40 backdrop-blur-sm px-6 py-14 text-center sm:px-12 sm:py-20"
+        className="aurora-border relative z-10 mx-auto max-w-3xl rounded-4xl border border-border/60 bg-card/40 backdrop-blur-sm px-6 py-14 text-center sm:px-12 sm:py-20"
       >
         <h2
           data-gsap="split-words"
-          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 !leading-[1.15] [perspective:800px]"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 leading-[1.15]! perspective-midrange"
         >
           {t.heading1}{" "}
-          <span className="text-shimmer bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+          <span className="text-shimmer bg-linear-to-r from-blue-700 via-blue-500 to-blue-400 bg-clip-text text-transparent">
             {t.heading2}
           </span>
           ?
@@ -51,7 +54,7 @@ export default function LandingCta() {
             <Link href="/register" className="block w-full sm:w-auto">
               <Button
                 size="lg"
-                className="w-full sm:w-auto rounded-full px-10 gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
+                className="w-full sm:w-auto rounded-full px-10 gap-2 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all"
               >
                 {t.startFree}
                 <LucideArrowRight className="size-4" />
