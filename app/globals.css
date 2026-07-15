@@ -130,13 +130,15 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Fallback chain: system-ui / Helvetica are visually close to Ubuntu */
-    font-family: var(--font-ubuntu), ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    /* One stack for BOTH locales — the browser picks the font per character via
+       each face's unicode-range. Ubuntu must lead Kantumruy Pro: next/font's
+       Kantumruy subset also ships Latin glyphs (U+0-FF), so if it led, English
+       text would render in Kantumruy on the Khmer UI. Ubuntu-first gives Latin
+       to Ubuntu in every locale, while Khmer (which Ubuntu has no range for)
+       always falls through to Kantumruy. A per-locale override is therefore
+       unnecessary and would only mis-route one script's text. */
+    font-family: var(--font-ubuntu), var(--font-kantumruy), ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", "Noto Sans Khmer", "Khmer OS", sans-serif;
     -webkit-overflow-scrolling: touch;
-  }
-  html[data-lang="km"] body {
-    /* Fallback chain: Noto Sans Khmer is the closest system Khmer font */
-    font-family: var(--font-kantumruy), "Noto Sans Khmer", "Khmer OS", sans-serif;
   }
   html {
     @apply font-sans;

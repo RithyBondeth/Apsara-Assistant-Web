@@ -13,18 +13,24 @@ import {
 } from "@/lib/metadata";
 import "./globals.css";
 
+// display: "swap" (not "optional") so a script's font always swaps in once
+// loaded — critical for the minority script on a page (e.g. a Khmer customer
+// name on the English UI), whose font may not be cached when that text first
+// paints. Under "optional" it would stay stuck on a system fallback with no
+// swap period, which is the font-not-applying symptom this pairs with the
+// globals.css stack fix to solve.
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu",
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  display: "optional",
+  display: "swap",
 });
 
 const kantumruyPro = Kantumruy_Pro({
   variable: "--font-kantumruy",
   subsets: ["khmer"],
   weight: ["400", "500", "600", "700"],
-  display: "optional",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
