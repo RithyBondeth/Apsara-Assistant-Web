@@ -245,7 +245,7 @@ function VerifyCodeStep({
           <Button
             type="submit"
             disabled={loading}
-            className="group w-full gap-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-blue-600 hover:shadow-lg hover:shadow-blue-500/30"
+            className="group w-full gap-2 rounded-full bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-blue-600 hover:shadow-lg hover:shadow-blue-500/30"
           >
             {loading ? (
               <>
