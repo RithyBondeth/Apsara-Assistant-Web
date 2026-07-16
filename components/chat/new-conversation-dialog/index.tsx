@@ -11,9 +11,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { PLATFORMS } from "@/utils/constants/platforms.constant";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 import { INewConversationDialogProps } from "./props";
-
-const PLATFORMS = ["facebook", "telegram", "tiktok", "website"];
 
 export default function NewConversationDialog({
   open,
@@ -23,7 +23,7 @@ export default function NewConversationDialog({
 }: INewConversationDialogProps) {
   // ── All States
   const [customerId, setCustomerId] = useState("");
-  const [platform, setPlatform] = useState("website");
+  const [platform, setPlatform] = useState<PlatformId>("website");
   const [loading, setLoading] = useState(false);
 
   // ── Methods
@@ -81,12 +81,12 @@ export default function NewConversationDialog({
             <select
               id="platform-select"
               value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
+              onChange={(e) => setPlatform(e.target.value as PlatformId)}
               className="flex h-8 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               {PLATFORMS.map((p) => (
-                <option key={p} value={p} className="capitalize">
-                  {p.charAt(0).toUpperCase() + p.slice(1)}
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>

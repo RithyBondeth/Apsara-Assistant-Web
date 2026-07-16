@@ -1,3 +1,5 @@
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
+
 export interface IAttachment {
   id: string;
   file_url: string;
@@ -6,10 +8,13 @@ export interface IAttachment {
   file_size: number | null;
 }
 
+/** "seller" is a manual reply the seller typed themselves, not an AI reply. */
+export type SenderType = "customer" | "assistant" | "seller";
+
 export interface IMessage {
   id: string;
   conversation_id: string;
-  sender_type: "customer" | "assistant";
+  sender_type: SenderType;
   message_type: string;
   content: string | null;
   created_at: string;
@@ -20,7 +25,7 @@ export interface IConversation {
   id: string;
   user_id: string;
   customer_id: string;
-  platform: string;
+  platform: PlatformId;
   status: "open" | "closed" | "pending";
   created_at: string;
   updated_at: string;

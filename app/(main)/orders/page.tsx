@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import AppHeader from "@/components/header";
 import OrderTable from "@/components/orders/order-table";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
@@ -65,19 +68,29 @@ export default function OrdersPage() {
             )}
           </div>
 
-          <select
-            aria-label="Filter by status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as StatusFilter)}
-            className="h-8 rounded-lg border border-input bg-background px-3 text-sm capitalize outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <option value="all">All statuses</option>
-            {ORDER_STATUSES.map((s) => (
-              <option key={s} value={s} className="capitalize">
-                {s}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              aria-label="Filter by status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as StatusFilter)}
+              className="h-8 rounded-lg border border-input bg-background px-3 text-sm capitalize outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <option value="all">All statuses</option>
+              {ORDER_STATUSES.map((s) => (
+                <option key={s} value={s} className="capitalize">
+                  {s}
+                </option>
+              ))}
+            </select>
+
+            <Link
+              href="/orders/new"
+              className={buttonVariants({ size: "sm" })}
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              New order
+            </Link>
+          </div>
         </div>
 
         {error && (

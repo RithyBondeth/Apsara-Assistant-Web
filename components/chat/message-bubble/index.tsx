@@ -1,9 +1,19 @@
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
+import { SenderType } from "@/utils/interfaces/chat/chat.interface";
 import { IMessageBubbleProps } from "./props";
 
+const SENDER_LABELS: Record<SenderType, string> = {
+  customer: "Customer",
+  assistant: "Apsara AI",
+  seller: "You",
+};
+
 export default function MessageBubble({ message }: IMessageBubbleProps) {
-  const isOutgoing = message.sender_type === "assistant";
+  // Both the AI and the seller's own manual replies are outgoing; only the
+  // customer's messages arrive from the other side.
+  const isOutgoing = message.sender_type !== "customer";
+  const isSeller = message.sender_type === "seller";
 
   return (
     <div
@@ -13,14 +23,16 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
       )}
     >
       <span className="px-1 text-[10px] text-muted-foreground">
-        {isOutgoing ? "Apsara AI" : "Customer"}
+        {SENDER_LABELS[message.sender_type] ?? message.sender_type}
       </span>
       <div
         className={cn(
           "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed",
-          isOutgoing
-            ? "rounded-tr-sm bg-primary text-primary-foreground"
-            : "rounded-tl-sm bg-muted text-foreground"
+          !isOutgoing && "rounded-tl-sm bg-muted text-foreground",
+          // A seller's own reply is visually distinct from an AI one, so it's
+          // clear at a glance which replies were handled by a human.
+          isOutgoing && isSeller && "rounded-tr-sm bg-secondary text-secondary-foreground",
+          isOutgoing && !isSeller && "rounded-tr-sm bg-primary text-primary-foreground"
         )}
       >
         {message.content ?? <em className="opacity-60">Empty message</em>}

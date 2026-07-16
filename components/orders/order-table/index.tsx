@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ORDER_STATUSES, ORDER_STATUS_STYLES } from "@/utils/constants/orders.constant";
 import { OrderStatus } from "@/utils/interfaces/order/order.interface";
 import { formatCurrency } from "@/utils/functions/currency";
@@ -32,11 +33,19 @@ export default function OrderTable({
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-lg border">
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          No orders yet. They&apos;ll appear here once you create one from a
-          conversation.
-        </p>
+      <div className="rounded-lg border py-12 text-center">
+        <p className="text-sm text-muted-foreground">No orders yet.</p>
+        <Link
+          href="/orders/new"
+          className={buttonVariants({
+            variant: "outline",
+            size: "sm",
+            className: "mt-3",
+          })}
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          New order
+        </Link>
       </div>
     );
   }
@@ -62,9 +71,14 @@ export default function OrderTable({
             return (
               <TableRow key={order.id}>
                 <TableCell>
-                  <p className="font-mono text-xs font-medium">
+                  {/* Only the id links out — the row also holds a status select
+                      and a delete button, which a row-wide link would swallow. */}
+                  <Link
+                    href={`/orders/${order.id}`}
+                    className="font-mono text-xs font-medium hover:underline"
+                  >
                     #{order.id.slice(0, 8)}
-                  </p>
+                  </Link>
                   {order.delivery_address && (
                     <p className="line-clamp-1 text-xs text-muted-foreground">
                       {order.delivery_address}

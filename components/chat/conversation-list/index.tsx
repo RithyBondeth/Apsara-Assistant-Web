@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 import { IConversationListProps } from "./props";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -11,10 +12,10 @@ const STATUS_STYLES: Record<string, string> = {
   closed: "bg-muted text-muted-foreground",
 };
 
-const PLATFORM_LABELS: Record<string, string> = {
-  facebook: "FB",
+const PLATFORM_LABELS: Record<PlatformId, string> = {
   telegram: "TG",
-  tiktok: "TT",
+  messenger: "FB",
+  instagram: "IG",
   website: "WEB",
 };
 

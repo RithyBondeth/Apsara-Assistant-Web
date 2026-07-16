@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 
 export default function ChatPage() {
   // ── All States
@@ -44,7 +45,10 @@ export default function ChatPage() {
     fetchConversationDetail(conversation.id);
   }
 
-  async function handleCreateConversation(customerId: string, platform: string) {
+  async function handleCreateConversation(
+    customerId: string,
+    platform: PlatformId,
+  ) {
     const conv = await createConversation(customerId, platform);
     if (conv) {
       setActiveConversation(conv);

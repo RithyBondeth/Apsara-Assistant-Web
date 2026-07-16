@@ -9,6 +9,7 @@ import {
   IConversationDetail,
   IChatResponse,
 } from "@/utils/interfaces/chat/chat.interface";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IChatStore {
@@ -27,7 +28,7 @@ interface IChatStore {
   fetchConversations: () => Promise<void>;
   createConversation: (
     customerId: string,
-    platform: string,
+    platform: PlatformId,
   ) => Promise<IConversation | null>;
   setActiveConversation: (conversation: IConversation) => void;
   fetchConversationDetail: (id: string) => Promise<void>;
