@@ -38,7 +38,7 @@ export default function LandingHero() {
   return (
     <section
       ref={setSectionRef}
-      className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
+      className="relative min-h-dvh flex items-center justify-center overflow-hidden"
     >
       {/* ── Ambient background — orbs drift forever + follow the mouse ── */}
       <div className="pointer-events-none absolute inset-0 z-0">
@@ -62,7 +62,7 @@ export default function LandingHero() {
 
       {/* ── Floating chat cards (desktop only) ──────────────────── */}
       <div
-        className="pointer-events-none absolute inset-0 z-[5] hidden lg:block"
+        className="pointer-events-none absolute inset-0 z-5 hidden lg:block"
         aria-hidden="true"
       >
         {/* customer question — top left */}
@@ -121,7 +121,7 @@ export default function LandingHero() {
           {/* Heading — Khmer renders as natural two-line sentence */}
           <h1
             data-hero="heading"
-            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl !leading-[1.15] opacity-0 perspective-midrange"
+            className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15]! opacity-0 perspective-midrange"
           >
             {language === "km" ? (
               <>
@@ -157,7 +157,7 @@ export default function LandingHero() {
           {/* Description */}
           <p
             data-hero="description"
-            className="text-muted-foreground !leading-relaxed text-base sm:text-lg md:text-xl max-w-[640px] opacity-0"
+            className="text-muted-foreground leading-relaxed! text-base sm:text-lg md:text-xl max-w-[640px] opacity-0"
           >
             {t.description}
           </p>
