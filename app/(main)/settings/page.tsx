@@ -58,7 +58,9 @@ export default function SettingsAccountPage() {
 
       <SectionCard icon={LucideUser} title={t.profile} description={t.profileDesc}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* Fields go 3-up on wide screens so the card can fill the page
+              without any single input stretching to an unreadable width. */}
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="full_name">{t.fullName}</Label>
               <Input id="full_name" {...form.register("full_name")} />
@@ -78,12 +80,12 @@ export default function SettingsAccountPage() {
               />
               <p className="text-xs text-muted-foreground">{t.businessNameHelp}</p>
             </div>
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email">{t.email}</Label>
-            <Input id="email" value={user?.email ?? ""} disabled />
-            <p className="text-xs text-muted-foreground">{t.emailHelp}</p>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">{t.email}</Label>
+              <Input id="email" value={user?.email ?? ""} disabled />
+              <p className="text-xs text-muted-foreground">{t.emailHelp}</p>
+            </div>
           </div>
 
           {error && (

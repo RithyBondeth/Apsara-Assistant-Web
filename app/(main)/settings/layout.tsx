@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LucideUser, LucidePalette, LucideLock, LucidePlug } from "lucide-react";
+import {
+  LucideUser,
+  LucidePalette,
+  LucideLock,
+  LucideRadioTower,
+  LucideArrowUpRight,
+} from "lucide-react";
 import AppHeader from "@/components/header";
 import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
@@ -14,12 +20,12 @@ export default function SettingsLayout({
 }) {
   const pathname = usePathname();
   const t = useT("settings");
+  const tChannels = useT("channels");
 
   const nav = [
     { title: t.account, href: "/settings", icon: LucideUser },
     { title: t.appearance, href: "/settings/appearance", icon: LucidePalette },
     { title: t.security, href: "/settings/security", icon: LucideLock },
-    { title: t.integrations, href: "/settings/integrations", icon: LucidePlug },
   ];
 
   return (
@@ -27,10 +33,10 @@ export default function SettingsLayout({
       <AppHeader title={t.title} />
 
       <main className="flex-1 p-6 lg:p-8">
-        {/* Anchored left rather than centred: with the app sidebar already on
-            the left, centring a fixed-width block just opens a dead gutter on
-            both sides. Capped so the forms don't stretch on wide screens. */}
-        <div className="w-full max-w-5xl">
+        {/* No fixed cap — one would leave a dead gutter on wide screens. The
+            forms stay readable because the FIELDS inside each card lay out in a
+            responsive grid rather than stretching to the card's width. */}
+        <div className="w-full">
           <div className="mb-6">
             <h1 className="text-xl font-semibold tracking-tight">{t.title}</h1>
             <p className="text-sm text-muted-foreground">{t.subtitle}</p>
@@ -62,6 +68,18 @@ export default function SettingsLayout({
                   </Link>
                 );
               })}
+
+              {/* Channels moved out to its own top-level page — it's the thing
+                  that turns the product on, not a preference. This pointer is
+                  for people who still look for it here. */}
+              <Link
+                href="/channels"
+                className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground md:mt-1 md:border-t md:border-border md:pt-3"
+              >
+                <LucideRadioTower className="size-4 shrink-0" />
+                {tChannels.title}
+                <LucideArrowUpRight className="ml-auto size-3.5 shrink-0 opacity-50" />
+              </Link>
             </nav>
 
             {/* ── Section content */}

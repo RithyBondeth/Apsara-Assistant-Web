@@ -116,13 +116,154 @@
     "terms": "លក្ខខណ្ឌប្រើប្រាស់",
     "rights": "បង្កើតឡើងសម្រាប់អ្នកលក់ខ្មែរ"
   },
+  "sidebar": {
+    "dashboard": "ផ្ទាំងព័ត៌មាន",
+    "channels": "ប៉ុស្តិ៍",
+    "products": "ផលិតផល",
+    "customers": "អតិថិជន",
+    "chat": "ជជែក",
+    "orders": "ការបញ្ជាទិញ",
+    "analytics": "ស្ថិតិ"
+  },
+  "channels": {
+    "title": "ប៉ុស្តិ៍",
+    "subtitle": "ភ្ជាប់ប៉ុស្តិ៍ដែលអតិថិជនផ្ញើសារមកអ្នក។ Telegram គឺងាយស្រួលបំផុតក្នុងការតភ្ជាប់",
+    "openChannels": "គ្រប់គ្រងប៉ុស្តិ៍",
+    "connect": "តភ្ជាប់",
+    "addAnother": "បន្ថែមមួយទៀត",
+    "connected": "បានតភ្ជាប់",
+    "getUrl": "យក URL",
+    "reRegister": "ចុះឈ្មោះឡើងវិញ",
+    "active": "កំពុងដំណើរការ",
+    "paused": "បានផ្អាក",
+    "addedOn": "បានបន្ថែម",
+    "disconnect": "ផ្តាច់",
+    "disconnectConfirm": "ផ្តាច់ {name}? សារពីប៉ុស្តិ៍នេះនឹងលែងមកដល់ជំនួយការរបស់អ្នក",
+    "setupAutomatic": "តភ្ជាប់ដោយចុចតែម្តង",
+    "setupManual": "ត្រូវការកំណត់ក្នុង dashboard",
+    "setupNone": "មិនត្រូវការការកំណត់",
+    "connectTitle": "តភ្ជាប់ {name}",
+    "cancel": "បោះបង់",
+    "requiredField": "ត្រូវបំពេញ {field}",
+    "webhookUrl": "Webhook URL",
+    "registrationFailed": "ការចុះឈ្មោះមិនជោគជ័យ",
+    "copyUrl": "ចម្លង Webhook URL",
+    "platforms": {
+      "telegram": {
+        "tagline": "ភ្ជាប់បូត Telegram។ ងាយស្រួលបំផុត",
+        "setupNote": "យើងចុះឈ្មោះ webhook ជាមួយ Telegram ជូនអ្នក — សារនឹងចាប់ផ្តើមមកដល់ភ្លាមៗ",
+        "steps": [
+          "បើក @BotFather ក្នុង Telegram ហើយផ្ញើ /newbot",
+          "ជ្រើសរើសឈ្មោះ និងឈ្មោះអ្នកប្រើសម្រាប់បូតរបស់អ្នក",
+          "ចម្លង bot token ដែល BotFather ផ្តល់ឱ្យ ហើយដាក់ខាងក្រោម",
+          "ចុច តភ្ជាប់ — យើងនឹងចុះឈ្មោះ webhook ដោយស្វ័យប្រវត្តិ"
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Bot token",
+            "placeholder": "123456789:AAF...",
+            "help": "ពី @BotFather បន្ទាប់ពីអ្នកផ្ញើ /newbot"
+          },
+          "secret_token": {
+            "label": "Webhook secret",
+            "placeholder": "មិនចាំបាច់",
+            "help": "មិនចាំបាច់។ Telegram ផ្ញើវាមកវិញជាមួយរាល់សារ ដើម្បីឱ្យយើងផ្ទៀងផ្ទាត់ថាមកពីពួកគេ"
+          }
+        }
+      },
+      "messenger": {
+        "tagline": "ឆ្លើយតបសារពី Facebook Page របស់អ្នក",
+        "setupNote": "យើងភ្ជាប់ Page របស់អ្នកដោយស្វ័យប្រវត្តិ ប៉ុន្តែអ្នកត្រូវដាក់ callback URL និង verify token ក្នុង Meta App dashboard ដោយខ្លួនឯង",
+        "steps": [
+          "បង្កើតកម្មវិធីនៅ developers.facebook.com ហើយបន្ថែម Messenger product",
+          "បង្កើត Page access token ហើយចម្លង Page ID និង App Secret របស់អ្នក",
+          "តភ្ជាប់នៅទីនេះ — យើងនឹងផ្តល់ callback URL ជូនអ្នក",
+          "នៅ Meta → Messenger → Webhooks ដាក់ callback URL និង verify token របស់អ្នក",
+          "ភ្ជាប់ Page ទៅនឹង field 'messages'"
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Page access token",
+            "placeholder": "EAAG...",
+            "help": "Meta App dashboard → Messenger → Settings → Generate token"
+          },
+          "external_id": {
+            "label": "Facebook Page ID",
+            "placeholder": "1234567890",
+            "help": "ត្រូវការ — យើងប្រើវាដើម្បីភ្ជាប់ Page របស់អ្នកទៅកម្មវិធី"
+          },
+          "app_secret": {
+            "label": "App secret",
+            "placeholder": "ពី Meta App → Settings → Basic",
+            "help": "ប្រើដើម្បីផ្ទៀងផ្ទាត់ថា webhook មកពី Meta ពិតប្រាកដ"
+          },
+          "secret_token": {
+            "label": "Verify token",
+            "placeholder": "អក្សរណាមួយដែលអ្នកជ្រើសរើស",
+            "help": "អ្នកនឹងដាក់តម្លៃដូចគ្នានេះក្នុង Meta dashboard ពេលកំណត់ callback URL"
+          }
+        }
+      },
+      "instagram": {
+        "tagline": "ឆ្លើយតប Instagram DM។ ត្រូវការការត្រួតពិនិត្យពី Meta",
+        "setupNote": "Webhook របស់ Instagram ត្រូវកំណត់ទាំងស្រុងក្នុង Meta App dashboard។ ត្រូវការគណនី Instagram Business និងការត្រួតពិនិត្យពី Meta",
+        "steps": [
+          "ប្តូរគណនី Instagram របស់អ្នកទៅជា Business account",
+          "ស្នើសុំសិទ្ធិ instagram_business_basic និង instagram_business_manage_messages ហើយដាក់ស្នើឱ្យ Meta ត្រួតពិនិត្យ",
+          "តភ្ជាប់នៅទីនេះ — យើងនឹងផ្តល់ callback URL ជូនអ្នក",
+          "នៅ Meta → Instagram → Webhooks ដាក់ callback URL និង verify token",
+          "ភ្ជាប់គណនីទៅនឹង field 'messages'"
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Instagram access token",
+            "placeholder": "IGQ..."
+          },
+          "external_id": {
+            "label": "Instagram account ID",
+            "placeholder": "1789..."
+          },
+          "app_secret": {
+            "label": "App secret",
+            "placeholder": "ពី Meta App → Settings → Basic",
+            "help": "ប្រើដើម្បីផ្ទៀងផ្ទាត់ថា webhook មកពី Meta ពិតប្រាកដ"
+          },
+          "secret_token": {
+            "label": "Verify token",
+            "placeholder": "អក្សរណាមួយដែលអ្នកជ្រើសរើស"
+          }
+        }
+      },
+      "website": {
+        "tagline": "បន្ថែមជំនួយការទៅគេហទំព័ររបស់អ្នក",
+        "setupNote": "មិនត្រូវចុះឈ្មោះអ្វីទេ — គ្រាន់តែផ្ញើ POST ពី widget របស់អ្នកទៅ URL ដែលយើងបង្កើត",
+        "steps": [
+          "ជ្រើសរើស widget key ហើយបញ្ជាក់ origin ដែលអនុញ្ញាតឱ្យប្រើវា",
+          "តភ្ជាប់នៅទីនេះដើម្បីទទួល POST URL សម្រាប់ widget របស់អ្នក",
+          "ឱ្យគេហទំព័ររបស់អ្នកផ្ញើ POST { session_id, message, name? } ទៅ URL នោះ",
+          "បន្ថែម origin របស់គេហទំព័រអ្នកទៅក្នុង CORS_ORIGINS របស់ API ដើម្បីឱ្យ browser អនុញ្ញាត"
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Widget key",
+            "placeholder": "សោសាធារណៈសម្រាប់ widget របស់អ្នក",
+            "help": "នេះជាឈ្មោះសម្គាល់សាធារណៈ មិនមែនជាការសម្ងាត់ទេ — វាស្ថិតក្នុង JavaScript នៃគេហទំព័ររបស់អ្នក"
+          },
+          "secret_token": {
+            "label": "Origin ដែលអនុញ្ញាត",
+            "placeholder": "https://myshop.com, https://www.myshop.com",
+            "help": "បំបែកដោយសញ្ញាក្បៀស។ សំណើពី origin ផ្សេងនឹងត្រូវបដិសេធ។ ទុកទទេដើម្បីអនុញ្ញាតគ្រប់ origin"
+          }
+        }
+      }
+    }
+  },
   "settings": {
     "title": "ការកំណត់",
     "subtitle": "គ្រប់គ្រងគណនី និងរបៀបដែល Apsara ដំណើរការសម្រាប់អ្នក",
     "account": "គណនី",
+    "logOut": "ចាកចេញ",
     "security": "សុវត្ថិភាព",
-    "integrations": "ការតភ្ជាប់",
-    "integrationsDesc": "ភ្ជាប់ប៉ុស្តិ៍ដែលអតិថិជនផ្ញើសារមកអ្នក",
     "profile": "ប្រវត្តិរូប",
     "profileDesc": "ព័ត៌មានរបស់អ្នក និងរបៀបដែលជំនួយការហៅអាជីវកម្មរបស់អ្នក",
     "appearanceDesc": "របៀបដែល Apsara បង្ហាញនៅលើឧបករណ៍នេះ",

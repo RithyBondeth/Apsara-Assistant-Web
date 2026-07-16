@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { LucideCheck, LucideCopy, LucideCircleAlert, LucideCircleCheck } from "lucide-react";
+import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
 import { IWebhookPanelProps } from "./props";
 
 export default function WebhookPanel({ result }: IWebhookPanelProps) {
+  const t = useT("channels");
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -32,7 +34,7 @@ export default function WebhookPanel({ result }: IWebhookPanelProps) {
         ) : (
           <LucideCircleAlert className="size-3.5 text-destructive" />
         )}
-        {result.ok ? "Webhook URL" : "Registration failed"}
+        {result.ok ? t.webhookUrl : t.registrationFailed}
       </div>
 
       <div className="flex items-center gap-1.5">
@@ -42,7 +44,7 @@ export default function WebhookPanel({ result }: IWebhookPanelProps) {
         <button
           type="button"
           onClick={handleCopy}
-          aria-label="Copy webhook URL"
+          aria-label={t.copyUrl}
           className="flex size-7 shrink-0 items-center justify-center rounded-md border transition-colors hover:bg-muted"
         >
           {copied ? (

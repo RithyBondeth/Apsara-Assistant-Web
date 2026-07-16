@@ -110,7 +110,7 @@ export default function DashboardPage() {
               <div className="py-6 text-center">
                 <p className="text-sm text-muted-foreground">No conversations yet</p>
                 <Link
-                  href="/settings/integrations"
+                  href="/channels"
                   className="mt-1 inline-block text-xs font-medium text-blue-600 underline-offset-4 hover:underline"
                 >
                   Connect a channel to start receiving messages

@@ -116,13 +116,154 @@
     "terms": "Terms of Service",
     "rights": "Built for Cambodian sellers."
   },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "channels": "Channels",
+    "products": "Products",
+    "customers": "Customers",
+    "chat": "Chat",
+    "orders": "Orders",
+    "analytics": "Analytics"
+  },
+  "channels": {
+    "title": "Channels",
+    "subtitle": "Connect the channels your customers message you on. Telegram is the quickest to set up.",
+    "openChannels": "Manage channels",
+    "connect": "Connect",
+    "addAnother": "Add another",
+    "connected": "Connected",
+    "getUrl": "Get URL",
+    "reRegister": "Re-register",
+    "active": "Active",
+    "paused": "Paused",
+    "addedOn": "added",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Disconnect {name}? Messages from this channel will stop reaching your assistant.",
+    "setupAutomatic": "One-click setup",
+    "setupManual": "Needs dashboard setup",
+    "setupNone": "No setup needed",
+    "connectTitle": "Connect {name}",
+    "cancel": "Cancel",
+    "requiredField": "{field} is required.",
+    "webhookUrl": "Webhook URL",
+    "registrationFailed": "Registration failed",
+    "copyUrl": "Copy webhook URL",
+    "platforms": {
+      "telegram": {
+        "tagline": "Connect a Telegram bot. Fastest to set up.",
+        "setupNote": "We register the webhook with Telegram for you — messages start flowing right away.",
+        "steps": [
+          "Open @BotFather in Telegram and send /newbot.",
+          "Choose a name and username for your bot.",
+          "Copy the bot token BotFather gives you and paste it below.",
+          "Click Connect — we'll register the webhook automatically."
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Bot token",
+            "placeholder": "123456789:AAF...",
+            "help": "From @BotFather after you run /newbot."
+          },
+          "secret_token": {
+            "label": "Webhook secret",
+            "placeholder": "Optional",
+            "help": "Optional. Telegram sends this back with every update so we can verify it came from them."
+          }
+        }
+      },
+      "messenger": {
+        "tagline": "Reply to your Facebook Page messages.",
+        "setupNote": "We subscribe your Page automatically, but you must paste the callback URL and verify token into the Meta App dashboard yourself.",
+        "steps": [
+          "Create an app at developers.facebook.com and add the Messenger product.",
+          "Generate a Page access token and copy your Page ID and App Secret.",
+          "Connect here — we'll give you a callback URL.",
+          "In Meta → Messenger → Webhooks, paste the callback URL and your verify token.",
+          "Subscribe the Page to the 'messages' field."
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Page access token",
+            "placeholder": "EAAG...",
+            "help": "Meta App dashboard → Messenger → Settings → Generate token."
+          },
+          "external_id": {
+            "label": "Facebook Page ID",
+            "placeholder": "1234567890",
+            "help": "Required — we use this to subscribe your Page to the app."
+          },
+          "app_secret": {
+            "label": "App secret",
+            "placeholder": "From Meta App → Settings → Basic",
+            "help": "Used to verify that incoming webhooks really came from Meta."
+          },
+          "secret_token": {
+            "label": "Verify token",
+            "placeholder": "Any string you choose",
+            "help": "You'll paste this same value into the Meta dashboard when setting the callback URL."
+          }
+        }
+      },
+      "instagram": {
+        "tagline": "Reply to Instagram DMs. Requires Meta app review.",
+        "setupNote": "Instagram webhooks must be configured entirely in the Meta App dashboard. Needs an Instagram Business account and Meta app review.",
+        "steps": [
+          "Convert your Instagram account to a Business account.",
+          "Request the instagram_business_basic and instagram_business_manage_messages permissions, and submit for Meta app review.",
+          "Connect here — we'll give you a callback URL.",
+          "In Meta → Instagram → Webhooks, paste the callback URL and verify token.",
+          "Subscribe the account to the 'messages' field."
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Instagram access token",
+            "placeholder": "IGQ..."
+          },
+          "external_id": {
+            "label": "Instagram account ID",
+            "placeholder": "1789..."
+          },
+          "app_secret": {
+            "label": "App secret",
+            "placeholder": "From Meta App → Settings → Basic",
+            "help": "Used to verify that incoming webhooks really came from Meta."
+          },
+          "secret_token": {
+            "label": "Verify token",
+            "placeholder": "Any string you choose"
+          }
+        }
+      },
+      "website": {
+        "tagline": "Add the assistant to your own site.",
+        "setupNote": "Nothing to register — point your widget's POST requests at the URL we generate.",
+        "steps": [
+          "Choose a widget key and, ideally, list the origins allowed to use it.",
+          "Connect here to get your widget's POST URL.",
+          "Have your site POST { session_id, message, name? } to that URL.",
+          "Add your site's origin to the API's CORS_ORIGINS so the browser allows the call."
+        ],
+        "fields": {
+          "access_token": {
+            "label": "Widget key",
+            "placeholder": "A public key for your widget",
+            "help": "This is a public identifier, not a secret — it ships in your site's JavaScript."
+          },
+          "secret_token": {
+            "label": "Allowed origins",
+            "placeholder": "https://myshop.com, https://www.myshop.com",
+            "help": "Comma-separated. Requests from other origins are rejected. Leave blank to allow any origin."
+          }
+        }
+      }
+    }
+  },
   "settings": {
     "title": "Settings",
     "subtitle": "Manage your account and how Apsara works for you.",
     "account": "Account",
+    "logOut": "Log out",
     "security": "Security",
-    "integrations": "Integrations",
-    "integrationsDesc": "Connect the channels your customers message you on.",
     "profile": "Profile",
     "profileDesc": "Your details, and how the assistant refers to your business.",
     "appearanceDesc": "How Apsara looks on this device.",

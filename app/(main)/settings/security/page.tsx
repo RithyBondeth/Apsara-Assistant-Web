@@ -68,21 +68,23 @@ export default function SettingsSecurityPage() {
       accent="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
     >
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="current_password">{t.currentPassword}</Label>
-          <PasswordInput
-            id="current_password"
-            autoComplete="current-password"
-            {...form.register("current_password")}
-          />
-          {form.formState.errors.current_password && (
-            <p className="text-xs text-destructive">
-              {form.formState.errors.current_password.message}
-            </p>
-          )}
-        </div>
+        {/* 3-up on wide screens so the card fills the page without stretching
+            any single input. */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="current_password">{t.currentPassword}</Label>
+            <PasswordInput
+              id="current_password"
+              autoComplete="current-password"
+              {...form.register("current_password")}
+            />
+            {form.formState.errors.current_password && (
+              <p className="text-xs text-destructive">
+                {form.formState.errors.current_password.message}
+              </p>
+            )}
+          </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="new_password">{t.newPassword}</Label>
             <PasswordInput
@@ -112,7 +114,9 @@ export default function SettingsSecurityPage() {
           </div>
         </div>
 
-        <PasswordStrength password={newPassword} />
+        <div className="max-w-md">
+          <PasswordStrength password={newPassword} />
+        </div>
 
         {error && (
           <p className="animate-shake rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">

@@ -80,6 +80,11 @@ export const useAuthStore = create<IAuthStore>()(
       logout: async () => {
         try {
           await api.post(AUTH_API.LOGOUT);
+        } catch {
+          // Best-effort. The API has no /auth/logout route, and a stateless JWT
+          // can't be revoked server-side anyway — dropping the token locally is
+          // what actually ends the session. Without this catch the rejection
+          // escaped and callers never reached their post-logout redirect.
         } finally {
           localStorage.removeItem("access_token");
           set({ user: null });
