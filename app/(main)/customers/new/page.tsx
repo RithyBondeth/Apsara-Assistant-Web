@@ -17,19 +17,19 @@ import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
 
 export default function NewCustomerPage() {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { createCustomer, loading } = useCustomersStore();
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleSubmit(values: CustomerFormValues) {
     const customer = await createCustomer(values);
     if (customer) router.push("/customers");
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Add Customer" />

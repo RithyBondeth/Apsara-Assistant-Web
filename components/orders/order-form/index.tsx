@@ -88,7 +88,7 @@ export default function OrderForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* ── Customer + delivery */}
+      {/* ── Customer + Delivery ──────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="customer_id">Customer *</Label>
@@ -123,7 +123,7 @@ export default function OrderForm({
         </div>
       </div>
 
-      {/* ── Line items */}
+      {/* ── Line Items ──────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label>Items *</Label>
@@ -159,7 +159,7 @@ export default function OrderForm({
         )}
       </div>
 
-      {/* ── Notes */}
+      {/* ── Notes ──────────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Label htmlFor="notes">Notes</Label>
         <Textarea
@@ -180,7 +180,7 @@ export default function OrderForm({
   );
 }
 
-/* ── A single product + quantity row ──────────────────────────────────────── */
+/* --------------------------------- Methods --------------------------------- */
 
 function OrderLineItem({
   index,
@@ -212,7 +212,7 @@ function OrderLineItem({
 
   return (
     <div className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_7rem_7rem_auto] sm:items-start">
-      {/* ── Product */}
+      {/* ── Product ────────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <select
           aria-label={`Product for item ${index + 1}`}
@@ -237,7 +237,7 @@ function OrderLineItem({
         )}
       </div>
 
-      {/* ── Quantity */}
+      {/* ── Quantity ───────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Input
           type="number"
@@ -251,7 +251,7 @@ function OrderLineItem({
         )}
       </div>
 
-      {/* ── Subtotal */}
+      {/* ── Subtotal ───────────────────────────────────────────── */}
       <div className="flex h-9 items-center text-sm font-medium tabular-nums">
         {product ? (
           formatCurrency(parseFloat(product.price) * quantity)

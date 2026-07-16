@@ -43,21 +43,21 @@ export default function OrderDetailPage({
 }
 
 function OrderDetailClient({ id }: { id: string }) {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { selected, loading, error, fetchOrder, updateOrder, deleteOrder } =
     useOrdersStore();
   const { customers, fetchCustomers } = useCustomersStore();
   const { products, fetchProducts } = useProductsStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchOrder(id);
   }, [id, fetchOrder]);
 
-  // ── Line items carry only product_id, so resolve names from the catalogue.
+  // ── Line items carry only product_id, so resolve names from the catalogue. ─
   useEffect(() => {
     fetchCustomers();
     fetchProducts();
@@ -73,7 +73,7 @@ function OrderDetailClient({ id }: { id: string }) {
     [customers, selected?.customer_id]
   );
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleStatusChange(next: OrderStatus) {
     if (
       next === "cancelled" &&
@@ -90,7 +90,7 @@ function OrderDetailClient({ id }: { id: string }) {
     if (ok) router.push("/orders");
   }
 
-  // ── Conditional rendering
+  // ── Conditional rendering ──────────────────────────────────────────────────
   if (!selected) {
     return (
       <>
@@ -111,7 +111,7 @@ function OrderDetailClient({ id }: { id: string }) {
     );
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title={`Order #${selected.id.slice(0, 8)}`} />
@@ -169,7 +169,7 @@ function OrderDetailClient({ id }: { id: string }) {
         )}
 
         <div className="grid gap-4 lg:grid-cols-3">
-          {/* ── Items */}
+          {/* ── Items ────────────────────────────────────────────── */}
           <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-base">Items</CardTitle>
@@ -221,7 +221,7 @@ function OrderDetailClient({ id }: { id: string }) {
             </CardContent>
           </Card>
 
-          {/* ── Meta */}
+          {/* ── Meta ─────────────────────────────────────────────── */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Details</CardTitle>

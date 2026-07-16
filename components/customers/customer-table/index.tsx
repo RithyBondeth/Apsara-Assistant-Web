@@ -58,7 +58,7 @@ export default function CustomerTable({
         <TableBody>
           {customers.map((customer) => (
             <TableRow key={customer.id}>
-              {/* ── Name */}
+              {/* ── Name                   ────────────────────────────────────────── */}
               <TableCell>
                 <p className="font-medium">{customer.name}</p>
                 {customer.platform_id && (
@@ -68,7 +68,7 @@ export default function CustomerTable({
                 )}
               </TableCell>
 
-              {/* ── Contact */}
+              {/* ── Contact                ────────────────────────────────────────── */}
               <TableCell className="hidden sm:table-cell">
                 <div className="space-y-0.5">
                   {customer.phone && (
@@ -85,7 +85,7 @@ export default function CustomerTable({
                 </div>
               </TableCell>
 
-              {/* ── Platform */}
+              {/* ── Platform               ────────────────────────────────────────── */}
               <TableCell className="hidden md:table-cell">
                 {customer.platform ? (
                   <Badge
@@ -98,12 +98,12 @@ export default function CustomerTable({
                 )}
               </TableCell>
 
-              {/* ── Date */}
+              {/* ── Date                   ────────────────────────────────────────── */}
               <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                 {formatDate(customer.created_at)}
               </TableCell>
 
-              {/* ── Actions */}
+              {/* ── Actions                ────────────────────────────────────────── */}
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-1">
                   <Link

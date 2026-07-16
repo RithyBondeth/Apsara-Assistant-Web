@@ -12,11 +12,11 @@ import { IHeaderProps } from "./props";
 export default function AppHeader({ title }: IHeaderProps) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-background px-4">
-      {/* ── Sidebar toggle */}
+      {/* ── Sidebar Toggle ───────────────────────────────────────── */}
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-5" />
 
-      {/* ── Page title */}
+      {/* ── Page Title ──────────────────────────────────────────── */}
       <h1 className="flex-1 text-base font-semibold">{title}</h1>
     </header>
   );

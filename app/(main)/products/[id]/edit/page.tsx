@@ -28,24 +28,24 @@ export default function EditProductPage({
 }
 
 function EditProductClient({ id }: { id: string }) {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { selected, loading, fetchProduct, updateProduct } = useProductsStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchProduct(id);
   }, [id, fetchProduct]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleSubmit(values: ProductFormValues) {
     const ok = await updateProduct(id, values);
     if (ok) router.push("/products");
   }
 
-  // ── Conditional rendering
+  // ── Conditional rendering ──────────────────────────────────────────────────
   if (loading || !selected) {
     return (
       <>
@@ -58,7 +58,7 @@ function EditProductClient({ id }: { id: string }) {
     );
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Edit Product" />

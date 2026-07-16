@@ -28,13 +28,13 @@ const passwordSchema = z
 type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function SettingsSecurityPage() {
-  // ── Translations
+  // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("settings");
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { loading, changePassword, clearError } = useAuthStore();
 
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,10 +43,10 @@ export default function SettingsSecurityPage() {
   // render and can't be memoized safely.
   const newPassword = useWatch({ control: form.control, name: "new_password" }) ?? "";
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => clearError, [clearError]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function onSubmit(values: PasswordForm) {
     setError(null);
     setSaved(false);
@@ -59,7 +59,7 @@ export default function SettingsSecurityPage() {
     }
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <SectionCard
       icon={LucideLock}

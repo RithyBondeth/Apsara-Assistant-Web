@@ -16,15 +16,15 @@ import { formatCurrency } from "@/utils/functions/currency";
 type StatusFilter = OrderStatus | "all";
 
 export default function OrdersPage() {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { orders, loading, error, fetchOrders, updateOrder, deleteOrder } =
     useOrdersStore();
   const { customers, fetchCustomers } = useCustomersStore();
 
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const [status, setStatus] = useState<StatusFilter>("all");
 
-  // ── Effects: the API does the filtering, so refetch when it changes
+  // ── Effects: the API does the filtering, so refetch when it changes ────────
   useEffect(() => {
     fetchOrders(status === "all" ? undefined : { status });
   }, [fetchOrders, status]);
@@ -33,7 +33,7 @@ export default function OrdersPage() {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleStatusChange(id: string, next: OrderStatus) {
     if (
       next === "cancelled" &&
@@ -49,12 +49,12 @@ export default function OrdersPage() {
     await deleteOrder(id);
   }
 
-  // ── Revenue excludes cancelled orders, matching the dashboard's definition.
+  // ── Revenue excludes cancelled orders, matching the dashboard's definition. 
   const revenue = orders
     .filter((o) => o.status !== "cancelled")
     .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Orders" />

@@ -28,19 +28,19 @@ export default function EditCustomerPage({
 }
 
 function EditCustomerClient({ id }: { id: string }) {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { selected, loading, fetchCustomer, updateCustomer } =
     useCustomersStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchCustomer(id);
   }, [id, fetchCustomer]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleSubmit(values: CustomerFormValues) {
     const ok = await updateCustomer(id, {
       name: values.name,
@@ -50,7 +50,7 @@ function EditCustomerClient({ id }: { id: string }) {
     if (ok) router.push("/customers");
   }
 
-  // ── Conditional rendering
+  // ── Conditional rendering ──────────────────────────────────────────────────
   if (loading || !selected) {
     return (
       <>
@@ -63,7 +63,7 @@ function EditCustomerClient({ id }: { id: string }) {
     );
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Edit Customer" />

@@ -32,7 +32,7 @@ export const useAuthStore = create<IAuthStore>()(
       loading: false,
       error: null,
 
-      // ── Login: get token then fetch user profile
+      /* ---------------------------------- States --------------------------------- */
       login: async (email, password) => {
         set({ loading: true, error: null });
         try {
@@ -57,7 +57,7 @@ export const useAuthStore = create<IAuthStore>()(
         }
       },
 
-      // ── OTP login: exchange a verified email code for a token
+      /* ---------------------------------- Store --------------------------------- */
       loginWithOtp: async (email, code) => {
         set({ loading: true, error: null });
         try {

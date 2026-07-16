@@ -17,19 +17,19 @@ import { useProductsStore } from "@/stores/apis/products/products.store";
 import { ProductFormValues } from "@/components/products/product-form/props";
 
 export default function NewProductPage() {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { createProduct, loading } = useProductsStore();
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleSubmit(values: ProductFormValues) {
     const ok = await createProduct(values);
     if (ok) router.push("/products");
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Add Product" />

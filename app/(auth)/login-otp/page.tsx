@@ -49,7 +49,7 @@ export default function LoginOtpPage() {
   );
 }
 
-// ── Step 1: request a one-time code by email ──────────────────────
+// ── Step 1: request a one-time code by email ────────────────────── ────────
 // Each step runs its own [data-auth] cascade so remounting (switching
 // steps) replays the entrance.
 function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
@@ -81,7 +81,9 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
     <div ref={cardRef} className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Sign in with a code</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Sign in with a code
+        </h1>
         <p className="text-sm text-muted-foreground">
           We&apos;ll email you a one-time code — no password needed
         </p>
@@ -90,7 +92,9 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-sm font-medium">
+            Email
+          </Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -102,7 +106,9 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
             />
           </div>
           {errors.email && (
-            <p className="animate-shake text-xs text-destructive">{errors.email.message}</p>
+            <p className="animate-shake text-xs text-destructive">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
@@ -116,7 +122,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
           <Button
             type="submit"
             disabled={loading}
-            className="group w-full gap-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-blue-600 hover:shadow-lg hover:shadow-blue-500/30"
+            className="group w-full gap-2 rounded-full bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20 transition-all hover:from-blue-700 hover:to-blue-600 hover:shadow-lg hover:shadow-blue-500/30"
           >
             {loading ? (
               <>
@@ -134,7 +140,10 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
       </form>
 
       {/* Footer */}
-      <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+      <p
+        data-auth
+        className="text-center text-sm text-muted-foreground opacity-0"
+      >
         Prefer your password?{" "}
         <Link
           href="/login"
@@ -147,8 +156,14 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
   );
 }
 
-// ── Step 2: verify the emailed code ───────────────────────────────
-function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }) {
+// ── Step 2: verify the emailed code ─────────────────────────────── ────────
+function VerifyCodeStep({
+  email,
+  onBack,
+}: {
+  email: string;
+  onBack: () => void;
+}) {
   const router = useRouter();
   const { loginWithOtp, loading, error, clearError } = useAuthStore();
   const [resendIn, setResendIn] = useState(RESEND_SECONDS);
@@ -198,7 +213,9 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="code" className="text-sm font-medium">One-time code</Label>
+          <Label htmlFor="code" className="text-sm font-medium">
+            One-time code
+          </Label>
           <div className="group relative">
             <LucideKeyRound className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -212,7 +229,9 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
             />
           </div>
           {errors.code && (
-            <p className="animate-shake text-xs text-destructive">{errors.code.message}</p>
+            <p className="animate-shake text-xs text-destructive">
+              {errors.code.message}
+            </p>
           )}
         </div>
 
@@ -244,7 +263,10 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
       </form>
 
       {/* Footer */}
-      <div data-auth className="flex flex-col items-center gap-2 text-sm text-muted-foreground opacity-0">
+      <div
+        data-auth
+        className="flex flex-col items-center gap-2 text-sm text-muted-foreground opacity-0"
+      >
         <p>
           Didn&apos;t get it?{" "}
           {resendIn > 0 ? (

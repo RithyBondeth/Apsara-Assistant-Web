@@ -15,19 +15,19 @@ import { PLATFORMS } from "@/utils/constants/platforms.constant";
 import { formatCurrency } from "@/utils/functions/currency";
 
 export default function AnalyticsPage() {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
   const { orders, fetchOrders } = useOrdersStore();
   const { conversations, fetchConversations } = useChatStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchStats();
     fetchOrders();
     fetchConversations();
   }, [fetchStats, fetchOrders, fetchConversations]);
 
-  // ── Breakdowns are derived client-side: the API exposes snapshot totals, not
+  // ── Breakdowns are derived client-side: the API exposes snapshot totals, not 
   // a grouped/time-series endpoint. The orders list is capped at 50 server-side,
   // so this reflects the most recent orders rather than all history.
   const ordersByStatus = useMemo(
@@ -56,7 +56,7 @@ export default function AnalyticsPage() {
     return total / billable.length;
   }, [orders]);
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Analytics" />

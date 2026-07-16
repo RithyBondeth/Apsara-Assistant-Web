@@ -22,7 +22,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   // Counts come from the aggregate endpoint rather than from measuring
   // downloaded tables — customers and conversations are only fetched here for
   // the recent-conversations list below.
@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
   const { customers, fetchCustomers } = useCustomersStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchStats();
     fetchConversations();
@@ -40,13 +40,13 @@ export default function DashboardPage() {
   const recentConversations = conversations.slice(0, 5);
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Dashboard" />
 
       <main className="flex-1 space-y-6 p-6">
-        {/* ── Stat cards */}
+      {/* ── Stat Cards ──────────────────────────────────────────── */}
         {statsLoading && !stats ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -88,7 +88,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* ── Recent conversations */}
+        {/* ── Recent Conversations ──────────────────────────────── */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base">Recent Conversations</CardTitle>

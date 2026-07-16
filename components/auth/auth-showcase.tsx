@@ -36,7 +36,7 @@ export default function AuthShowcase() {
       ref={setRef}
       className="relative hidden md:flex md:w-1/2 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500"
     >
-      {/* ── Ambient layers ─────────────────────────────────────────── */}
+      {/* ── Ambient layers ───────────────────────────────────────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0">
         <div
           data-parallax="1"
@@ -56,7 +56,7 @@ export default function AuthShowcase() {
         <div className="absolute inset-0 text-white opacity-[0.06] bg-dots" />
       </div>
 
-      {/* ── Content ────────────────────────────────────────────────── */}
+      {/* ── Content ──────────────────────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-8 px-10 py-16 text-center text-white [perspective:1000px]">
         {/* Floating logo */}
         <div data-auth-scene="logo" data-parallax="0.5" className="opacity-0">
@@ -78,7 +78,7 @@ export default function AuthShowcase() {
           </p>
         </div>
 
-        {/* ── Looping chat demo card ─────────────────────────────── */}
+        {/* ── Looping chat demo card ───────────────────────────────────────────────────────────────────────── */}
         <div data-auth-scene="chat-card" data-parallax="0.35" className="w-full opacity-0">
           <div
             ref={cardRef}

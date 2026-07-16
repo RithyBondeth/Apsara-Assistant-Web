@@ -7,17 +7,17 @@ import { useUploadsStore, ALLOWED_IMAGE_TYPES } from "@/stores/apis/uploads/uplo
 import { IImageUploadProps } from "./props";
 
 export default function ImageUpload({ value, onChange, disabled }: IImageUploadProps) {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { uploading, unavailable, error, uploadImage, deleteImage, clearError } =
     useUploadsStore();
 
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const inputRef = useRef<HTMLInputElement>(null);
   // Remembered so we can clean up the Cloudinary asset if the seller replaces
   // or removes an image they just uploaded.
   const [publicId, setPublicId] = useState<string | null>(null);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -41,7 +41,7 @@ export default function ImageUpload({ value, onChange, disabled }: IImageUploadP
     onChange("");
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <div className="space-y-2">
       {value ? (

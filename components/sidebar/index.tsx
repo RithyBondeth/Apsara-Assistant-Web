@@ -31,7 +31,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className={cn(className)}>
-      {/* ── Brand */}
+      {/* ── Brand ───────────────────────────────────────────────── */}
       <SidebarHeader className="px-4 py-4">
         <div className="flex items-center">
           {collapsed ? (
@@ -50,7 +50,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
 
       <Separator />
 
-      {/* ── Main nav */}
+      {/* ── Main Navigation ─────────────────────────────────────── */}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
@@ -78,7 +78,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── User menu (Settings + Log out live inside it) */}
+      {/* ── User Menu ──────────────────────────────────────────── */}
       <SidebarFooter className="pb-3">
         <Separator className="mb-1" />
         <NavUser />

@@ -42,7 +42,7 @@ export default function ProductForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {/* ── Name */}
+      {/* ── Name                   ────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Label htmlFor="name">Product name *</Label>
         <Input id="name" placeholder="Khmer silk scarf" {...register("name")} />
@@ -51,7 +51,7 @@ export default function ProductForm({
         )}
       </div>
 
-      {/* ── Description */}
+      {/* ── Description            ────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Label htmlFor="description">Description</Label>
         <Textarea
@@ -62,7 +62,7 @@ export default function ProductForm({
         />
       </div>
 
-      {/* ── Price & Stock */}
+      {/* ── Price & Stock          ────────────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="price">Price ($) *</Label>
@@ -94,7 +94,7 @@ export default function ProductForm({
         </div>
       </div>
 
-      {/* ── Image */}
+      {/* ── Image                  ────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Label>Photo</Label>
         <Controller

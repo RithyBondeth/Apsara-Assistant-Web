@@ -13,18 +13,18 @@ import { PlatformId } from "@/utils/interfaces/integration/integration.interface
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IChatStore {
-  // ── Conversations
+  /* ---------------------------------- States --------------------------------- */
   conversations: IConversation[];
   activeConversation: IConversationDetail | null;
   conversationsLoading: boolean;
 
-  // ── Messages
+  // ── Messages ───────────────────────────────────────────────────────────────
   messagesLoading: boolean;
 
-  // ── Errors
+  /* ---------------------------------- Errors --------------------------------- */
   error: string | null;
 
-  // ── Actions
+  /* ---------------------------------- Actions --------------------------------- */
   fetchConversations: () => Promise<void>;
   createConversation: (
     customerId: string,
@@ -111,7 +111,8 @@ export const useChatStore = create<IChatStore>((set) => ({
     }
   },
 
-  // ── Uses the AI chat endpoint — returns customer + AI messages
+  /* --------------------------------- Methods --------------------------------- */
+  // Uses the AI chat endpoint — returns customer + AI messages
   sendMessage: async (conversationId, message) => {
     set({ error: null });
     try {

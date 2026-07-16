@@ -40,7 +40,7 @@ export default function ChatWindow({
   onSend,
   onStatusChange,
 }: IChatWindowProps) {
-  // ── All States
+  /* -------------------------------- All States ------------------------------ */
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -48,12 +48,12 @@ export default function ChatWindow({
   const isClosed = conversation.status === "closed";
   const displayName = customer?.name ?? `Customer ${conversation.customer_id.slice(0, 8)}`;
 
-  // ── Effects
+  /* --------------------------------- Effects --------------------------------- */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation.messages]);
 
-  // ── Methods
+  /* --------------------------------- Methods --------------------------------- */
   async function handleSend() {
     const trimmed = input.trim();
     if (!trimmed || isClosed) return;
@@ -70,10 +70,10 @@ export default function ChatWindow({
     }
   }
 
-  // ── Render UI
+  /* -------------------------------- Render UI -------------------------------- */
   return (
     <div className="flex h-full flex-col">
-      {/* ── Chat header */}
+      {/* ── Chat Header ────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -87,7 +87,7 @@ export default function ChatWindow({
           </div>
         </div>
 
-        {/* ── Status control */}
+        {/* ── Status Control ───────────────────────────────────── */}
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-1 rounded-lg px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Badge className={cn("capitalize", STATUS_STYLES[conversation.status])}>
@@ -108,7 +108,7 @@ export default function ChatWindow({
         </DropdownMenu>
       </div>
 
-      {/* ── Messages */}
+      {/* ── Messages ──────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {loading ? (
           <div className="space-y-3">
@@ -133,7 +133,7 @@ export default function ChatWindow({
         )}
       </div>
 
-      {/* ── Input */}
+      {/* ── Input ─────────────────────────────────────────────── */}
       <div className="border-t px-4 py-3">
         {isClosed ? (
           <p className="text-center text-sm text-muted-foreground">

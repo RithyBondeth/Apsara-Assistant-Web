@@ -20,15 +20,15 @@ import { useProductsStore } from "@/stores/apis/products/products.store";
 import { OrderFormValues } from "@/components/orders/order-form/props";
 
 export default function NewOrderPage() {
-  // ── Utils
+  // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { createOrder, loading, error, clearError } = useOrdersStore();
   const { customers, fetchCustomers } = useCustomersStore();
   const { products, fetchProducts } = useProductsStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchCustomers();
     fetchProducts();
@@ -36,7 +36,7 @@ export default function NewOrderPage() {
 
   useEffect(() => clearError, [clearError]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleSubmit(values: OrderFormValues) {
     const order = await createOrder({
       customer_id: values.customer_id,
@@ -47,7 +47,7 @@ export default function NewOrderPage() {
     if (order) router.push(`/orders/${order.id}`);
   }
 
-  // ── A seller with no customers or no products can't complete this form.
+  // ── A seller with no customers or no products can't complete this form. ────
   const blocker =
     customers.length === 0
       ? { message: "Add a customer before creating an order.", href: "/customers/new", label: "Add customer" }
@@ -55,7 +55,7 @@ export default function NewOrderPage() {
         ? { message: "Add a product before creating an order.", href: "/products/new", label: "Add product" }
         : null;
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="New Order" />

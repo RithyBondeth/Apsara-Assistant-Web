@@ -65,14 +65,14 @@ function ConnectForm({ platform, onConnect, onCancel, loading, error }: IConnect
         <DialogDescription>{copy.setupNote}</DialogDescription>
       </DialogHeader>
 
-      {/* ── Setup steps */}
+      {/* ── Setup steps            ────────────────────────────────────────── */}
       <ol className="list-decimal space-y-1 rounded-lg bg-muted/50 py-3 pl-8 pr-3 text-xs text-muted-foreground">
         {copy.steps.map((step) => (
           <li key={step}>{step}</li>
         ))}
       </ol>
 
-      {/* ── Credential fields */}
+      {/* ── Credential fields      ────────────────────────────────────────── */}
       <div className="max-h-[40vh] space-y-4 overflow-y-auto py-1">
         {platform.fields.map((field) => {
           const fieldCopy = copy.fields[field.name];

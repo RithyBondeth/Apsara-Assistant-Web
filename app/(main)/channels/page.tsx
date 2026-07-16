@@ -22,7 +22,7 @@ import {
 } from "@/utils/interfaces/integration/integration.interface";
 
 export default function ChannelsPage() {
-  // ── Translations
+  // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("channels");
 
   const setupLabel: Record<IPlatformMeta["setup"], string> = {
@@ -31,7 +31,7 @@ export default function ChannelsPage() {
     none: t.setupNone,
   };
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const {
     integrations,
     webhooks,
@@ -45,15 +45,15 @@ export default function ChannelsPage() {
     clearError,
   } = useIntegrationsStore();
 
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const [connecting, setConnecting] = useState<IPlatformMeta | null>(null);
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchIntegrations();
   }, [fetchIntegrations]);
 
-  // ── Group the seller's connections under their platform. The API's unique
+  // ── Group the seller's connections under their platform. The API's unique ──
   // constraint is (platform, external_id), so more than one per platform is
   // legitimate — two Telegram bots, two Pages.
   const byPlatform = useMemo(() => {
@@ -64,7 +64,7 @@ export default function ChannelsPage() {
     return map;
   }, [integrations]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleConnect(data: IIntegrationCreate) {
     const created = await createIntegration(data);
     if (!created) return; // keep the dialog open so the error stays visible
@@ -85,7 +85,7 @@ export default function ChannelsPage() {
     setConnecting(platform);
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title={t.title} />

@@ -10,21 +10,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 
 export default function CustomersPage() {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { customers, loading, fetchCustomers, deleteCustomer } = useCustomersStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleDelete(id: string) {
     if (!confirm("Delete this customer? Their conversations will also be removed.")) return;
     await deleteCustomer(id);
   }
 
-  // ── Conditional rendering
+  // ── Conditional rendering ──────────────────────────────────────────────────
   if (loading && customers.length === 0) {
     return (
       <>
@@ -38,7 +38,7 @@ export default function CustomersPage() {
     );
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Customers" />

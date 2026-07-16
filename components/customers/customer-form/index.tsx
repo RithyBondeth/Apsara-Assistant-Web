@@ -41,7 +41,7 @@ export default function CustomerForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {/* ── Name */}
+      {/* ── Name                   ────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <Label htmlFor="name">Full name *</Label>
         <Input id="name" placeholder="Sophea Chan" {...register("name")} />
@@ -50,7 +50,7 @@ export default function CustomerForm({
         )}
       </div>
 
-      {/* ── Phone & Email */}
+      {/* ── Phone & Email          ────────────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="phone">Phone</Label>
@@ -65,7 +65,7 @@ export default function CustomerForm({
         </div>
       </div>
 
-      {/* ── Platform & Platform ID */}
+      {/* ── Platform & Platform ID ────────────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="platform">Platform</Label>

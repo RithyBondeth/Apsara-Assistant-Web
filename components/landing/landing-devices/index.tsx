@@ -183,7 +183,7 @@ export default function LandingDevices() {
           ref={stageRef}
           className="relative mx-auto w-full max-w-2xl pb-14 sm:pb-20 perspective-distant"
         >
-          {/* ── Laptop ─────────────────────────────────────────── */}
+          {/* ── Laptop ───────────────────────────────────────────────────────────────────────────────────── */}
           <div data-scene="laptop" className="relative opacity-0">
             <div className="rounded-t-xl sm:rounded-t-2xl bg-neutral-900 p-2 sm:p-3 shadow-2xl shadow-blue-500/10">
               <div className="overflow-hidden rounded-md sm:rounded-lg bg-card">
@@ -208,7 +208,7 @@ export default function LandingDevices() {
               Mobile: stacked below the laptop, centred and within the
               section padding (overlapping + hanging off-screen looked
               cramped on small screens). sm+: overlaps the laptop's
-              bottom-right corner as a layered showpiece. */}
+              bottom-right corner as a layered showpiece.────────────────────────────────────────── */}
           <div
             data-scene="phone"
             className="relative mx-auto mt-8 w-3/5 max-w-[210px] opacity-0 sm:absolute sm:-bottom-8 sm:-right-8 sm:mx-0 sm:mt-0 sm:w-[34%]"

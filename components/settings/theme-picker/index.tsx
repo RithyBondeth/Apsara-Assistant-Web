@@ -69,7 +69,7 @@ export default function ThemePicker() {
                 : "border-transparent ring-1 ring-border hover:ring-blue-500/40"
             )}
           >
-            {/* ── Preview */}
+            {/* ── Preview                ────────────────────────────────────────── */}
             <div className="relative h-14 overflow-hidden">
               {option.value === "system" ? (
                 // Split preview: light on the left, dark on the right.
@@ -86,7 +86,7 @@ export default function ThemePicker() {
               )}
             </div>
 
-            {/* ── Label */}
+            {/* ── Label                  ────────────────────────────────────────── */}
             <div className="flex items-center justify-between gap-1 border-t border-border/60 bg-card px-2.5 py-1.5">
               <span className="truncate text-xs font-medium">{option.label}</span>
               {active && (

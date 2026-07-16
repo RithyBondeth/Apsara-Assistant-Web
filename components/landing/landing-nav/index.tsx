@@ -77,7 +77,7 @@ export default function LandingNav() {
           : "bg-transparent",
       )}
     >
-      {/* ── Top gradient accent line ─────────────────────────────── */}
+      {/* ── Top gradient accent line ───────────────────────────────────────────────────────────────────────── */}
       <div
         className={cn(
           "absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-blue-500/60 to-transparent transition-opacity duration-500",
@@ -85,7 +85,7 @@ export default function LandingNav() {
         )}
       />
 
-      {/* ── Scroll-progress rail ─────────────────────────────────── */}
+      {/* ── Scroll-progress rail ───────────────────────────────────────────────────────────────────────────── */}
       <div className="absolute inset-x-0 top-0 h-[2px] overflow-hidden">
         <span
           ref={progressRef}
@@ -94,7 +94,7 @@ export default function LandingNav() {
       </div>
 
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        {/* ── Logo ─────────────────────────────────────────────── */}
+        {/* ── Logo ───────────────────────────────────────────────────────────────────────────────────────── */}
         <Link
           href="/"
           aria-label="Apsara Assistant home"
@@ -103,13 +103,13 @@ export default function LandingNav() {
           <BrandLogo priority />
         </Link>
 
-        {/* ── Desktop centre links ──────────────────────────────── */}
+        {/* ── Desktop centre links ────────────────────────────────────────────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
           <NavLink href="#features">{t.features}</NavLink>
           <NavLink href="#how-it-works">{t.howItWorks}</NavLink>
         </div>
 
-        {/* ── Desktop right controls ────────────────────────────── */}
+        {/* ── Desktop right controls ──────────────────────────────────────────────────────────────────────── */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           <LanguageToggle />
           <ThemeToggle />
@@ -136,7 +136,7 @@ export default function LandingNav() {
           </Link>
         </div>
 
-        {/* ── Mobile: right controls ────────────────────────────── */}
+        {/* ── Mobile: right controls ──────────────────────────────────────────────────────────────────────── */}
         <div className="md:hidden flex items-center gap-1.5">
           <LanguageToggle />
           <ThemeToggle />
@@ -165,7 +165,7 @@ export default function LandingNav() {
         </div>
       </nav>
 
-      {/* ── Mobile menu ──────────────────────────────────────────── */}
+      {/* ── Mobile menu ────────────────────────────────────────────────────────────────────────────────────── */}
       <div
         className={cn(
           "md:hidden overflow-hidden transition-all duration-300 ease-in-out",

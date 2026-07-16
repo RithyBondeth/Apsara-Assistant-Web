@@ -21,13 +21,13 @@ const profileSchema = z.object({
 type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function SettingsAccountPage() {
-  // ── Translations
+  // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("settings");
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { user, loading, updateProfile, clearError } = useAuthStore();
 
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,10 +39,10 @@ export default function SettingsAccountPage() {
     },
   });
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => clearError, [clearError]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function onSubmit(values: ProfileForm) {
     setError(null);
     setSaved(false);
@@ -51,7 +51,7 @@ export default function SettingsAccountPage() {
     else setError(useAuthStore.getState().error);
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <ProfileHeader />

@@ -6,16 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ───────────────────────────���─────────────────────────────────────────────────
-   Helper — splits an element's text into individual word <span>s while
-   preserving child elements (gradient spans, etc.) intact.
-
-   Words made purely of Latin/ASCII characters are further split into
-   per-character spans for a finer-grained cascade. Khmer (and any other
-   complex script) is deliberately kept at word/phrase level: wrapping each
-   Khmer character in its own element breaks script shaping — subscript
-   consonants and dependent vowels no longer combine.
-───────────────────────────────────────────────────────────────────────────── */
+/* ------------------------------------ Helper ----------------------------------- */
 const ASCII_WORD = /^[\x20-\x7E]+$/;
 
 function splitWordIntoChars(word: HTMLElement) {
@@ -70,14 +61,7 @@ export function getSplitUnits(el: HTMLElement): HTMLElement[] {
   return units;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   useGsapScrollAnimation
-   Attach to any section container. Children annotated with `data-gsap="*"`
-   animate in as they scroll into view.
-
-   Variants: fade-up | fade-down | fade-left | fade-right | scale-up |
-             split-words | stagger-children
-───────────────────────────────────────────────────────────────────────────── */
+/* ------------------------------------ Usage ----------------------------------- */
 export function useGsapScrollAnimation<T extends HTMLElement>() {
   const containerRef = useRef<T>(null);
 
@@ -305,11 +289,7 @@ export function useGsapScrollAnimation<T extends HTMLElement>() {
   return containerRef;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   useGsapHeroAnimation
-   Hero entrance timeline: badge → heading (word-by-word) → description →
-   CTA buttons → stats → scroll indicator.
-───────────────────────────────────────────────────────────────────────────── */
+/* ------------------------------------ Usage ----------------------------------- */
 export function useGsapHeroAnimation<T extends HTMLElement>() {
   const containerRef = useRef<T>(null);
 
@@ -475,20 +455,7 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
   return containerRef;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   useGsapChatScene
-   The devices showpiece: on desktop the mockup stage pins to the viewport
-   while scrolling scrubs a timeline — the laptop settles in, chat bubbles
-   pop up one-by-one across laptop and phone, and the phone slides in last.
-
-   On touch/small screens (where pinning fights the browser chrome) it falls
-   back to a non-pinned, play-once cascade. Reduced motion lands everything
-   at its final state.
-
-   Annotate: the stage wrapper is the hook ref; bubbles get
-   `data-chat-bubble`, the phone frame `data-scene="phone"`, the laptop
-   `data-scene="laptop"`.
-───────────────────────────────────────────────────────────────────────────── */
+/* ------------------------------------ Usage ----------------------------------- */
 export function useGsapChatScene<T extends HTMLElement>() {
   const stageRef = useRef<T>(null);
 

@@ -10,21 +10,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 
 export default function ProductsPage() {
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const { products, loading, deleteProduct, fetchProducts } = useProductsStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   async function handleDelete(id: string) {
     if (!confirm("Delete this product?")) return;
     await deleteProduct(id);
   }
 
-  // ── Conditional rendering
+  // ── Conditional rendering ──────────────────────────────────────────────────
   if (loading && products.length === 0) {
     return (
       <>
@@ -38,7 +38,7 @@ export default function ProductsPage() {
     );
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Products" />

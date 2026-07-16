@@ -14,10 +14,10 @@ import { IConversation } from "@/utils/interfaces/chat/chat.interface";
 import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 
 export default function ChatPage() {
-  // ── All States
+  // ── All States ─────────────────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // ── API Integration
+  // ── API Integration ────────────────────────────────────────────────────────
   const {
     conversations,
     activeConversation,
@@ -33,13 +33,13 @@ export default function ChatPage() {
 
   const { customers, fetchCustomers } = useCustomersStore();
 
-  // ── Effects
+  // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchConversations();
     fetchCustomers();
   }, [fetchConversations, fetchCustomers]);
 
-  // ── Methods
+  // ── Methods ────────────────────────────────────────────────────────────────
   function handleSelectConversation(conversation: IConversation) {
     setActiveConversation(conversation);
     fetchConversationDetail(conversation.id);
@@ -66,7 +66,7 @@ export default function ChatPage() {
     await updateConversationStatus(activeConversation.id, status);
   }
 
-  // ── Render UI
+  // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
       <AppHeader title="Chat" />

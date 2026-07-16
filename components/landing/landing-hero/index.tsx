@@ -40,7 +40,7 @@ export default function LandingHero() {
       ref={setSectionRef}
       className="relative min-h-dvh flex items-center justify-center overflow-hidden"
     >
-      {/* ── Ambient background — orbs drift forever + follow the mouse ── */}
+      {/* ── Ambient background — orbs drift forever + follow the mouse ──────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div
           data-parallax="1"
@@ -60,7 +60,7 @@ export default function LandingHero() {
         <div className="absolute inset-0 opacity-[0.04] bg-dots" />
       </div>
 
-      {/* ── Floating chat cards (desktop only) ──────────────────── */}
+      {/* ── Floating chat cards (desktop only) ────────────────────────────────────────────────────────────── */}
       <div
         className="pointer-events-none absolute inset-0 z-5 hidden lg:block"
         aria-hidden="true"
@@ -106,7 +106,7 @@ export default function LandingHero() {
         </div>
       </div>
 
-      {/* ── Content ─────────────────────────────────────────────── */}
+      {/* ── Content ───────────────────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-8 pt-28 sm:pt-32 pb-20 text-center">
         <div className="flex flex-col items-center gap-6">
           {/* Badge */}
@@ -194,7 +194,7 @@ export default function LandingHero() {
           {/* ── Mobile/tablet chat preview ──────────────────────────
               The floating cards above are desktop-only (they'd collide
               with the centred heading on small screens), so surface the
-              same "Apsara in action" demo inline for < lg viewports. */}
+              same "Apsara in action" demo inline for < lg viewports.────────────────────────────────────────── */}
           <div
             data-hero="preview"
             className="mt-4 w-full max-w-sm opacity-0 lg:hidden"
