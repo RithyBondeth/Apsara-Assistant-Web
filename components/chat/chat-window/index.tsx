@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ChevronDown } from "lucide-react";
+import { Send, ChevronDown, Bot, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import MessageBubble from "@/components/chat/message-bubble";
 import { PLATFORM_BY_ID } from "@/utils/constants/platforms.constant";
+import { PUSH_PLATFORMS } from "@/utils/constants/platforms.constant";
+import { cn } from "@/lib/utils";
 import { fmt } from "@/utils/functions/i18n";
 import { useT } from "@/hooks/utils/use-translations";
 import { IChatWindowProps } from "./props";
@@ -47,6 +49,8 @@ export default function ChatWindow({
   loading,
   onSend,
   onStatusChange,
+  onAiEnabledChange,
+  sendError,
 }: IChatWindowProps) {
   /* ------------------------------- Translations ----------------------------- */
   const t = useT("chat");
@@ -58,6 +62,10 @@ export default function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isClosed = conversation.status === "closed";
+  // The website widget is request/response — there's no channel to push a
+  // human's reply down, so takeover isn't possible on that platform.
+  const canReply = PUSH_PLATFORMS.has(conversation.platform);
+  const aiOn = conversation.ai_enabled;
   const displayName =
     customer?.name ??
     fmt(t.customerFallback, { id: conversation.customer_id.slice(0, 8) });
@@ -70,11 +78,13 @@ export default function ChatWindow({
   /* --------------------------------- Methods --------------------------------- */
   async function handleSend() {
     const trimmed = input.trim();
-    if (!trimmed || isClosed) return;
-    setInput("");
+    if (!trimmed || isClosed || !canReply) return;
     setSending(true);
-    await onSend(trimmed);
+    const ok = await onSend(trimmed);
     setSending(false);
+    // Keep the text on failure — it never reached the customer, so silently
+    // discarding it would lose what the seller wrote.
+    if (ok) setInput("");
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -104,6 +114,25 @@ export default function ChatWindow({
           </div>
         </div>
 
+        <div className="flex items-center gap-2">
+          {/* ── AI on/off ──────────────────────────────────────── */}
+          {canReply && (
+            <Button
+              variant={aiOn ? "ghost" : "secondary"}
+              size="sm"
+              className="h-7 gap-1.5 text-xs"
+              title={aiOn ? t.aiToggleOff : t.aiToggleOn}
+              onClick={() => onAiEnabledChange(!aiOn)}
+            >
+              {aiOn ? (
+                <Bot className="h-3.5 w-3.5" />
+              ) : (
+                <UserRound className="h-3.5 w-3.5" />
+              )}
+              {aiOn ? t.aiOn : t.aiOff}
+            </Button>
+          )}
+
         {/* ── Status Control ───────────────────────────────────── */}
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -126,6 +155,7 @@ export default function ChatWindow({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
 
       {/* ── Messages ──────────────────────────────────────────── */}
@@ -166,12 +196,28 @@ export default function ChatWindow({
             </button>{" "}
             {t.closedNoticeSuffix}
           </p>
+        ) : !canReply ? (
+          /* Website visitors can only be answered by the AI, when they ask. */
+          <p className="text-center text-xs text-muted-foreground">
+            {t.websiteNoReply}
+          </p>
         ) : (
           <>
-            <div className="flex items-end gap-2 rounded-xl border bg-background px-3 py-2">
+            {sendError && (
+              <p className="mb-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                {t.sendFailed}: {sendError}
+              </p>
+            )}
+
+            <div
+              className={cn(
+                "flex items-end gap-2 rounded-xl border bg-background px-3 py-2",
+                !aiOn && "border-secondary"
+              )}
+            >
               <textarea
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder={t.inputPlaceholder}
+                placeholder={t.replyPlaceholder}
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -188,7 +234,7 @@ export default function ChatWindow({
               </Button>
             </div>
             <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-              {t.inputHint}
+              {aiOn ? t.replyHint : t.aiPausedNote}
             </p>
           </>
         )}

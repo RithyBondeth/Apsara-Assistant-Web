@@ -5,6 +5,10 @@ export interface IChatWindowProps {
   conversation: IConversationDetail;
   customer: ICustomer | undefined;
   loading: boolean;
-  onSend: (content: string) => void | Promise<void>;
+  /** Sends the seller's own reply; resolves false if delivery failed. */
+  onSend: (content: string) => Promise<boolean>;
   onStatusChange: (status: "open" | "closed" | "pending") => void | Promise<void>;
+  onAiEnabledChange: (enabled: boolean) => void | Promise<void>;
+  /** Set when the last send failed, so the seller knows it didn't arrive. */
+  sendError?: string | null;
 }

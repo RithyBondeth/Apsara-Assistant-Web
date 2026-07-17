@@ -62,7 +62,7 @@ export default function RegisterPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
         <p className="text-sm text-muted-foreground">
           Start selling smarter with Apsara AI
@@ -71,7 +71,7 @@ export default function RegisterPage() {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="full_name" className="text-sm font-medium">Full name</Label>
           <div className="group relative">
             <LucideUser className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -87,7 +87,7 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="business_name" className="text-sm font-medium">
             Business name{" "}
             <span className="text-muted-foreground font-normal">(optional)</span>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="email" className="text-sm font-medium">Email</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -120,7 +120,7 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="password" className="text-sm font-medium">Password</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -151,7 +151,7 @@ export default function RegisterPage() {
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -173,7 +173,7 @@ export default function RegisterPage() {
       </form>
 
       {/* Footer */}
-      <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+      <p data-auth className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
           href="/login"

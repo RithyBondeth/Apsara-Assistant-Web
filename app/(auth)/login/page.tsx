@@ -40,7 +40,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground">
           Sign in to your Apsara account
@@ -49,7 +49,7 @@ export default function LoginPage() {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="email" className="text-sm font-medium">Email</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -66,7 +66,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-sm font-medium">Password</Label>
             <Link
@@ -105,7 +105,7 @@ export default function LoginPage() {
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -127,7 +127,7 @@ export default function LoginPage() {
       </form>
 
       {/* Footer */}
-      <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+      <p data-auth className="text-center text-sm text-muted-foreground">
         <Link
           href="/login-otp"
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
@@ -135,7 +135,7 @@ export default function LoginPage() {
           Sign in with a one-time code
         </Link>
       </p>
-      <p data-auth className="-mt-3 text-center text-sm text-muted-foreground opacity-0">
+      <p data-auth className="-mt-3 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

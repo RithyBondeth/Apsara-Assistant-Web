@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle, Inbox, AlertCircle } from "lucide-react";
 import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
@@ -13,6 +13,7 @@ import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
 import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 import { useT } from "@/hooks/utils/use-translations";
+import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
   // ── Translations ───────────────────────────────────────────────────────────
@@ -20,6 +21,7 @@ export default function ChatPage() {
 
   // ── All States ─────────────────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [needsMeOnly, setNeedsMeOnly] = useState(false);
 
   // ── API Integration ────────────────────────────────────────────────────────
   const {
@@ -32,21 +34,31 @@ export default function ChatPage() {
     setActiveConversation,
     fetchConversationDetail,
     updateConversationStatus,
+    setAiEnabled,
+    markSeen,
     sendMessage,
+    error,
   } = useChatStore();
 
   const { customers, fetchCustomers } = useCustomersStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetchConversations();
+    fetchConversations(needsMeOnly ? { needs_me: true } : undefined);
+  }, [fetchConversations, needsMeOnly]);
+
+  useEffect(() => {
     fetchCustomers();
-  }, [fetchConversations, fetchCustomers]);
+  }, [fetchCustomers]);
 
   // ── Methods ────────────────────────────────────────────────────────────────
   function handleSelectConversation(conversation: IConversation) {
     setActiveConversation(conversation);
     fetchConversationDetail(conversation.id);
+    // Opening it IS reading it — clear the flags so the list stays meaningful.
+    if (conversation.unread || conversation.needs_attention) {
+      markSeen(conversation.id);
+    }
   }
 
   async function handleCreateConversation(
@@ -61,8 +73,13 @@ export default function ChatPage() {
   }
 
   async function handleSend(content: string) {
+    if (!activeConversation) return false;
+    return sendMessage(activeConversation.id, content);
+  }
+
+  async function handleAiEnabledChange(enabled: boolean) {
     if (!activeConversation) return;
-    await sendMessage(activeConversation.id, content);
+    await setAiEnabled(activeConversation.id, enabled);
   }
 
   async function handleStatusChange(status: "open" | "closed" | "pending") {
@@ -88,15 +105,32 @@ export default function ChatPage() {
                 </span>
               )}
             </p>
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              onClick={() => setDialogOpen(true)}
-              title={t.newConversation}
-              aria-label={t.newConversation}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-0.5">
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-pressed={needsMeOnly}
+                onClick={() => setNeedsMeOnly((v) => !v)}
+                title={needsMeOnly ? t.showAll : t.needsYouOnly}
+                aria-label={needsMeOnly ? t.showAll : t.needsYouOnly}
+                className={cn(needsMeOnly && "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300")}
+              >
+                {needsMeOnly ? (
+                  <AlertCircle className="h-4 w-4" />
+                ) : (
+                  <Inbox className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                onClick={() => setDialogOpen(true)}
+                title={t.newConversation}
+                aria-label={t.newConversation}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {conversationsLoading ? (
@@ -124,6 +158,8 @@ export default function ChatPage() {
               loading={messagesLoading}
               onSend={handleSend}
               onStatusChange={handleStatusChange}
+              onAiEnabledChange={handleAiEnabledChange}
+              sendError={error}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">

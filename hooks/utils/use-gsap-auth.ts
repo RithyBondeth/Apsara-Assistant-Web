@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import gsap from "gsap";
 import { getSplitUnits, splitTextIntoWords } from "@/hooks/utils/use-gsap-animation";
+import { useIsomorphicLayoutEffect } from "@/hooks/utils/use-isomorphic-layout-effect";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    useAuthShowcaseAnimation
@@ -23,7 +24,10 @@ import { getSplitUnits, splitTextIntoWords } from "@/hooks/utils/use-gsap-animat
 export function useAuthShowcaseAnimation<T extends HTMLElement>() {
   const containerRef = useRef<T>(null);
 
-  useEffect(() => {
+  // Layout effect for the same reason as the form hook: the scene's elements
+  // are visible in the markup, and their hidden start state must land before
+  // the first paint.
+  useIsomorphicLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const mm = gsap.matchMedia();
@@ -164,21 +168,26 @@ export function useAuthShowcaseAnimation<T extends HTMLElement>() {
    Cascades a form's `[data-auth]` blocks in on mount — soft rise with a blur
    settle. Remount the container (key it by pathname) to replay the entrance
    when switching between /login and /register.
+
+   The blocks are VISIBLE in the markup and this hook hides them before the
+   first paint. Do not move that hidden state back into a CSS class: the login
+   form then depends on GSAP running to become visible at all, and if the tween
+   never fires (a missed target, a JS error) the sign-in form is invisible and
+   the user is locked out. Visible-by-default degrades to "no animation";
+   hidden-by-default degrades to "no product".
 ───────────────────────────────────────────────────────────────────────────── */
 export function useAuthFormAnimation<T extends HTMLElement>() {
   const containerRef = useRef<T>(null);
 
-  useEffect(() => {
+  // Layout effect, not effect: the `from` state has to be applied before the
+  // browser paints or the content flashes in at full opacity first.
+  useIsomorphicLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const mm = gsap.matchMedia();
 
-    mm.add("(prefers-reduced-motion: reduce)", () => {
-      const ctx = gsap.context(() => {
-        gsap.set("[data-auth]", { opacity: 1, y: 0 });
-      }, containerRef);
-      return () => ctx.revert();
-    });
+    // Reduced motion needs no branch: the blocks are already visible in the
+    // markup, so doing nothing IS the final state.
 
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {

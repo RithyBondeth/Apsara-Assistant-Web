@@ -502,6 +502,22 @@
     "closedNoticeSuffix": "to send messages.",
     "send": "Send",
     "changeStatus": "Change conversation status",
-    "selectCustomer": "— Select a customer —"
+    "selectCustomer": "— Select a customer —",
+    "aiOn": "AI replying",
+    "aiOff": "You're replying",
+    "aiToggleOn": "Let the AI reply",
+    "aiToggleOff": "Take over from the AI",
+    "aiPausedNote": "The AI is paused — messages you send go to the customer as you.",
+    "websiteNoReply": "The website widget can't receive replies from here — visitors only see the AI's answer when they message you.",
+    "sendFailed": "Couldn't deliver your reply",
+    "replyPlaceholder": "Reply as yourself…",
+    "replyHint": "Enter to send · Shift+Enter for new line · Your reply goes straight to the customer",
+    "photoAlt": "Photo sent by the customer",
+    "viewFullSize": "Open full size",
+    "needsYou": "Needs you",
+    "needsYouOnly": "Only threads that need you",
+    "showAll": "Show all",
+    "aiGaveUp": "AI couldn't answer",
+    "unreadBadge": "New"
   }
 }

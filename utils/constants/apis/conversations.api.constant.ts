@@ -7,8 +7,5 @@ export const CONVERSATIONS_API = {
   UPDATE: (id: string) => `${API_V1}/conversations/${id}`,
   MESSAGES: (id: string) => `${API_V1}/conversations/${id}/messages`,
   SEND_MESSAGE: (id: string) => `${API_V1}/conversations/${id}/messages`,
-};
-
-export const CHAT_API = {
-  SEND: (conversationId: string) => `${API_V1}/chat/${conversationId}`,
+  SEEN: (id: string) => `${API_V1}/conversations/${id}/seen`,
 };

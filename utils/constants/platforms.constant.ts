@@ -92,6 +92,18 @@ export const PLATFORM_BY_ID: Record<PlatformId, IPlatformMeta> = Object.fromEntr
   PLATFORMS.map((p) => [p.id, p])
 ) as Record<PlatformId, IPlatformMeta>;
 
+/**
+ * Platforms a seller's own reply can be pushed to, mirroring PUSH_PLATFORMS in
+ * the backend's `services/outbound.py`. The website widget is request/response:
+ * it only speaks when the visitor does, so there's nowhere to send a human
+ * reply — the API rejects those, and the UI shouldn't offer them.
+ */
+export const PUSH_PLATFORMS: ReadonlySet<PlatformId> = new Set<PlatformId>([
+  "telegram",
+  "messenger",
+  "instagram",
+]);
+
 /* ── Shapes for the translated copy in `channels.platforms.*` ─────────────── */
 
 export interface IPlatformFieldCopy {

@@ -80,7 +80,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
   return (
     <div ref={cardRef} className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">
           Sign in with a code
         </h1>
@@ -91,7 +91,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="email" className="text-sm font-medium">
             Email
           </Label>
@@ -118,7 +118,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -142,7 +142,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
       {/* Footer */}
       <p
         data-auth
-        className="text-center text-sm text-muted-foreground opacity-0"
+        className="text-center text-sm text-muted-foreground"
       >
         Prefer your password?{" "}
         <Link
@@ -202,7 +202,7 @@ function VerifyCodeStep({
   return (
     <div ref={cardRef} className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Enter your code</h1>
         <p className="text-sm text-muted-foreground">
           We sent a 6-digit code to{" "}
@@ -212,7 +212,7 @@ function VerifyCodeStep({
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="code" className="text-sm font-medium">
             One-time code
           </Label>
@@ -241,7 +241,7 @@ function VerifyCodeStep({
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -265,7 +265,7 @@ function VerifyCodeStep({
       {/* Footer */}
       <div
         data-auth
-        className="flex flex-col items-center gap-2 text-sm text-muted-foreground opacity-0"
+        className="flex flex-col items-center gap-2 text-sm text-muted-foreground"
       >
         <p>
           Didn&apos;t get it?{" "}

@@ -67,7 +67,7 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
   return (
     <div ref={cardRef} className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Forgot password?</h1>
         <p className="text-sm text-muted-foreground">
           Enter your email and we&apos;ll send you a reset link
@@ -76,7 +76,7 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="email" className="text-sm font-medium">Email</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -99,7 +99,7 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -121,7 +121,7 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
       </form>
 
       {/* Footer */}
-      <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+      <p data-auth className="text-center text-sm text-muted-foreground">
         Remember your password?{" "}
         <Link
           href="/login"
@@ -141,10 +141,10 @@ function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => vo
 
   return (
     <div ref={ref} className="flex flex-col items-center gap-6 text-center">
-      <div data-auth className="flex size-14 items-center justify-center rounded-full bg-blue-500/10 opacity-0">
+      <div data-auth className="flex size-14 items-center justify-center rounded-full bg-blue-500/10">
         <LucideMailCheck className="size-7 text-blue-500" />
       </div>
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
         <p className="text-sm text-muted-foreground">
           If an account exists for{" "}
@@ -152,7 +152,7 @@ function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => vo
           a link to reset your password.
         </p>
       </div>
-      <p data-auth className="text-sm text-muted-foreground opacity-0">
+      <p data-auth className="text-sm text-muted-foreground">
         Didn&apos;t get it?{" "}
         <button
           type="button"
@@ -165,7 +165,7 @@ function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => vo
       <Link
         data-auth
         href="/login"
-        className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors opacity-0"
+        className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
       >
         <LucideArrowLeft className="size-4" />
         Back to sign in

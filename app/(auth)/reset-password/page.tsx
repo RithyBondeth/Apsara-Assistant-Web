@@ -64,10 +64,10 @@ function InvalidLink() {
 
   return (
     <div ref={cardRef} className="flex flex-col items-center gap-6 text-center">
-      <div data-auth className="flex size-14 items-center justify-center rounded-full bg-destructive/10 opacity-0">
+      <div data-auth className="flex size-14 items-center justify-center rounded-full bg-destructive/10">
         <LucideShieldAlert className="size-7 text-destructive" />
       </div>
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Invalid reset link</h1>
         <p className="text-sm text-muted-foreground">
           This link is missing or expired. Request a new one to reset your
@@ -77,7 +77,7 @@ function InvalidLink() {
       <Link
         data-auth
         href="/forgot-password"
-        className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors opacity-0"
+        className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
       >
         <LucideArrowLeft className="size-4" />
         Request a new link
@@ -119,7 +119,7 @@ function ResetForm({ token }: { token: string }) {
   return (
     <div ref={cardRef} className="flex flex-col gap-6">
       {/* Header */}
-      <div data-auth className="flex flex-col gap-1 opacity-0">
+      <div data-auth className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold tracking-tight">Reset password</h1>
         <p className="text-sm text-muted-foreground">
           Choose a new password for your account
@@ -128,7 +128,7 @@ function ResetForm({ token }: { token: string }) {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="password" className="text-sm font-medium">New password</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -153,7 +153,7 @@ function ResetForm({ token }: { token: string }) {
           )}
         </div>
 
-        <div data-auth className="flex flex-col gap-1.5 opacity-0">
+        <div data-auth className="flex flex-col gap-1.5">
           <Label htmlFor="confirm_password" className="text-sm font-medium">Confirm password</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
@@ -176,7 +176,7 @@ function ResetForm({ token }: { token: string }) {
           </p>
         )}
 
-        <div data-auth ref={submitRef} className="opacity-0">
+        <div data-auth ref={submitRef} className="">
           <Button
             type="submit"
             disabled={loading}
@@ -198,7 +198,7 @@ function ResetForm({ token }: { token: string }) {
       </form>
 
       {/* Footer */}
-      <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
+      <p data-auth className="text-center text-sm text-muted-foreground">
         Remember your password?{" "}
         <Link
           href="/login"

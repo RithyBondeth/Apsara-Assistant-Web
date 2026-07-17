@@ -27,15 +27,16 @@ export interface IConversation {
   customer_id: string;
   platform: PlatformId;
   status: "open" | "closed" | "pending";
+  /** False while a human has taken over: inbound still arrives, AI stays quiet. */
+  ai_enabled: boolean;
+  /** The AI escalated or failed — the seller has to deal with this one. */
+  needs_attention: boolean;
+  /** The customer has said something since the seller last opened it. */
+  unread: boolean;
   created_at: string;
   updated_at: string;
 }
 
 export interface IConversationDetail extends IConversation {
   messages: IMessage[];
-}
-
-export interface IChatResponse {
-  customer_message: IMessage;
-  ai_message: IMessage;
 }

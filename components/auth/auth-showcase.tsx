@@ -59,7 +59,7 @@ export default function AuthShowcase() {
       {/* ── Content ──────────────────────────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-8 px-10 py-16 text-center text-white [perspective:1000px]">
         {/* Floating logo */}
-        <div data-auth-scene="logo" data-parallax="0.5" className="opacity-0">
+        <div data-auth-scene="logo" data-parallax="0.5" className="">
           <div className="animate-float rounded-3xl bg-white/95 p-3.5 shadow-2xl shadow-blue-900/30 ring-1 ring-white/40">
             <Image src="/brand/apsara-mark.svg" alt="Apsara logo" width={128} height={128} className="size-16" />
           </div>
@@ -69,17 +69,17 @@ export default function AuthShowcase() {
         <div className="flex flex-col gap-2.5">
           <h2
             data-auth-scene="heading"
-            className="text-3xl font-extrabold tracking-tight leading-tight opacity-0 [perspective:600px]"
+            className="text-3xl font-extrabold tracking-tight leading-tight [perspective:600px]"
           >
             Your AI sales assistant speaks Khmer
           </h2>
-          <p data-auth-scene="sub" className="text-sm text-white/85 max-w-xs mx-auto leading-relaxed opacity-0">
+          <p data-auth-scene="sub" className="text-sm text-white/85 max-w-xs mx-auto leading-relaxed">
             Apsara answers customers while you sleep — in whichever language they use.
           </p>
         </div>
 
         {/* ── Looping chat demo card ───────────────────────────────────────────────────────────────────────── */}
-        <div data-auth-scene="chat-card" data-parallax="0.35" className="w-full opacity-0">
+        <div data-auth-scene="chat-card" data-parallax="0.35" className="w-full">
           <div
             ref={cardRef}
             className="rounded-2xl border border-white/20 bg-white/10 p-4 text-left shadow-2xl shadow-blue-900/30 backdrop-blur-md [transform-style:preserve-3d]"
@@ -104,7 +104,7 @@ export default function AuthShowcase() {
               <div className="flex justify-start">
                 <div
                   data-chat-loop="q"
-                  className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white/90 px-3.5 py-2 text-sm text-neutral-900 opacity-0"
+                  className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white/90 px-3.5 py-2 text-sm text-neutral-900"
                 >
                   bong thlai ponman?
                 </div>
@@ -113,7 +113,7 @@ export default function AuthShowcase() {
                 {/* Typing indicator — swapped out for the answer mid-loop */}
                 <div
                   data-chat-loop="typing"
-                  className="absolute right-0 top-0 flex items-center gap-1 rounded-2xl rounded-br-sm bg-blue-900/50 px-3.5 py-2.5 opacity-0"
+                  className="absolute right-0 top-0 flex items-center gap-1 rounded-2xl rounded-br-sm bg-blue-900/50 px-3.5 py-2.5"
                 >
                   {[0, 1, 2].map((i) => (
                     <span
@@ -125,14 +125,14 @@ export default function AuthShowcase() {
                 </div>
                 <div
                   data-chat-loop="a"
-                  className="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-950/60 px-3.5 py-2 text-sm text-white shadow-lg shadow-blue-900/30 opacity-0"
+                  className="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-950/60 px-3.5 py-2 text-sm text-white shadow-lg shadow-blue-900/30"
                 >
                   $12 — free delivery in Phnom Penh 🚚
                 </div>
               </div>
               <div
                 data-chat-loop="toast"
-                className="mt-1 flex items-center gap-2.5 self-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-xs font-semibold opacity-0 backdrop-blur-sm"
+                className="mt-1 flex items-center gap-2.5 self-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-xs font-semibold backdrop-blur-sm"
               >
                 <span className="flex size-5 items-center justify-center rounded-full bg-emerald-400/90 text-blue-950">
                   <LucideCheck className="size-3" strokeWidth={3} />
@@ -149,7 +149,7 @@ export default function AuthShowcase() {
             <div
               key={h.text}
               data-auth-scene="highlight"
-              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 opacity-0 backdrop-blur-sm"
+              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 backdrop-blur-sm"
             >
               <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/15">
                 <h.icon className="size-3.5 text-white" />
