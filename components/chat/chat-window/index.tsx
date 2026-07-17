@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ChevronDown, Bot, UserRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Send, ChevronDown, Bot, UserRound, ShoppingCart } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,6 +15,13 @@ import {
 import MessageBubble from "@/components/chat/message-bubble";
 import { PLATFORM_BY_ID } from "@/utils/constants/platforms.constant";
 import { PUSH_PLATFORMS } from "@/utils/constants/platforms.constant";
+import api from "@/lib/axios";
+import { ORDERS_API } from "@/utils/constants/apis/orders.api.constant";
+import { IOrder } from "@/utils/interfaces/order/order.interface";
+import {
+  ORDER_STATUS_STYLES,
+} from "@/utils/constants/orders.constant";
+import { formatCurrency } from "@/utils/functions/currency";
 import { cn } from "@/lib/utils";
 import { fmt } from "@/utils/functions/i18n";
 import { useT } from "@/hooks/utils/use-translations";
@@ -59,7 +67,29 @@ export default function ChatWindow({
   /* -------------------------------- All States ------------------------------ */
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [linkedOrders, setLinkedOrders] = useState<IOrder[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Orders raised from this thread. Fetched locally rather than via the orders
+  // store so opening a chat doesn't clobber the Orders page's list. Re-runs
+  // when a new order is created (conversation.updated_at bumps) or the thread
+  // changes.
+  useEffect(() => {
+    let active = true;
+    api
+      .get<IOrder[]>(ORDERS_API.LIST, {
+        params: { conversation_id: conversation.id },
+      })
+      .then(({ data }) => {
+        if (active) setLinkedOrders(data);
+      })
+      .catch(() => {
+        if (active) setLinkedOrders([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [conversation.id, conversation.updated_at]);
 
   const isClosed = conversation.status === "closed";
   // The website widget is request/response — there's no channel to push a
@@ -115,6 +145,19 @@ export default function ChatWindow({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* ── Create order from this chat ────────────────────── */}
+          <Link
+            href={`/orders/new?customer=${conversation.customer_id}&conversation=${conversation.id}`}
+            className={buttonVariants({
+              variant: "outline",
+              size: "sm",
+              className: "h-7 gap-1.5 text-xs",
+            })}
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            {t.createOrder}
+          </Link>
+
           {/* ── AI on/off ──────────────────────────────────────── */}
           {canReply && (
             <Button
@@ -157,6 +200,33 @@ export default function ChatWindow({
         </DropdownMenu>
         </div>
       </div>
+
+      {/* ── Orders raised from this thread ─────────────────────── */}
+      {linkedOrders.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 border-b bg-muted/30 px-4 py-2">
+          <span className="text-xs text-muted-foreground">
+            {t.ordersFromChat}:
+          </span>
+          {linkedOrders.map((order) => (
+            <Link
+              key={order.id}
+              href={`/orders/${order.id}`}
+              title={t.viewOrder}
+              className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs hover:bg-muted"
+            >
+              <span className="font-mono">#{order.id.slice(0, 8)}</span>
+              <span className="font-medium">
+                {formatCurrency(order.total_amount)}
+              </span>
+              <Badge
+                className={cn("h-4 px-1.5 text-[10px]", ORDER_STATUS_STYLES[order.status])}
+              >
+                {tc.orderStatus[order.status]}
+              </Badge>
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* ── Messages ──────────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4">

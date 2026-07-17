@@ -1,8 +1,8 @@
 import { API_V1 } from "./base.api.constant";
 
 export const CONVERSATIONS_API = {
-  LIST: `${API_V1}/conversations`,
-  CREATE: `${API_V1}/conversations`,
+  LIST: `${API_V1}/conversations/`,
+  CREATE: `${API_V1}/conversations/`,
   GET: (id: string) => `${API_V1}/conversations/${id}`,
   UPDATE: (id: string) => `${API_V1}/conversations/${id}`,
   MESSAGES: (id: string) => `${API_V1}/conversations/${id}/messages`,

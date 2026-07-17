@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/utils/functions/currency";
 import { fmt } from "@/utils/functions/i18n";
 import { useT } from "@/hooks/utils/use-translations";
+import { cn } from "@/lib/utils";
 import { IProduct } from "@/utils/interfaces/product/product.interface";
 import { IOrderFormProps, OrderFormValues } from "./props";
 
@@ -72,6 +73,7 @@ export default function OrderForm({
   onSubmit,
   loading,
   submitLabel,
+  lockedCustomerId,
 }: IOrderFormProps) {
   const t = useT("orders");
   const schema = buildSchema(t);
@@ -84,12 +86,16 @@ export default function OrderForm({
   } = useForm<OrderFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      customer_id: "",
+      customer_id: lockedCustomerId ?? "",
       delivery_address: "",
       notes: "",
       items: [{ product_id: "", quantity: 1 }],
     },
   });
+
+  const lockedCustomer = lockedCustomerId
+    ? customers.find((c) => c.id === lockedCustomerId)
+    : undefined;
 
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
@@ -104,19 +110,34 @@ export default function OrderForm({
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="customer_id">{t.fieldCustomer}</Label>
-          <select
-            id="customer_id"
-            className={SELECT_CLASS}
-            disabled={loading}
-            {...register("customer_id")}
-          >
-            <option value="">{t.selectCustomer}</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          {lockedCustomer ? (
+            // Fixed to the person in the conversation. A disabled <select>
+            // wouldn't submit its value, so show the name read-only and carry
+            // the id in a hidden registered field.
+            <>
+              <div
+                className={cn(SELECT_CLASS, "flex items-center bg-muted/40")}
+                aria-disabled
+              >
+                {lockedCustomer.name}
+              </div>
+              <input type="hidden" {...register("customer_id")} />
+            </>
+          ) : (
+            <select
+              id="customer_id"
+              className={SELECT_CLASS}
+              disabled={loading}
+              {...register("customer_id")}
+            >
+              <option value="">{t.selectCustomer}</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
           {errors.customer_id && (
             <p className="text-xs text-destructive">
               {errors.customer_id.message}

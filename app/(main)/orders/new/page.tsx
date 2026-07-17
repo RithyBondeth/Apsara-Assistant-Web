@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import AppHeader from "@/components/header";
@@ -21,11 +21,27 @@ import { useT } from "@/hooks/utils/use-translations";
 import { OrderFormValues } from "@/components/orders/order-form/props";
 
 export default function NewOrderPage() {
+  // useSearchParams() requires a Suspense boundary in Next.js (matches the
+  // pattern in (auth)/reset-password).
+  return (
+    <Suspense>
+      <NewOrderForm />
+    </Suspense>
+  );
+}
+
+function NewOrderForm() {
   // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("orders");
 
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
+
+  // Set when the order is being raised from a chat: fixes the customer and
+  // links the order back to the thread it came out of.
+  const params = useSearchParams();
+  const fromCustomerId = params.get("customer") ?? undefined;
+  const fromConversationId = params.get("conversation") ?? undefined;
 
   // ── API Integration ────────────────────────────────────────────────────────
   const { createOrder, loading, error, clearError } = useOrdersStore();
@@ -44,6 +60,7 @@ export default function NewOrderPage() {
   async function handleSubmit(values: OrderFormValues) {
     const order = await createOrder({
       customer_id: values.customer_id,
+      conversation_id: fromConversationId,
       delivery_address: values.delivery_address || undefined,
       notes: values.notes || undefined,
       items: values.items,
@@ -51,9 +68,18 @@ export default function NewOrderPage() {
     if (order) router.push(`/orders/${order.id}`);
   }
 
+  // Only lock the customer once we've confirmed they exist in the loaded list;
+  // a stale link then degrades to the normal picker instead of an empty lock.
+  const lockedCustomerId =
+    fromCustomerId && customers.some((c) => c.id === fromCustomerId)
+      ? fromCustomerId
+      : undefined;
+
   // ── A seller with no customers or no products can't complete this form. ────
+  // The customer check is skipped when one is prefilled from a conversation —
+  // that customer already exists by definition.
   const blocker =
-    customers.length === 0
+    customers.length === 0 && !lockedCustomerId
       ? { message: t.needCustomer, href: "/customers/new", label: t.needCustomerAction }
       : products.length === 0
         ? { message: t.needProduct, href: "/products/new", label: t.needProductAction }
@@ -109,6 +135,7 @@ export default function NewOrderPage() {
                 products={products}
                 onSubmit={handleSubmit}
                 loading={loading}
+                lockedCustomerId={lockedCustomerId}
               />
             )}
           </CardContent>

@@ -52,4 +52,5 @@ export interface IOrderUpdate {
 export interface IOrderFilters {
   status?: OrderStatus;
   customer_id?: string;
+  conversation_id?: string;
 }

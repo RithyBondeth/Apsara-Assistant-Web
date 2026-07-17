@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, MessageCircle, Inbox, AlertCircle } from "lucide-react";
 import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
@@ -16,12 +17,24 @@ import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
+  // useSearchParams() (for the ?c= deep link) requires a Suspense boundary.
+  return (
+    <Suspense>
+      <ChatInbox />
+    </Suspense>
+  );
+}
+
+function ChatInbox() {
   // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("chat");
 
   // ── All States ─────────────────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
   const [needsMeOnly, setNeedsMeOnly] = useState(false);
+
+  // Deep link from an order's "View chat": open that thread on arrival.
+  const deepLinkId = useSearchParams().get("c");
 
   // ── API Integration ────────────────────────────────────────────────────────
   const {
@@ -50,6 +63,20 @@ export default function ChatPage() {
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
+
+  // Open the deep-linked thread once it has loaded. A ref (not state) guards
+  // it so it fires a single time and never yanks the seller back after they
+  // click away — and so flipping the guard doesn't trigger a re-render.
+  const deepLinkHandled = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandled.current || !deepLinkId) return;
+    const target = conversations.find((c) => c.id === deepLinkId);
+    if (target) {
+      deepLinkHandled.current = true;
+      handleSelectConversation(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deepLinkId, conversations]);
 
   // ── Methods ────────────────────────────────────────────────────────────────
   function handleSelectConversation(conversation: IConversation) {

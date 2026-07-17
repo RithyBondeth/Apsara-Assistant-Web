@@ -7,6 +7,12 @@ export interface IOrderFormProps {
   onSubmit: (data: OrderFormValues) => void | Promise<void>;
   loading?: boolean;
   submitLabel?: string;
+  /**
+   * When the order is being raised from a conversation, the customer is fixed
+   * (it's whoever the seller is chatting with) — prefilled and locked so they
+   * can't accidentally bill someone else.
+   */
+  lockedCustomerId?: string;
 }
 
 export interface OrderFormValues {

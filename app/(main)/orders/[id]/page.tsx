@@ -263,7 +263,10 @@ function OrderDetailClient({ id }: { id: string }) {
 
               {selected.conversation_id && (
                 <DetailRow label={t.detailConversation}>
-                  <Link href="/chat" className="text-primary hover:underline">
+                  <Link
+                    href={`/chat?c=${selected.conversation_id}`}
+                    className="text-primary hover:underline"
+                  >
                     {t.viewChat}
                   </Link>
                 </DetailRow>

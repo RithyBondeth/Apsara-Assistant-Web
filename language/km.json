@@ -518,6 +518,9 @@
     "needsYouOnly": "តែការសន្ទនាដែលត្រូវការអ្នក",
     "showAll": "បង្ហាញទាំងអស់",
     "aiGaveUp": "AI មិនអាចឆ្លើយបានទេ",
-    "unreadBadge": "ថ្មី"
+    "unreadBadge": "ថ្មី",
+    "createOrder": "បង្កើតការបញ្ជាទិញ",
+    "ordersFromChat": "ការបញ្ជាទិញពីការជជែកនេះ",
+    "viewOrder": "មើលការបញ្ជាទិញ"
   }
 }

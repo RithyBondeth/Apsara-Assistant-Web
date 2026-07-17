@@ -518,6 +518,9 @@
     "needsYouOnly": "Only threads that need you",
     "showAll": "Show all",
     "aiGaveUp": "AI couldn't answer",
-    "unreadBadge": "New"
+    "unreadBadge": "New",
+    "createOrder": "Create order",
+    "ordersFromChat": "Orders from this chat",
+    "viewOrder": "View order"
   }
 }
