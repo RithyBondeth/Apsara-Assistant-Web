@@ -13,8 +13,16 @@ import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { ORDER_STATUSES, ORDER_STATUS_BAR } from "@/utils/constants/orders.constant";
 import { PLATFORMS } from "@/utils/constants/platforms.constant";
 import { formatCurrency } from "@/utils/functions/currency";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 
 export default function AnalyticsPage() {
+  // ── Translations: the stat tiles mirror the dashboard's, so their copy is
+  // shared rather than duplicated under `analytics`.
+  const t = useT("analytics");
+  const td = useT("dashboard");
+  const tc = useT("common");
+
   // ── API Integration ────────────────────────────────────────────────────────
   const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
   const { orders, fetchOrders } = useOrdersStore();
@@ -33,11 +41,11 @@ export default function AnalyticsPage() {
   const ordersByStatus = useMemo(
     () =>
       ORDER_STATUSES.map((status) => ({
-        label: status,
+        label: tc.orderStatus[status],
         value: orders.filter((o) => o.status === status).length,
         className: ORDER_STATUS_BAR[status],
       })),
-    [orders]
+    [orders, tc]
   );
 
   const conversationsByPlatform = useMemo(
@@ -59,7 +67,7 @@ export default function AnalyticsPage() {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Analytics" />
+      <AppHeader title={t.title} />
 
       <main className="flex-1 space-y-6 p-6">
         {statsLoading && !stats ? (
@@ -72,27 +80,29 @@ export default function AnalyticsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               icon={DollarSign}
-              label="Revenue"
+              label={td.revenue}
               value={formatCurrency(stats?.revenue ?? 0)}
-              sub="Excluding cancelled"
+              sub={td.revenueSub}
             />
             <StatCard
               icon={ShoppingCart}
-              label="Average order"
+              label={t.averageOrder}
               value={formatCurrency(averageOrder)}
-              sub="Across recent orders"
+              sub={t.averageOrderSub}
             />
             <StatCard
               icon={MessageCircle}
-              label="Conversations"
+              label={td.conversations}
               value={stats?.conversations ?? 0}
-              sub={`${stats?.open_conversations ?? 0} still open`}
+              sub={fmt(t.conversationsSub, {
+                count: stats?.open_conversations ?? 0,
+              })}
             />
             <StatCard
               icon={Users}
-              label="Customers"
+              label={td.customers}
               value={stats?.customers ?? 0}
-              sub="All platforms"
+              sub={td.customersSub}
             />
           </div>
         )}
@@ -100,24 +110,24 @@ export default function AnalyticsPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Orders by status</CardTitle>
+              <CardTitle className="text-base">{t.ordersByStatus}</CardTitle>
             </CardHeader>
             <CardContent>
               <BreakdownBar
                 rows={ordersByStatus}
-                emptyLabel="No orders yet."
+                emptyLabel={t.noOrders}
               />
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Conversations by channel</CardTitle>
+              <CardTitle className="text-base">{t.conversationsByChannel}</CardTitle>
             </CardHeader>
             <CardContent>
               <BreakdownBar
                 rows={conversationsByPlatform}
-                emptyLabel="No conversations yet. Connect a channel to start receiving messages."
+                emptyLabel={t.noConversations}
               />
             </CardContent>
           </Card>

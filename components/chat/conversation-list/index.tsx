@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
 import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { IConversationListProps } from "./props";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -25,6 +27,9 @@ export default function ConversationList({
   activeId,
   onSelect,
 }: IConversationListProps) {
+  const t = useT("chat");
+  const tc = useT("common");
+
   // ── Build a lookup map for customer names
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
 
@@ -32,7 +37,7 @@ export default function ConversationList({
     return (
       <div className="flex h-full items-center justify-center p-6">
         <p className="text-center text-sm text-muted-foreground">
-          No conversations yet
+          {t.noConversations}
         </p>
       </div>
     );
@@ -42,7 +47,9 @@ export default function ConversationList({
     <div className="divide-y overflow-y-auto">
       {conversations.map((conv) => {
         const customer = customerMap[conv.customer_id];
-        const displayName = customer?.name ?? `Customer ${conv.customer_id.slice(0, 8)}`;
+        const displayName =
+          customer?.name ??
+          fmt(t.customerFallback, { id: conv.customer_id.slice(0, 8) });
 
         return (
           <button
@@ -68,7 +75,7 @@ export default function ConversationList({
               </div>
               <div className="mt-0.5 flex items-center gap-1.5">
                 <Badge className={cn("h-4 px-1.5 text-[10px]", STATUS_STYLES[conv.status])}>
-                  {conv.status}
+                  {tc.conversationStatus[conv.status]}
                 </Badge>
                 <span className="text-[10px] text-muted-foreground">
                   {PLATFORM_LABELS[conv.platform] ?? conv.platform}

@@ -17,9 +17,13 @@ import {
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
+import { useT } from "@/hooks/utils/use-translations";
 import { OrderFormValues } from "@/components/orders/order-form/props";
 
 export default function NewOrderPage() {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("orders");
+
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
@@ -50,15 +54,15 @@ export default function NewOrderPage() {
   // ── A seller with no customers or no products can't complete this form. ────
   const blocker =
     customers.length === 0
-      ? { message: "Add a customer before creating an order.", href: "/customers/new", label: "Add customer" }
+      ? { message: t.needCustomer, href: "/customers/new", label: t.needCustomerAction }
       : products.length === 0
-        ? { message: "Add a product before creating an order.", href: "/products/new", label: "Add product" }
+        ? { message: t.needProduct, href: "/products/new", label: t.needProductAction }
         : null;
 
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="New Order" />
+      <AppHeader title={t.newTitle} />
 
       <main className="w-full flex-1 p-6">
         <Link
@@ -70,16 +74,13 @@ export default function NewOrderPage() {
           })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to orders
+          {t.back}
         </Link>
 
         <Card>
           <CardHeader>
-            <CardTitle>New order</CardTitle>
-            <CardDescription>
-              Record an order manually. Each line is priced from the product&apos;s
-              current price, and stock is reduced when the order is created.
-            </CardDescription>
+            <CardTitle>{t.newTitle}</CardTitle>
+            <CardDescription>{t.newDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (

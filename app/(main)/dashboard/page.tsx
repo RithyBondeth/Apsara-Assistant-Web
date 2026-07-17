@@ -13,6 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/utils/functions/date";
 import { formatCurrency } from "@/utils/functions/currency";
+import { fmt } from "@/utils/functions/i18n";
+import { PLATFORM_BY_ID } from "@/utils/constants/platforms.constant";
+import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -22,6 +25,10 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("dashboard");
+  const tc = useT("common");
+
   // ── API Integration ────────────────────────────────────────────────────────
   // Counts come from the aggregate endpoint rather than from measuring
   // downloaded tables — customers and conversations are only fetched here for
@@ -43,7 +50,7 @@ export default function DashboardPage() {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Dashboard" />
+      <AppHeader title={t.title} />
 
       <main className="flex-1 space-y-6 p-6">
       {/* ── Stat Cards ──────────────────────────────────────────── */}
@@ -57,33 +64,35 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard
               icon={DollarSign}
-              label="Revenue"
+              label={t.revenue}
               value={formatCurrency(stats?.revenue ?? 0)}
-              sub="Excluding cancelled"
+              sub={t.revenueSub}
             />
             <StatCard
               icon={ShoppingCart}
-              label="Orders"
+              label={t.orders}
               value={stats?.orders ?? 0}
-              sub={`${stats?.pending_orders ?? 0} pending`}
+              sub={fmt(t.ordersSub, { count: stats?.pending_orders ?? 0 })}
             />
             <StatCard
               icon={MessageCircle}
-              label="Conversations"
+              label={t.conversations}
               value={stats?.conversations ?? 0}
-              sub={`${stats?.open_conversations ?? 0} open`}
+              sub={fmt(t.conversationsSub, {
+                count: stats?.open_conversations ?? 0,
+              })}
             />
             <StatCard
               icon={Users}
-              label="Customers"
+              label={t.customers}
               value={stats?.customers ?? 0}
-              sub="All platforms"
+              sub={t.customersSub}
             />
             <StatCard
               icon={Package}
-              label="Products"
+              label={t.products}
               value={stats?.products ?? 0}
-              sub="Active in catalogue"
+              sub={t.productsSub}
             />
           </div>
         )}
@@ -91,12 +100,12 @@ export default function DashboardPage() {
         {/* ── Recent Conversations ──────────────────────────────── */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-base">Recent Conversations</CardTitle>
+            <CardTitle className="text-base">{t.recentTitle}</CardTitle>
             <Link
               href="/chat"
               className="text-xs font-medium text-blue-600 underline-offset-4 hover:underline"
             >
-              View all
+              {t.viewAll}
             </Link>
           </CardHeader>
           <CardContent>
@@ -108,12 +117,14 @@ export default function DashboardPage() {
               </div>
             ) : recentConversations.length === 0 ? (
               <div className="py-6 text-center">
-                <p className="text-sm text-muted-foreground">No conversations yet</p>
+                <p className="text-sm text-muted-foreground">
+                  {t.noConversations}
+                </p>
                 <Link
                   href="/channels"
                   className="mt-1 inline-block text-xs font-medium text-blue-600 underline-offset-4 hover:underline"
                 >
-                  Connect a channel to start receiving messages
+                  {t.connectChannel}
                 </Link>
               </div>
             ) : (
@@ -124,15 +135,19 @@ export default function DashboardPage() {
                     <div key={conv.id} className="flex items-center justify-between py-3">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
-                          {customer?.name ?? `Customer ${conv.customer_id.slice(0, 8)}`}
+                          {customer?.name ??
+                            fmt(t.customerFallback, {
+                              id: conv.customer_id.slice(0, 8),
+                            })}
                         </p>
-                        <p className="text-xs capitalize text-muted-foreground">
-                          {conv.platform}
+                        {/* Brand names are deliberately not translated. */}
+                        <p className="text-xs text-muted-foreground">
+                          {PLATFORM_BY_ID[conv.platform]?.name ?? conv.platform}
                         </p>
                       </div>
                       <div className="ml-4 flex shrink-0 items-center gap-2">
-                        <Badge className={cn("capitalize text-[10px]", STATUS_STYLES[conv.status])}>
-                          {conv.status}
+                        <Badge className={cn("text-[10px]", STATUS_STYLES[conv.status])}>
+                          {tc.conversationStatus[conv.status]}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           {timeAgo(conv.updated_at)}

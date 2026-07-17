@@ -31,6 +31,8 @@ import {
 import { OrderStatus } from "@/utils/interfaces/order/order.interface";
 import { formatCurrency } from "@/utils/functions/currency";
 import { formatDate } from "@/utils/functions/date";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
 
 export default function OrderDetailPage({
@@ -43,6 +45,10 @@ export default function OrderDetailPage({
 }
 
 function OrderDetailClient({ id }: { id: string }) {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("orders");
+  const tc = useT("common");
+
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
@@ -77,7 +83,7 @@ function OrderDetailClient({ id }: { id: string }) {
   async function handleStatusChange(next: OrderStatus) {
     if (
       next === "cancelled" &&
-      !confirm("Cancel this order? Its items will be returned to stock.")
+      !confirm(t.cancelConfirm)
     ) {
       return;
     }
@@ -85,7 +91,7 @@ function OrderDetailClient({ id }: { id: string }) {
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this order? This cannot be undone.")) return;
+    if (!confirm(t.deleteConfirm)) return;
     const ok = await deleteOrder(id);
     if (ok) router.push("/orders");
   }
@@ -94,7 +100,7 @@ function OrderDetailClient({ id }: { id: string }) {
   if (!selected) {
     return (
       <>
-        <AppHeader title="Order" />
+        <AppHeader title={t.title} />
         <main className="w-full flex-1 p-6">
           {error ? (
             <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -114,7 +120,7 @@ function OrderDetailClient({ id }: { id: string }) {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title={`Order #${selected.id.slice(0, 8)}`} />
+      <AppHeader title={fmt(t.detailTitle, { id: selected.id.slice(0, 8) })} />
 
       <main className="w-full flex-1 space-y-4 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -127,24 +133,24 @@ function OrderDetailClient({ id }: { id: string }) {
             })}
           >
             <ChevronLeft className="mr-1 h-4 w-4" />
-            Back to orders
+            {t.back}
           </Link>
 
           <div className="flex items-center gap-2">
             {/* Changing to "cancelled" restocks every line item server-side. */}
             <select
-              aria-label="Order status"
+              aria-label={t.statusLabel}
               value={selected.status}
               disabled={loading}
               onChange={(e) => handleStatusChange(e.target.value as OrderStatus)}
               className={cn(
-                "h-8 rounded-md border-0 px-2 text-xs font-medium capitalize outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "h-8 rounded-md border-0 px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 ORDER_STATUS_STYLES[selected.status]
               )}
             >
               {ORDER_STATUSES.map((status) => (
-                <option key={status} value={status} className="capitalize">
-                  {status}
+                <option key={status} value={status}>
+                  {tc.orderStatus[status]}
                 </option>
               ))}
             </select>
@@ -152,7 +158,7 @@ function OrderDetailClient({ id }: { id: string }) {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Delete order"
+              aria-label={t.deleteOrder}
               disabled={loading}
               onClick={handleDelete}
               className="text-destructive hover:text-destructive"
@@ -172,16 +178,16 @@ function OrderDetailClient({ id }: { id: string }) {
           {/* ── Items ────────────────────────────────────────────── */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-base">Items</CardTitle>
+              <CardTitle className="text-base">{t.detailItems}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="w-20">Qty</TableHead>
-                    <TableHead className="w-28">Unit price</TableHead>
-                    <TableHead className="w-28 text-right">Subtotal</TableHead>
+                    <TableHead>{t.colProduct}</TableHead>
+                    <TableHead className="w-20">{t.colQty}</TableHead>
+                    <TableHead className="w-28">{t.colUnitPrice}</TableHead>
+                    <TableHead className="w-28 text-right">{t.colSubtotal}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -191,7 +197,9 @@ function OrderDetailClient({ id }: { id: string }) {
                         {/* A deleted product leaves the line intact — show the id. */}
                         {productMap[item.product_id]?.name ?? (
                           <span className="text-muted-foreground">
-                            Product {item.product_id.slice(0, 8)}
+                            {fmt(t.deletedProduct, {
+                              id: item.product_id.slice(0, 8),
+                            })}
                           </span>
                         )}
                       </TableCell>
@@ -211,8 +219,9 @@ function OrderDetailClient({ id }: { id: string }) {
 
               <div className="flex items-center justify-between border-t pt-4">
                 <span className="text-sm text-muted-foreground">
-                  Total ({selected.items.reduce((s, i) => s + i.quantity, 0)}{" "}
-                  items)
+                  {fmt(t.totalItems, {
+                    count: selected.items.reduce((s, i) => s + i.quantity, 0),
+                  })}
                 </span>
                 <span className="text-lg font-semibold tabular-nums">
                   {formatCurrency(selected.total_amount)}
@@ -224,10 +233,10 @@ function OrderDetailClient({ id }: { id: string }) {
           {/* ── Meta ─────────────────────────────────────────────── */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Details</CardTitle>
+              <CardTitle className="text-base">{t.detailDetails}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
-              <DetailRow label="Customer">
+              <DetailRow label={t.colCustomer}>
                 {customer ? (
                   <Link
                     href={`/customers/${customer.id}/edit`}
@@ -236,26 +245,26 @@ function OrderDetailClient({ id }: { id: string }) {
                     {customer.name}
                   </Link>
                 ) : (
-                  <span className="text-muted-foreground">Unknown</span>
+                  <span className="text-muted-foreground">{tc.unknown}</span>
                 )}
               </DetailRow>
 
-              <DetailRow label="Placed">{formatDate(selected.created_at)}</DetailRow>
+              <DetailRow label={t.detailPlaced}>{formatDate(selected.created_at)}</DetailRow>
 
-              <DetailRow label="Delivery address">
+              <DetailRow label={t.detailAddress}>
                 {selected.delivery_address ?? (
                   <span className="text-muted-foreground">—</span>
                 )}
               </DetailRow>
 
-              <DetailRow label="Notes">
+              <DetailRow label={t.detailNotes}>
                 {selected.notes ?? <span className="text-muted-foreground">—</span>}
               </DetailRow>
 
               {selected.conversation_id && (
-                <DetailRow label="Conversation">
+                <DetailRow label={t.detailConversation}>
                   <Link href="/chat" className="text-primary hover:underline">
-                    View chat
+                    {t.viewChat}
                   </Link>
                 </DetailRow>
               )}

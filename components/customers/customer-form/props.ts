@@ -1,4 +1,5 @@
 import { ICustomer } from "@/utils/interfaces/customer/customer.interface";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
 
 export interface ICustomerFormProps {
   defaultValues?: Partial<ICustomer>;
@@ -11,6 +12,7 @@ export interface CustomerFormValues {
   name: string;
   phone?: string;
   email?: string;
-  platform?: string;
+  /** "" is the "— None —" option: not tied to a channel. */
+  platform?: PlatformId | "";
   platform_id?: string;
 }

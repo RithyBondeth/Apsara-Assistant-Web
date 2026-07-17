@@ -12,10 +12,16 @@ import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { ORDER_STATUSES } from "@/utils/constants/orders.constant";
 import { OrderStatus } from "@/utils/interfaces/order/order.interface";
 import { formatCurrency } from "@/utils/functions/currency";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 
 type StatusFilter = OrderStatus | "all";
 
 export default function OrdersPage() {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("orders");
+  const tc = useT("common");
+
   // ── API Integration ────────────────────────────────────────────────────────
   const { orders, loading, error, fetchOrders, updateOrder, deleteOrder } =
     useOrdersStore();
@@ -37,7 +43,7 @@ export default function OrdersPage() {
   async function handleStatusChange(id: string, next: OrderStatus) {
     if (
       next === "cancelled" &&
-      !confirm("Cancel this order? Its items will be returned to stock.")
+      !confirm(t.cancelConfirm)
     ) {
       return;
     }
@@ -45,7 +51,7 @@ export default function OrdersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this order? This cannot be undone.")) return;
+    if (!confirm(t.deleteConfirm)) return;
     await deleteOrder(id);
   }
 
@@ -57,28 +63,33 @@ export default function OrdersPage() {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Orders" />
+      <AppHeader title={t.title} />
 
       <main className="flex-1 space-y-4 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm text-muted-foreground">
-            {orders.length} order{orders.length !== 1 ? "s" : ""}
+            {fmt(orders.length === 1 ? t.countOne : t.countOther, {
+              count: orders.length,
+            })}
             {orders.length > 0 && (
-              <> · {formatCurrency(revenue)} excluding cancelled</>
+              <>
+                {" · "}
+                {fmt(t.revenueNote, { amount: formatCurrency(revenue) })}
+              </>
             )}
           </div>
 
           <div className="flex items-center gap-2">
             <select
-              aria-label="Filter by status"
+              aria-label={t.filterLabel}
               value={status}
               onChange={(e) => setStatus(e.target.value as StatusFilter)}
               className="h-8 rounded-lg border border-input bg-background px-3 text-sm capitalize outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option value="all">All statuses</option>
+              <option value="all">{t.allStatuses}</option>
               {ORDER_STATUSES.map((s) => (
-                <option key={s} value={s} className="capitalize">
-                  {s}
+                <option key={s} value={s}>
+                  {tc.orderStatus[s]}
                 </option>
               ))}
             </select>
@@ -88,7 +99,7 @@ export default function OrdersPage() {
               className={buttonVariants({ size: "sm" })}
             >
               <Plus className="mr-1 h-4 w-4" />
-              New order
+              {t.add}
             </Link>
           </div>
         </div>

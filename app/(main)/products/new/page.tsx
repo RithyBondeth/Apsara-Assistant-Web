@@ -14,9 +14,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useProductsStore } from "@/stores/apis/products/products.store";
+import { useT } from "@/hooks/utils/use-translations";
 import { ProductFormValues } from "@/components/products/product-form/props";
 
 export default function NewProductPage() {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("products");
+
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
@@ -32,27 +36,24 @@ export default function NewProductPage() {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Add Product" />
+      <AppHeader title={t.add} />
 
       <main className="flex-1 p-6">
         <Link href="/products" className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}>
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to products
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>New product</CardTitle>
-            <CardDescription>
-              Add a product to your catalogue. The AI assistant will use this
-              information to answer customer questions.
-            </CardDescription>
+            <CardTitle>{t.newTitle}</CardTitle>
+            <CardDescription>{t.newDesc}</CardDescription>
           </CardHeader>
           <CardContent>
             <ProductForm
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Add product"
+              submitLabel={t.add}
             />
           </CardContent>
         </Card>

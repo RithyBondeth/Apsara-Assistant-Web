@@ -12,7 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import MessageBubble from "@/components/chat/message-bubble";
-import { cn } from "@/lib/utils";
+import { PLATFORM_BY_ID } from "@/utils/constants/platforms.constant";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { IChatWindowProps } from "./props";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -21,17 +23,23 @@ const STATUS_STYLES: Record<string, string> = {
   closed: "bg-muted text-muted-foreground",
 };
 
-const NEXT_STATUSES: Record<string, { label: string; value: "open" | "closed" | "pending" }[]> = {
-  open: [
-    { label: "Mark as pending", value: "pending" },
-    { label: "Close conversation", value: "closed" },
-  ],
-  pending: [
-    { label: "Reopen", value: "open" },
-    { label: "Close conversation", value: "closed" },
-  ],
-  closed: [{ label: "Reopen", value: "open" }],
-};
+type ChatCopy = ReturnType<typeof useT<"chat">>;
+type NextStatus = { label: string; value: "open" | "closed" | "pending" };
+
+/** Which transitions each status offers, labelled in the active language. */
+function nextStatuses(t: ChatCopy): Record<string, NextStatus[]> {
+  return {
+    open: [
+      { label: t.markPending, value: "pending" },
+      { label: t.closeConversation, value: "closed" },
+    ],
+    pending: [
+      { label: t.reopen, value: "open" },
+      { label: t.closeConversation, value: "closed" },
+    ],
+    closed: [{ label: t.reopen, value: "open" }],
+  };
+}
 
 export default function ChatWindow({
   conversation,
@@ -40,13 +48,19 @@ export default function ChatWindow({
   onSend,
   onStatusChange,
 }: IChatWindowProps) {
+  /* ------------------------------- Translations ----------------------------- */
+  const t = useT("chat");
+  const tc = useT("common");
+
   /* -------------------------------- All States ------------------------------ */
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isClosed = conversation.status === "closed";
-  const displayName = customer?.name ?? `Customer ${conversation.customer_id.slice(0, 8)}`;
+  const displayName =
+    customer?.name ??
+    fmt(t.customerFallback, { id: conversation.customer_id.slice(0, 8) });
 
   /* --------------------------------- Effects --------------------------------- */
   useEffect(() => {
@@ -81,22 +95,28 @@ export default function ChatWindow({
           </div>
           <div>
             <p className="text-sm font-medium">{displayName}</p>
-            <p className="text-xs capitalize text-muted-foreground">
-              {customer?.phone ?? conversation.platform}
+            {/* Brand names are deliberately not translated. */}
+            <p className="text-xs text-muted-foreground">
+              {customer?.phone ??
+                PLATFORM_BY_ID[conversation.platform]?.name ??
+                conversation.platform}
             </p>
           </div>
         </div>
 
         {/* ── Status Control ───────────────────────────────────── */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-1 rounded-lg px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Badge className={cn("capitalize", STATUS_STYLES[conversation.status])}>
-              {conversation.status}
+          <DropdownMenuTrigger
+            aria-label={t.changeStatus}
+            className="flex items-center gap-1 rounded-lg px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Badge className={STATUS_STYLES[conversation.status]}>
+              {tc.conversationStatus[conversation.status]}
             </Badge>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {(NEXT_STATUSES[conversation.status] ?? []).map((action) => (
+            {(nextStatuses(t)[conversation.status] ?? []).map((action) => (
               <DropdownMenuItem
                 key={action.value}
                 onClick={() => onStatusChange(action.value)}
@@ -121,7 +141,7 @@ export default function ChatWindow({
           </div>
         ) : conversation.messages.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            No messages yet. Start the conversation.
+            {t.noMessages}
           </p>
         ) : (
           <div className="space-y-3">
@@ -137,21 +157,21 @@ export default function ChatWindow({
       <div className="border-t px-4 py-3">
         {isClosed ? (
           <p className="text-center text-sm text-muted-foreground">
-            This conversation is closed.{" "}
+            {t.closedNotice}{" "}
             <button
               className="font-medium underline-offset-4 hover:underline"
               onClick={() => onStatusChange("open")}
             >
-              Reopen it
+              {t.reopenIt}
             </button>{" "}
-            to send messages.
+            {t.closedNoticeSuffix}
           </p>
         ) : (
           <>
             <div className="flex items-end gap-2 rounded-xl border bg-background px-3 py-2">
               <textarea
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder="Type a message…"
+                placeholder={t.inputPlaceholder}
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -159,6 +179,7 @@ export default function ChatWindow({
               />
               <Button
                 size="icon"
+                aria-label={t.send}
                 className="h-7 w-7 shrink-0"
                 disabled={!input.trim() || sending}
                 onClick={handleSend}
@@ -167,7 +188,7 @@ export default function ChatWindow({
               </Button>
             </div>
             <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-              Enter to send · Shift+Enter for new line · AI replies automatically
+              {t.inputHint}
             </p>
           </>
         )}

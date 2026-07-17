@@ -13,12 +13,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatDate } from "@/utils/functions/date";
+import { PLATFORM_BY_ID } from "@/utils/constants/platforms.constant";
+import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
+import { useT } from "@/hooks/utils/use-translations";
 import { ICustomerTableProps } from "./props";
 
-const PLATFORM_COLORS: Record<string, string> = {
-  facebook: "bg-blue-100 text-blue-700",
+const PLATFORM_COLORS: Record<PlatformId, string> = {
   telegram: "bg-sky-100 text-sky-700",
-  tiktok: "bg-pink-100 text-pink-700",
+  messenger: "bg-blue-100 text-blue-700",
+  instagram: "bg-pink-100 text-pink-700",
   website: "bg-green-100 text-green-700",
 };
 
@@ -27,16 +30,19 @@ export default function CustomerTable({
   onDelete,
   deleting,
 }: ICustomerTableProps) {
+  const t = useT("customers");
+  const tc = useT("common");
+
   if (customers.length === 0) {
     return (
       <div className="rounded-lg border">
         <p className="py-12 text-center text-sm text-muted-foreground">
-          No customers yet.{" "}
+          {t.emptyTitle}{" "}
           <Link
             href="/customers/new"
             className="font-medium underline-offset-4 hover:underline"
           >
-            Add your first customer
+            {t.emptyAction}
           </Link>
         </p>
       </div>
@@ -48,11 +54,11 @@ export default function CustomerTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead className="hidden sm:table-cell">Contact</TableHead>
-            <TableHead className="hidden md:table-cell">Platform</TableHead>
-            <TableHead className="hidden lg:table-cell">Added</TableHead>
-            <TableHead className="w-24 text-right">Actions</TableHead>
+            <TableHead>{t.colName}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.colContact}</TableHead>
+            <TableHead className="hidden md:table-cell">{t.colPlatform}</TableHead>
+            <TableHead className="hidden lg:table-cell">{t.colAdded}</TableHead>
+            <TableHead className="w-24 text-right">{tc.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -88,10 +94,9 @@ export default function CustomerTable({
               {/* ── Platform               ────────────────────────────────────────── */}
               <TableCell className="hidden md:table-cell">
                 {customer.platform ? (
-                  <Badge
-                    className={`capitalize ${PLATFORM_COLORS[customer.platform] ?? ""}`}
-                  >
-                    {customer.platform}
+                  /* Brand names are deliberately not translated. */
+                  <Badge className={PLATFORM_COLORS[customer.platform] ?? ""}>
+                    {PLATFORM_BY_ID[customer.platform]?.name ?? customer.platform}
                   </Badge>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
@@ -108,6 +113,7 @@ export default function CustomerTable({
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/customers/${customer.id}/edit`}
+                    aria-label={`${tc.edit} ${customer.name}`}
                     className={buttonVariants({ variant: "ghost", size: "icon" })}
                   >
                     <Pencil className="h-4 w-4" />
@@ -116,6 +122,7 @@ export default function CustomerTable({
                     variant="ghost"
                     size="icon"
                     disabled={deleting}
+                    aria-label={`${tc.delete} ${customer.name}`}
                     onClick={() => onDelete(customer.id)}
                     className="text-destructive hover:text-destructive"
                   >

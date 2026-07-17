@@ -1,15 +1,18 @@
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
 import { SenderType } from "@/utils/interfaces/chat/chat.interface";
+import { useT } from "@/hooks/utils/use-translations";
 import { IMessageBubbleProps } from "./props";
 
-const SENDER_LABELS: Record<SenderType, string> = {
-  customer: "Customer",
-  assistant: "Apsara AI",
-  seller: "You",
-};
-
 export default function MessageBubble({ message }: IMessageBubbleProps) {
+  const t = useT("chat");
+
+  const senderLabels: Record<SenderType, string> = {
+    customer: t.customer,
+    assistant: t.assistant,
+    seller: t.seller,
+  };
+
   // Both the AI and the seller's own manual replies are outgoing; only the
   // customer's messages arrive from the other side.
   const isOutgoing = message.sender_type !== "customer";
@@ -23,7 +26,7 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
       )}
     >
       <span className="px-1 text-[10px] text-muted-foreground">
-        {SENDER_LABELS[message.sender_type] ?? message.sender_type}
+        {senderLabels[message.sender_type] ?? message.sender_type}
       </span>
       <div
         className={cn(
@@ -35,7 +38,7 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
           isOutgoing && !isSeller && "rounded-tr-sm bg-primary text-primary-foreground"
         )}
       >
-        {message.content ?? <em className="opacity-60">Empty message</em>}
+        {message.content ?? <em className="opacity-60">{t.emptyMessage}</em>}
       </div>
       <span className="px-1 text-[10px] text-muted-foreground">
         {timeAgo(message.created_at)}

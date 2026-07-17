@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductsStore } from "@/stores/apis/products/products.store";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { ProductFormValues } from "@/components/products/product-form/props";
 
 export default function EditProductPage({
@@ -28,6 +30,9 @@ export default function EditProductPage({
 }
 
 function EditProductClient({ id }: { id: string }) {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("products");
+
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
@@ -49,7 +54,7 @@ function EditProductClient({ id }: { id: string }) {
   if (loading || !selected) {
     return (
       <>
-        <AppHeader title="Edit Product" />
+        <AppHeader title={t.editTitle} />
         <main className="flex-1 p-6">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-96 max-w-2xl rounded-xl" />
@@ -61,7 +66,7 @@ function EditProductClient({ id }: { id: string }) {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Edit Product" />
+      <AppHeader title={t.editTitle} />
 
       <main className="flex-1 p-6">
         <Link
@@ -73,14 +78,14 @@ function EditProductClient({ id }: { id: string }) {
           })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to products
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Edit product</CardTitle>
+            <CardTitle>{t.editTitle}</CardTitle>
             <CardDescription>
-              Update &ldquo;{selected.name}&rdquo;
+              {fmt(t.editDesc, { name: selected.name })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -88,7 +93,7 @@ function EditProductClient({ id }: { id: string }) {
               defaultValues={selected}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Save changes"
+              submitLabel={t.saveChanges}
             />
           </CardContent>
         </Card>

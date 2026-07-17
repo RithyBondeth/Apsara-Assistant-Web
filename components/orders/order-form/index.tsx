@@ -10,22 +10,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/utils/functions/currency";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { IProduct } from "@/utils/interfaces/product/product.interface";
 import { IOrderFormProps, OrderFormValues } from "./props";
 
-const schema = z.object({
-  customer_id: z.string().min(1, "Choose a customer"),
-  delivery_address: z.string().optional().default(""),
-  notes: z.string().optional().default(""),
-  items: z
-    .array(
-      z.object({
-        product_id: z.string().min(1, "Choose a product"),
-        quantity: z.number().int().min(1, "At least 1"),
-      })
-    )
-    .min(1, "Add at least one item"),
-});
+type OrdersCopy = ReturnType<typeof useT<"orders">>;
+
+/** Built per-render so validation messages follow the active language. */
+function buildSchema(t: OrdersCopy) {
+  return z.object({
+    customer_id: z.string().min(1, t.errCustomer),
+    delivery_address: z.string().optional().default(""),
+    notes: z.string().optional().default(""),
+    items: z
+      .array(
+        z.object({
+          product_id: z.string().min(1, t.errProduct),
+          quantity: z.number().int().min(1, t.errQuantity),
+        })
+      )
+      .min(1, t.errItems),
+  });
+}
 
 const SELECT_CLASS =
   "flex h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50";
@@ -37,9 +44,11 @@ const SELECT_CLASS =
 function OrderTotal({
   control,
   productMap,
+  label,
 }: {
   control: Control<OrderFormValues>;
   productMap: Record<string, IProduct>;
+  label: string;
 }) {
   const items = useWatch({ control, name: "items" });
 
@@ -51,7 +60,7 @@ function OrderTotal({
 
   return (
     <div className="flex items-center justify-between border-t pt-4">
-      <span className="text-sm text-muted-foreground">Estimated total</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
       <span className="text-lg font-semibold">{formatCurrency(total)}</span>
     </div>
   );
@@ -62,8 +71,11 @@ export default function OrderForm({
   products,
   onSubmit,
   loading,
-  submitLabel = "Create order",
+  submitLabel,
 }: IOrderFormProps) {
+  const t = useT("orders");
+  const schema = buildSchema(t);
+
   const {
     register,
     control,
@@ -91,14 +103,14 @@ export default function OrderForm({
       {/* ── Customer + Delivery ──────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="space-y-1.5">
-          <Label htmlFor="customer_id">Customer *</Label>
+          <Label htmlFor="customer_id">{t.fieldCustomer}</Label>
           <select
             id="customer_id"
             className={SELECT_CLASS}
             disabled={loading}
             {...register("customer_id")}
           >
-            <option value="">— Select a customer —</option>
+            <option value="">{t.selectCustomer}</option>
             {customers.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -113,10 +125,10 @@ export default function OrderForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="delivery_address">Delivery address</Label>
+          <Label htmlFor="delivery_address">{t.fieldAddress}</Label>
           <Input
             id="delivery_address"
-            placeholder="St. 271, Phnom Penh"
+            placeholder={t.fieldAddressPlaceholder}
             disabled={loading}
             {...register("delivery_address")}
           />
@@ -126,7 +138,7 @@ export default function OrderForm({
       {/* ── Line Items ──────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>Items *</Label>
+          <Label>{t.fieldItems}</Label>
           <Button
             type="button"
             variant="outline"
@@ -135,13 +147,14 @@ export default function OrderForm({
             onClick={() => append({ product_id: "", quantity: 1 })}
           >
             <Plus className="mr-1 h-4 w-4" />
-            Add item
+            {t.addItem}
           </Button>
         </div>
 
         {fields.map((field, index) => (
           <OrderLineItem
             key={field.id}
+            t={t}
             index={index}
             control={control}
             register={register}
@@ -161,20 +174,24 @@ export default function OrderForm({
 
       {/* ── Notes ──────────────────────────────────────────────── */}
       <div className="space-y-1.5">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">{t.fieldNotes}</Label>
         <Textarea
           id="notes"
           rows={2}
-          placeholder="Delivery instructions, payment details…"
+          placeholder={t.fieldNotesPlaceholder}
           disabled={loading}
           {...register("notes")}
         />
       </div>
 
-      <OrderTotal control={control} productMap={productMap} />
+      <OrderTotal
+        control={control}
+        productMap={productMap}
+        label={t.estimatedTotal}
+      />
 
       <Button type="submit" disabled={loading}>
-        {loading ? "Creating…" : submitLabel}
+        {loading ? t.creating : (submitLabel ?? t.create)}
       </Button>
     </form>
   );
@@ -183,6 +200,7 @@ export default function OrderForm({
 /* --------------------------------- Methods --------------------------------- */
 
 function OrderLineItem({
+  t,
   index,
   control,
   register,
@@ -193,6 +211,7 @@ function OrderLineItem({
   onRemove,
   error,
 }: {
+  t: OrdersCopy;
   index: number;
   control: Control<OrderFormValues>;
   register: ReturnType<typeof useForm<OrderFormValues>>["register"];
@@ -215,12 +234,12 @@ function OrderLineItem({
       {/* ── Product ────────────────────────────────────────────── */}
       <div className="space-y-1.5">
         <select
-          aria-label={`Product for item ${index + 1}`}
+          aria-label={fmt(t.productForItem, { n: index + 1 })}
           className={SELECT_CLASS}
           disabled={loading}
           {...register(`items.${index}.product_id`)}
         >
-          <option value="">— Select a product —</option>
+          <option value="">{t.selectProduct}</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name} ({formatCurrency(p.price)})
@@ -232,7 +251,7 @@ function OrderLineItem({
         )}
         {overStock && (
           <p className="text-xs text-destructive">
-            Only {product?.stock} in stock
+            {fmt(t.overStock, { count: product?.stock ?? 0 })}
           </p>
         )}
       </div>
@@ -242,7 +261,7 @@ function OrderLineItem({
         <Input
           type="number"
           min="1"
-          aria-label={`Quantity for item ${index + 1}`}
+          aria-label={fmt(t.quantityForItem, { n: index + 1 })}
           disabled={loading}
           {...register(`items.${index}.quantity`, { valueAsNumber: true })}
         />
@@ -264,7 +283,7 @@ function OrderLineItem({
         type="button"
         variant="ghost"
         size="icon"
-        aria-label={`Remove item ${index + 1}`}
+        aria-label={fmt(t.removeItem, { n: index + 1 })}
         disabled={loading || !removable}
         onClick={onRemove}
         className="text-destructive hover:text-destructive"

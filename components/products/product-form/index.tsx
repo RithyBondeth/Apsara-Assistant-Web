@@ -8,22 +8,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUpload from "@/components/ui/image-upload";
+import { useT } from "@/hooks/utils/use-translations";
 import { IProductFormProps, ProductFormValues } from "./props";
 
-const schema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  description: z.string().optional().default(""),
-  price: z.number().min(0, "Price must be 0 or more"),
-  stock: z.number().int().min(0, "Stock must be 0 or more"),
-  image_url: z.string().optional().default(""),
-});
+/** Built per-render so validation messages follow the active language. */
+function buildSchema(t: ReturnType<typeof useT<"products">>) {
+  return z.object({
+    name: z.string().min(1, t.errName),
+    description: z.string().optional().default(""),
+    price: z.number().min(0, t.errPrice),
+    stock: z.number().int().min(0, t.errStock),
+    image_url: z.string().optional().default(""),
+  });
+}
 
 export default function ProductForm({
   defaultValues,
   onSubmit,
   loading,
-  submitLabel = "Save product",
+  submitLabel,
 }: IProductFormProps) {
+  const t = useT("products");
+  const tc = useT("common");
+  const schema = buildSchema(t);
+
   const {
     register,
     control,
@@ -44,8 +52,12 @@ export default function ProductForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* ── Name                   ────────────────────────────────────────── */}
       <div className="space-y-1.5">
-        <Label htmlFor="name">Product name *</Label>
-        <Input id="name" placeholder="Khmer silk scarf" {...register("name")} />
+        <Label htmlFor="name">{t.fieldName}</Label>
+        <Input
+          id="name"
+          placeholder={t.fieldNamePlaceholder}
+          {...register("name")}
+        />
         {errors.name && (
           <p className="text-xs text-destructive">{errors.name.message}</p>
         )}
@@ -53,10 +65,10 @@ export default function ProductForm({
 
       {/* ── Description            ────────────────────────────────────────── */}
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t.fieldDescription}</Label>
         <Textarea
           id="description"
-          placeholder="Describe your product…"
+          placeholder={t.fieldDescriptionPlaceholder}
           rows={3}
           {...register("description")}
         />
@@ -65,7 +77,7 @@ export default function ProductForm({
       {/* ── Price & Stock          ────────────────────────────────────────── */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="price">Price ($) *</Label>
+          <Label htmlFor="price">{t.fieldPrice}</Label>
           <Input
             id="price"
             type="number"
@@ -80,7 +92,7 @@ export default function ProductForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="stock">Stock *</Label>
+          <Label htmlFor="stock">{t.fieldStock}</Label>
           <Input
             id="stock"
             type="number"
@@ -96,7 +108,7 @@ export default function ProductForm({
 
       {/* ── Image                  ────────────────────────────────────────── */}
       <div className="space-y-1.5">
-        <Label>Photo</Label>
+        <Label>{t.fieldPhoto}</Label>
         <Controller
           name="image_url"
           control={control}
@@ -111,7 +123,7 @@ export default function ProductForm({
       </div>
 
       <Button type="submit" disabled={loading}>
-        {loading ? "Saving…" : submitLabel}
+        {loading ? tc.saving : (submitLabel ?? t.saveChanges)}
       </Button>
     </form>
   );

@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
+import { fmt } from "@/utils/functions/i18n";
+import { useT } from "@/hooks/utils/use-translations";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
 
 export default function EditCustomerPage({
@@ -28,6 +30,9 @@ export default function EditCustomerPage({
 }
 
 function EditCustomerClient({ id }: { id: string }) {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("customers");
+
   // ── Utils ──────────────────────────────────────────────────────────────────
   const router = useRouter();
 
@@ -46,6 +51,9 @@ function EditCustomerClient({ id }: { id: string }) {
       name: values.name,
       phone: values.phone,
       email: values.email,
+      // "" is the "not tied to a channel" option; omit rather than send it.
+      platform: values.platform || undefined,
+      platform_id: values.platform_id,
     });
     if (ok) router.push("/customers");
   }
@@ -54,7 +62,7 @@ function EditCustomerClient({ id }: { id: string }) {
   if (loading || !selected) {
     return (
       <>
-        <AppHeader title="Edit Customer" />
+        <AppHeader title={t.editTitle} />
         <main className="flex-1 p-6">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-80 max-w-2xl rounded-xl" />
@@ -66,7 +74,7 @@ function EditCustomerClient({ id }: { id: string }) {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Edit Customer" />
+      <AppHeader title={t.editTitle} />
 
       <main className="flex-1 p-6">
         <Link
@@ -78,14 +86,14 @@ function EditCustomerClient({ id }: { id: string }) {
           })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to customers
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Edit customer</CardTitle>
+            <CardTitle>{t.editTitle}</CardTitle>
             <CardDescription>
-              Updating &ldquo;{selected.name}&rdquo;
+              {fmt(t.editDesc, { name: selected.name })}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -93,7 +101,7 @@ function EditCustomerClient({ id }: { id: string }) {
               defaultValues={selected}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Save changes"
+              submitLabel={t.saveChanges}
             />
           </CardContent>
         </Card>

@@ -12,8 +12,12 @@ import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
 import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
+import { useT } from "@/hooks/utils/use-translations";
 
 export default function ChatPage() {
+  // ── Translations ───────────────────────────────────────────────────────────
+  const t = useT("chat");
+
   // ── All States ─────────────────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -69,7 +73,7 @@ export default function ChatPage() {
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
     <>
-      <AppHeader title="Chat" />
+      <AppHeader title={t.title} />
 
       <main className="flex flex-1 overflow-hidden">
         {/* ── Sidebar: conversation list */}
@@ -77,7 +81,7 @@ export default function ChatPage() {
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <p className="text-sm font-medium">
-              Conversations
+              {t.conversations}
               {conversations.length > 0 && (
                 <span className="ml-1.5 text-muted-foreground">
                   ({conversations.length})
@@ -88,7 +92,8 @@ export default function ChatPage() {
               size="icon-sm"
               variant="ghost"
               onClick={() => setDialogOpen(true)}
-              title="New conversation"
+              title={t.newConversation}
+              aria-label={t.newConversation}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -123,14 +128,14 @@ export default function ChatPage() {
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
               <MessageCircle className="h-10 w-10 opacity-30" />
-              <p className="text-sm">Select a conversation to start chatting</p>
+              <p className="text-sm">{t.selectPrompt}</p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setDialogOpen(true)}
               >
                 <Plus className="mr-1.5 h-4 w-4" />
-                New conversation
+                {t.newConversation}
               </Button>
             </div>
           )}
