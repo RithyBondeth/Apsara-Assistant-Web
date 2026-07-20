@@ -35,14 +35,14 @@ export default function DashboardPage() {
   // the recent-conversations list below.
   const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
-  const { customers, fetchCustomers } = useCustomersStore();
+  const { customers, fetchAllCustomers } = useCustomersStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchStats();
     fetchConversations();
-    fetchCustomers();
-  }, [fetchStats, fetchConversations, fetchCustomers]);
+    fetchAllCustomers();
+  }, [fetchStats, fetchConversations, fetchAllCustomers]);
 
   const recentConversations = conversations.slice(0, 5);
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -18,6 +18,8 @@ import { IProductTableProps } from "./props";
 export default function ProductTable({
   products,
   onDelete,
+  onToggleActive,
+  filtered,
   deleting,
 }: IProductTableProps) {
   const t = useT("products");
@@ -27,10 +29,18 @@ export default function ProductTable({
     return (
       <div className="rounded-lg border">
         <p className="py-12 text-center text-sm text-muted-foreground">
-          {t.emptyTitle}{" "}
-          <Link href="/products/new" className="font-medium underline-offset-4 hover:underline">
-            {t.emptyAction}
-          </Link>
+          {/* Don't tell a seller with a full catalogue to add their first
+              product just because the search matched nothing. */}
+          {filtered ? (
+            tc.noMatches
+          ) : (
+            <>
+              {t.emptyTitle}{" "}
+              <Link href="/products/new" className="font-medium underline-offset-4 hover:underline">
+                {t.emptyAction}
+              </Link>
+            </>
+          )}
         </p>
       </div>
     );
@@ -79,6 +89,21 @@ export default function ProductTable({
                   >
                     <Pencil className="h-4 w-4" />
                   </Link>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    disabled={deleting}
+                    aria-label={`${
+                      product.is_active ? t.deactivate : t.reactivate
+                    } ${product.name}`}
+                    onClick={() => onToggleActive(product.id, product.is_active)}
+                  >
+                    {product.is_active ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"

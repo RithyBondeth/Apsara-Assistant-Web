@@ -21,3 +21,9 @@ export interface IProductCreate {
 export interface IProductUpdate extends Partial<IProductCreate> {
   is_active?: boolean;
 }
+
+export interface IProductFilters {
+  /** Deactivated products are hidden by default — the API's `active_only`. */
+  includeInactive?: boolean;
+  search?: string;
+}

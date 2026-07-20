@@ -53,4 +53,6 @@ export interface IOrderFilters {
   status?: OrderStatus;
   customer_id?: string;
   conversation_id?: string;
+  /** Matches the customer's name or phone, or the delivery address. */
+  search?: string;
 }

@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import AppHeader from "@/components/header";
 import OrderTable from "@/components/orders/order-table";
+import Pagination from "@/components/ui/pagination";
+import SearchInput from "@/components/ui/search-input";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useOrdersStore } from "@/stores/apis/orders/orders.store";
+import {
+  ORDERS_PAGE_SIZE,
+  useOrdersStore,
+} from "@/stores/apis/orders/orders.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { ORDER_STATUSES } from "@/utils/constants/orders.constant";
 import { OrderStatus } from "@/utils/interfaces/order/order.interface";
-import { formatCurrency } from "@/utils/functions/currency";
 import { fmt } from "@/utils/functions/i18n";
 import { useT } from "@/hooks/utils/use-translations";
 
@@ -23,21 +27,33 @@ export default function OrdersPage() {
   const tc = useT("common");
 
   // ── API Integration ────────────────────────────────────────────────────────
-  const { orders, loading, error, fetchOrders, updateOrder, deleteOrder } =
+  const { orders, total, page, loading, error, fetchOrders, updateOrder, deleteOrder } =
     useOrdersStore();
-  const { customers, fetchCustomers } = useCustomersStore();
+  const { customers, fetchAllCustomers } = useCustomersStore();
 
   // ── All States ─────────────────────────────────────────────────────────────
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [search, setSearch] = useState("");
 
   // ── Effects: the API does the filtering, so refetch when it changes ────────
-  useEffect(() => {
-    fetchOrders(status === "all" ? undefined : { status });
-  }, [fetchOrders, status]);
+  // Page 1 on every filter change — the match count shifts, so the page the
+  // seller was on may no longer exist.
+  const load = useCallback(
+    (nextPage = 1) =>
+      fetchOrders(nextPage, {
+        ...(status === "all" ? {} : { status }),
+        ...(search ? { search } : {}),
+      }),
+    [fetchOrders, status, search]
+  );
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+    load();
+  }, [load]);
+
+  useEffect(() => {
+    fetchAllCustomers();
+  }, [fetchAllCustomers]);
 
   // ── Methods ────────────────────────────────────────────────────────────────
   async function handleStatusChange(id: string, next: OrderStatus) {
@@ -55,10 +71,10 @@ export default function OrdersPage() {
     await deleteOrder(id);
   }
 
-  // ── Revenue excludes cancelled orders, matching the dashboard's definition. 
-  const revenue = orders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
+  // NOTE: this page deliberately shows no revenue figure. It used to sum the
+  // fetched `orders` array, which is now one page — that would render the
+  // page's revenue while labelling it the seller's total. The accurate,
+  // server-aggregated figure lives on the Dashboard and Analytics.
 
   // ── Render UI ──────────────────────────────────────────────────────────────
   return (
@@ -67,16 +83,16 @@ export default function OrdersPage() {
 
       <main className="flex-1 space-y-4 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-muted-foreground">
-            {fmt(orders.length === 1 ? t.countOne : t.countOther, {
-              count: orders.length,
-            })}
-            {orders.length > 0 && (
-              <>
-                {" · "}
-                {fmt(t.revenueNote, { amount: formatCurrency(revenue) })}
-              </>
-            )}
+          <div className="flex flex-1 flex-wrap items-center gap-3">
+            <SearchInput
+              onSearch={setSearch}
+              placeholder={t.searchPlaceholder}
+              clearLabel={tc.clearSearch}
+              className="w-full max-w-xs"
+            />
+            <div className="shrink-0 text-sm text-muted-foreground">
+              {fmt(total === 1 ? t.countOne : t.countOther, { count: total })}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -125,6 +141,14 @@ export default function OrdersPage() {
             busy={loading}
           />
         )}
+
+        <Pagination
+          page={page}
+          pageSize={ORDERS_PAGE_SIZE}
+          total={total}
+          onPageChange={load}
+          disabled={loading}
+        />
       </main>
     </>
   );

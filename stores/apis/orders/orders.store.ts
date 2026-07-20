@@ -7,14 +7,23 @@ import {
   IOrderFilters,
   IOrderUpdate,
 } from "@/utils/interfaces/order/order.interface";
+import { IPage } from "@/utils/interfaces/common/page.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { fetchEveryPage } from "@/utils/functions/fetch-all";
+
+export const ORDERS_PAGE_SIZE = 20;
 
 interface IOrdersStore {
+  /** The current page only — see `fetchAllOrders` for aggregates. */
   orders: IOrder[];
+  total: number;
+  /** 1-based. */
+  page: number;
   selected: IOrder | null;
   loading: boolean;
   error: string | null;
-  fetchOrders: (filters?: IOrderFilters) => Promise<void>;
+  fetchOrders: (page?: number, filters?: IOrderFilters) => Promise<void>;
+  fetchAllOrders: (filters?: IOrderFilters) => Promise<void>;
   fetchOrder: (id: string) => Promise<void>;
   createOrder: (data: IOrderCreate) => Promise<IOrder | null>;
   updateOrder: (id: string, data: IOrderUpdate) => Promise<boolean>;
@@ -24,15 +33,39 @@ interface IOrdersStore {
 
 export const useOrdersStore = create<IOrdersStore>((set) => ({
   orders: [],
+  total: 0,
+  page: 1,
   selected: null,
   loading: false,
   error: null,
 
-  fetchOrders: async (filters) => {
+  fetchOrders: async (page = 1, filters) => {
     set({ loading: true, error: null });
     try {
-      const { data } = await api.get<IOrder[]>(ORDERS_API.LIST, { params: filters });
-      set({ orders: data, loading: false });
+      const { data } = await api.get<IPage<IOrder>>(ORDERS_API.LIST, {
+        params: {
+          ...filters,
+          skip: (page - 1) * ORDERS_PAGE_SIZE,
+          limit: ORDERS_PAGE_SIZE,
+        },
+      });
+      set({ orders: data.items, total: data.total, page, loading: false });
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+    }
+  },
+
+  // Analytics aggregates over this list. A truncated array doesn't give a
+  // partial chart, it gives a WRONG one — "12 delivered orders" computed from
+  // the newest page, presented as the seller's total. So it must be complete.
+  fetchAllOrders: async (filters) => {
+    set({ loading: true, error: null });
+    try {
+      const { items, total } = await fetchEveryPage<IOrder>(
+        ORDERS_API.LIST,
+        filters ?? {},
+      );
+      set({ orders: items, total, page: 1, loading: false });
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
     }

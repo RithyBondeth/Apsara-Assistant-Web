@@ -18,7 +18,10 @@ interface IIntegrationsStore {
   error: string | null;
   fetchIntegrations: () => Promise<void>;
   createIntegration: (data: IIntegrationCreate) => Promise<IIntegration | null>;
-  updateIntegration: (id: string, data: IIntegrationUpdate) => Promise<boolean>;
+  updateIntegration: (
+    id: string,
+    data: IIntegrationUpdate
+  ) => Promise<IIntegration | null>;
   deleteIntegration: (id: string) => Promise<boolean>;
   registerWebhook: (id: string) => Promise<IWebhookRegisterResult | null>;
   clearError: () => void;
@@ -61,10 +64,10 @@ export const useIntegrationsStore = create<IIntegrationsStore>((set) => ({
         integrations: s.integrations.map((i) => (i.id === id ? data : i)),
         loading: false,
       }));
-      return true;
+      return data;
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
-      return false;
+      return null;
     }
   },
 

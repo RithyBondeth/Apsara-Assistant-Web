@@ -148,6 +148,13 @@
     "webhookUrl": "Webhook URL",
     "registrationFailed": "ការចុះឈ្មោះមិនជោគជ័យ",
     "copyUrl": "ចម្លង Webhook URL",
+    "edit": "កែសម្រួល",
+    "editTitle": "ធ្វើបច្ចុប្បន្នភាព {name}",
+    "editNote": "ទុកប្រអប់ឱ្យទទេ ដើម្បីរក្សាតម្លៃបច្ចុប្បន្ន។ ព័ត៌មានសម្ងាត់ដែលបានរក្សាទុក មិនត្រូវបានបង្ហាញមកវិញឡើយ",
+    "keepCurrent": "មិនផ្លាស់ប្តូរ",
+    "save": "រក្សាទុកការផ្លាស់ប្តូរ",
+    "pause": "ផ្អាក",
+    "resume": "បន្ត",
     "platforms": {
       "telegram": {
         "tagline": "ភ្ជាប់បូត Telegram។ ងាយស្រួលបំផុត",
@@ -322,7 +329,17 @@
       "shipped": "បានដឹកជញ្ជូន",
       "delivered": "បានប្រគល់",
       "cancelled": "បានលុបចោល"
-    }
+    },
+    "pagination": {
+      "previous": "មុន",
+      "next": "បន្ទាប់",
+      "range": "{from}–{to} ក្នុងចំណោម {total}",
+      "loadMore": "ផ្ទុកចាស់ជាង ({shown} ក្នុងចំណោម {total})"
+    },
+    "clearSearch": "សម្អាតការស្វែងរក",
+    "allPlatforms": "គ្រប់ប៉ុស្តិ៍",
+    "allStatuses": "គ្រប់ស្ថានភាព",
+    "noMatches": "រកមិនឃើញអ្វីដែលត្រូវនឹងការស្វែងរករបស់អ្នកទេ"
   },
   "dashboard": {
     "title": "ផ្ទាំងព័ត៌មាន",
@@ -371,7 +388,12 @@
     "errName": "ត្រូវការឈ្មោះផលិតផល",
     "errPrice": "តម្លៃត្រូវតែ 0 ឬច្រើនជាង",
     "errStock": "ស្តុកត្រូវតែ 0 ឬច្រើនជាង",
-    "back": "ត្រឡប់ទៅផលិតផល"
+    "back": "ត្រឡប់ទៅផលិតផល",
+    "showInactive": "បង្ហាញទំនិញដែលបានផ្អាក",
+    "hideInactive": "លាក់ទំនិញដែលបានផ្អាក",
+    "deactivate": "ផ្អាក",
+    "reactivate": "បើកឡើងវិញ",
+    "searchPlaceholder": "ស្វែងរកទំនិញ…"
   },
   "customers": {
     "title": "អតិថិជន",
@@ -400,7 +422,8 @@
     "fieldPlatformIdPlaceholder": "លេខសម្គាល់អ្នកប្រើ Messenger…",
     "errName": "ត្រូវការឈ្មោះអតិថិជន",
     "errEmail": "អ៊ីមែលមិនត្រឹមត្រូវ",
-    "back": "ត្រឡប់ទៅអតិថិជន"
+    "back": "ត្រឡប់ទៅអតិថិជន",
+    "searchPlaceholder": "ស្វែងរកអតិថិជន…"
   },
   "orders": {
     "title": "ការបញ្ជាទិញ",
@@ -462,7 +485,8 @@
     "statusLabel": "ស្ថានភាពការបញ្ជាទិញ",
     "deleteOrder": "លុបការបញ្ជាទិញ",
     "statusForOrder": "ស្ថានភាពសម្រាប់ការបញ្ជាទិញ {id}",
-    "detailTitle": "ការបញ្ជាទិញ #{id}"
+    "detailTitle": "ការបញ្ជាទិញ #{id}",
+    "searchPlaceholder": "ស្វែងរកតាមអតិថិជន…"
   },
   "analytics": {
     "title": "ស្ថិតិ",
@@ -521,6 +545,7 @@
     "unreadBadge": "ថ្មី",
     "createOrder": "បង្កើតការបញ្ជាទិញ",
     "ordersFromChat": "ការបញ្ជាទិញពីការជជែកនេះ",
-    "viewOrder": "មើលការបញ្ជាទិញ"
+    "viewOrder": "មើលការបញ្ជាទិញ",
+    "searchPlaceholder": "ស្វែងរកការសន្ទនា…"
   }
 }

@@ -27,3 +27,8 @@ export interface ICustomerUpdate {
   platform?: PlatformId;
   platform_id?: string;
 }
+
+export interface ICustomerFilters {
+  platform?: string;
+  search?: string;
+}

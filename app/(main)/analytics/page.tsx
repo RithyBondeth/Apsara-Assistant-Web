@@ -25,15 +25,15 @@ export default function AnalyticsPage() {
 
   // ── API Integration ────────────────────────────────────────────────────────
   const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
-  const { orders, fetchOrders } = useOrdersStore();
-  const { conversations, fetchConversations } = useChatStore();
+  const { orders, fetchAllOrders } = useOrdersStore();
+  const { conversations, fetchAllConversations } = useChatStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchStats();
-    fetchOrders();
-    fetchConversations();
-  }, [fetchStats, fetchOrders, fetchConversations]);
+    fetchAllOrders();
+    fetchAllConversations();
+  }, [fetchStats, fetchAllOrders, fetchAllConversations]);
 
   // ── Breakdowns are derived client-side: the API exposes snapshot totals, not 
   // a grouped/time-series endpoint. The orders list is capped at 50 server-side,

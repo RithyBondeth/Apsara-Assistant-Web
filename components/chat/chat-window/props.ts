@@ -9,6 +9,9 @@ export interface IChatWindowProps {
   onSend: (content: string) => Promise<boolean>;
   onStatusChange: (status: "open" | "closed" | "pending") => void | Promise<void>;
   onAiEnabledChange: (enabled: boolean) => void | Promise<void>;
+  /** Pages further back into the thread; the detail load only returns the end. */
+  onLoadOlder: () => void | Promise<void>;
+  loadingOlder?: boolean;
   /** Set when the last send failed, so the seller knows it didn't arrive. */
   sendError?: string | null;
 }

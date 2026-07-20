@@ -38,5 +38,17 @@ export interface IConversation {
 }
 
 export interface IConversationDetail extends IConversation {
+  /** Only the newest window of the thread — see `message_total`. */
   messages: IMessage[];
+  /** Total messages in the thread, so the UI knows older ones exist. */
+  message_total: number;
+}
+
+export interface IConversationFilters {
+  /** Only threads the AI escalated, or where the customer is waiting. */
+  needs_me?: boolean;
+  status?: "open" | "closed" | "pending";
+  platform?: PlatformId;
+  /** Matches the customer's name or their platform id. */
+  search?: string;
 }

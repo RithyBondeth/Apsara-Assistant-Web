@@ -45,14 +45,14 @@ function NewOrderForm() {
 
   // ── API Integration ────────────────────────────────────────────────────────
   const { createOrder, loading, error, clearError } = useOrdersStore();
-  const { customers, fetchCustomers } = useCustomersStore();
-  const { products, fetchProducts } = useProductsStore();
+  const { customers, fetchAllCustomers } = useCustomersStore();
+  const { products, fetchAllProducts } = useProductsStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetchCustomers();
-    fetchProducts();
-  }, [fetchCustomers, fetchProducts]);
+    fetchAllCustomers();
+    fetchAllProducts();
+  }, [fetchAllCustomers, fetchAllProducts]);
 
   useEffect(() => clearError, [clearError]);
 

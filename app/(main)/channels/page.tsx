@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { LucideLink, LucideLoader2, LucidePlus, LucideTrash2 } from "lucide-react";
+import {
+  LucideLink,
+  LucideLoader2,
+  LucidePause,
+  LucidePencil,
+  LucidePlay,
+  LucidePlus,
+  LucideTrash2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,12 +20,14 @@ import { useIntegrationsStore } from "@/stores/apis/integrations/integrations.st
 import { useT } from "@/hooks/utils/use-translations";
 import {
   PLATFORMS,
+  PLATFORM_BY_ID,
   IPlatformMeta,
   platformCopy,
 } from "@/utils/constants/platforms.constant";
 import {
   IIntegration,
   IIntegrationCreate,
+  IIntegrationUpdate,
   PlatformId,
 } from "@/utils/interfaces/integration/integration.interface";
 
@@ -40,6 +50,7 @@ export default function ChannelsPage() {
     error,
     fetchIntegrations,
     createIntegration,
+    updateIntegration,
     deleteIntegration,
     registerWebhook,
     clearError,
@@ -47,6 +58,9 @@ export default function ChannelsPage() {
 
   // ── All States ─────────────────────────────────────────────────────────────
   const [connecting, setConnecting] = useState<IPlatformMeta | null>(null);
+  // Set alongside `connecting` to put the same dialog into edit mode.
+  const [editing, setEditing] = useState<IIntegration | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -69,10 +83,33 @@ export default function ChannelsPage() {
     const created = await createIntegration(data);
     if (!created) return; // keep the dialog open so the error stays visible
 
-    setConnecting(null);
+    closeDialog();
     // Telegram registers server-side, so do it immediately. The Meta platforms
     // and the website widget only need the URL, which this also returns.
     await registerWebhook(created.id);
+  }
+
+  async function handleUpdate(id: string, data: IIntegrationUpdate) {
+    const updated = await updateIntegration(id, data);
+    if (!updated) return; // keep the dialog open so the error stays visible
+
+    closeDialog();
+    // A rotated token has to be re-registered with the platform or the webhook
+    // still points at the dead one — Telegram does that server-side for us.
+    if (data.access_token && PLATFORM_BY_ID[updated.platform].setup === "automatic") {
+      await registerWebhook(updated.id);
+    }
+  }
+
+  /**
+   * Pausing leaves the credentials in place, so the seller can stop a noisy or
+   * misbehaving bot without tearing down the connection — deleting it would
+   * orphan `integration_id` on every conversation that arrived through it.
+   */
+  async function handleTogglePause(integration: IIntegration) {
+    setToggling(integration.id);
+    await updateIntegration(integration.id, { is_active: !integration.is_active });
+    setToggling(null);
   }
 
   async function handleDisconnect(integration: IIntegration, name: string) {
@@ -82,7 +119,19 @@ export default function ChannelsPage() {
 
   function openConnect(platform: IPlatformMeta) {
     clearError();
+    setEditing(null);
     setConnecting(platform);
+  }
+
+  function openEdit(platform: IPlatformMeta, integration: IIntegration) {
+    clearError();
+    setEditing(integration);
+    setConnecting(platform);
+  }
+
+  function closeDialog() {
+    setConnecting(null);
+    setEditing(null);
   }
 
   // ── Render UI ──────────────────────────────────────────────────────────────
@@ -200,6 +249,31 @@ export default function ChannelsPage() {
                                 <Button
                                   size="sm"
                                   variant="ghost"
+                                  aria-label={`${t.edit} ${platform.name}`}
+                                  onClick={() => openEdit(platform, integration)}
+                                >
+                                  <LucidePencil className="size-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  disabled={toggling === integration.id}
+                                  aria-label={`${
+                                    integration.is_active ? t.pause : t.resume
+                                  } ${platform.name}`}
+                                  onClick={() => handleTogglePause(integration)}
+                                >
+                                  {toggling === integration.id ? (
+                                    <LucideLoader2 className="size-3.5 animate-spin" />
+                                  ) : integration.is_active ? (
+                                    <LucidePause className="size-3.5" />
+                                  ) : (
+                                    <LucidePlay className="size-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
                                   aria-label={`${t.disconnect} ${platform.name}`}
                                   className="text-destructive hover:text-destructive"
                                   onClick={() =>
@@ -228,9 +302,11 @@ export default function ChannelsPage() {
 
       <ConnectDialog
         platform={connecting}
+        integration={editing}
         open={connecting !== null}
-        onOpenChange={(open) => !open && setConnecting(null)}
+        onOpenChange={(open) => !open && closeDialog()}
         onConnect={handleConnect}
+        onUpdate={handleUpdate}
         loading={loading}
         error={error}
       />

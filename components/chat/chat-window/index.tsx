@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Send, ChevronDown, Bot, UserRound, ShoppingCart } from "lucide-react";
+import {
+  Send,
+  ChevronDown,
+  Bot,
+  UserRound,
+  ShoppingCart,
+  Loader2 as LucideLoader2,
+} from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +65,8 @@ export default function ChatWindow({
   onSend,
   onStatusChange,
   onAiEnabledChange,
+  onLoadOlder,
+  loadingOlder,
   sendError,
 }: IChatWindowProps) {
   /* ------------------------------- Translations ----------------------------- */
@@ -101,9 +110,14 @@ export default function ChatWindow({
     fmt(t.customerFallback, { id: conversation.customer_id.slice(0, 8) });
 
   /* --------------------------------- Effects --------------------------------- */
+  // Keyed on the LAST message, not the array: loading older messages prepends,
+  // which would otherwise scroll the seller straight back to the bottom and
+  // make "load older" look like it did nothing. A new message (or a different
+  // thread) does change the last id, so those still scroll into view.
+  const lastMessageId = conversation.messages.at(-1)?.id;
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [conversation.messages]);
+  }, [lastMessageId]);
 
   /* --------------------------------- Methods --------------------------------- */
   async function handleSend() {
@@ -245,6 +259,26 @@ export default function ChatWindow({
           </p>
         ) : (
           <div className="space-y-3">
+            {/* Only the newest window arrives with the thread; the rest is a
+                click away rather than loaded on every open. */}
+            {conversation.messages.length < conversation.message_total && (
+              <div className="flex justify-center pb-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={loadingOlder}
+                  onClick={() => onLoadOlder()}
+                >
+                  {loadingOlder && (
+                    <LucideLoader2 className="mr-1.5 size-3.5 animate-spin" />
+                  )}
+                  {fmt(tc.pagination.loadMore, {
+                    shown: conversation.messages.length,
+                    total: conversation.message_total,
+                  })}
+                </Button>
+              </div>
+            )}
             {conversation.messages.map((msg) => (
               <MessageBubble key={msg.id} message={msg} />
             ))}

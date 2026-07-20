@@ -148,6 +148,13 @@
     "webhookUrl": "Webhook URL",
     "registrationFailed": "Registration failed",
     "copyUrl": "Copy webhook URL",
+    "edit": "Edit",
+    "editTitle": "Update {name}",
+    "editNote": "Leave a field blank to keep its current value. Saved credentials are never shown back to you.",
+    "keepCurrent": "Unchanged",
+    "save": "Save changes",
+    "pause": "Pause",
+    "resume": "Resume",
     "platforms": {
       "telegram": {
         "tagline": "Connect a Telegram bot. Fastest to set up.",
@@ -322,7 +329,17 @@
       "shipped": "Shipped",
       "delivered": "Delivered",
       "cancelled": "Cancelled"
-    }
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "range": "{from}–{to} of {total}",
+      "loadMore": "Load older ({shown} of {total})"
+    },
+    "clearSearch": "Clear search",
+    "allPlatforms": "All channels",
+    "allStatuses": "All statuses",
+    "noMatches": "Nothing matched your search."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -371,7 +388,12 @@
     "errName": "Product name is required",
     "errPrice": "Price must be 0 or more",
     "errStock": "Stock must be 0 or more",
-    "back": "Back to products"
+    "back": "Back to products",
+    "showInactive": "Show inactive",
+    "hideInactive": "Hide inactive",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "searchPlaceholder": "Search products…"
   },
   "customers": {
     "title": "Customers",
@@ -400,7 +422,8 @@
     "fieldPlatformIdPlaceholder": "Messenger user ID…",
     "errName": "Customer name is required",
     "errEmail": "Invalid email",
-    "back": "Back to customers"
+    "back": "Back to customers",
+    "searchPlaceholder": "Search customers…"
   },
   "orders": {
     "title": "Orders",
@@ -462,7 +485,8 @@
     "statusLabel": "Order status",
     "deleteOrder": "Delete order",
     "statusForOrder": "Status for order {id}",
-    "detailTitle": "Order #{id}"
+    "detailTitle": "Order #{id}",
+    "searchPlaceholder": "Search by customer…"
   },
   "analytics": {
     "title": "Analytics",
@@ -521,6 +545,7 @@
     "unreadBadge": "New",
     "createOrder": "Create order",
     "ordersFromChat": "Orders from this chat",
-    "viewOrder": "View order"
+    "viewOrder": "View order",
+    "searchPlaceholder": "Search conversations…"
   }
 }

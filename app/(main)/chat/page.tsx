@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus, MessageCircle, Inbox, AlertCircle } from "lucide-react";
 import AppHeader from "@/components/header";
@@ -9,10 +9,16 @@ import ChatWindow from "@/components/chat/chat-window";
 import NewConversationDialog from "@/components/chat/new-conversation-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import SearchInput from "@/components/ui/search-input";
+import PlatformFilter from "@/components/ui/platform-filter";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
-import { IConversation } from "@/utils/interfaces/chat/chat.interface";
+import {
+  IConversation,
+  IConversationFilters,
+} from "@/utils/interfaces/chat/chat.interface";
 import { PlatformId } from "@/utils/interfaces/integration/integration.interface";
+import { fmt } from "@/utils/functions/i18n";
 import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +34,13 @@ export default function ChatPage() {
 function ChatInbox() {
   // ── Translations ───────────────────────────────────────────────────────────
   const t = useT("chat");
+  const tCommon = useT("common");
 
   // ── All States ─────────────────────────────────────────────────────────────
   const [dialogOpen, setDialogOpen] = useState(false);
   const [needsMeOnly, setNeedsMeOnly] = useState(false);
+  const [search, setSearch] = useState("");
+  const [platform, setPlatform] = useState<PlatformId | "">("");
 
   // Deep link from an order's "View chat": open that thread on arrival.
   const deepLinkId = useSearchParams().get("c");
@@ -41,7 +50,11 @@ function ChatInbox() {
     conversations,
     activeConversation,
     conversationsLoading,
+    conversationsTotal,
+    loadMoreConversations,
     messagesLoading,
+    olderLoading,
+    loadOlderMessages,
     fetchConversations,
     createConversation,
     setActiveConversation,
@@ -53,16 +66,29 @@ function ChatInbox() {
     error,
   } = useChatStore();
 
-  const { customers, fetchCustomers } = useCustomersStore();
+  const { customers, fetchAllCustomers } = useCustomersStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    fetchConversations(needsMeOnly ? { needs_me: true } : undefined);
-  }, [fetchConversations, needsMeOnly]);
+  // Built from the three primitives rather than held in state, so the initial
+  // fetch and "load older" can never disagree about what the list is showing.
+  // Memoised because it feeds an effect: a fresh object literal each render
+  // would refetch the inbox on every unrelated re-render.
+  const filters: IConversationFilters = useMemo(
+    () => ({
+      ...(needsMeOnly ? { needs_me: true } : {}),
+      ...(platform ? { platform } : {}),
+      ...(search ? { search } : {}),
+    }),
+    [needsMeOnly, platform, search]
+  );
 
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+    fetchConversations(filters);
+  }, [fetchConversations, filters]);
+
+  useEffect(() => {
+    fetchAllCustomers();
+  }, [fetchAllCustomers]);
 
   // Open the deep-linked thread once it has loaded. A ref (not state) guards
   // it so it fires a single time and never yanks the seller back after they
@@ -160,6 +186,21 @@ function ChatInbox() {
             </div>
           </div>
 
+          {/* Filters. Kept above the list so the seller can narrow a long
+              inbox without scrolling it first. */}
+          <div className="space-y-2 border-b px-3 py-2.5">
+            <SearchInput
+              onSearch={setSearch}
+              placeholder={t.searchPlaceholder}
+              clearLabel={tCommon.clearSearch}
+            />
+            <PlatformFilter
+              value={platform}
+              onChange={setPlatform}
+              allLabel={tCommon.allPlatforms}
+            />
+          </div>
+
           {conversationsLoading ? (
             <div className="space-y-2 p-3">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -167,12 +208,32 @@ function ChatInbox() {
               ))}
             </div>
           ) : (
-            <ConversationList
-              conversations={conversations}
-              customers={customers}
-              activeId={activeConversation?.id}
-              onSelect={handleSelectConversation}
-            />
+            <>
+              <ConversationList
+                conversations={conversations}
+                customers={customers}
+                activeId={activeConversation?.id}
+                onSelect={handleSelectConversation}
+              />
+
+              {/* An inbox appends rather than paging: threads are sorted by
+                  recency, and paging away from the thread just replied to
+                  would lose the seller's place. */}
+              {conversations.length < conversationsTotal && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 w-full"
+                  disabled={conversationsLoading}
+                  onClick={() => loadMoreConversations(filters)}
+                >
+                  {fmt(tCommon.pagination.loadMore, {
+                    shown: conversations.length,
+                    total: conversationsTotal,
+                  })}
+                </Button>
+              )}
+            </>
           )}
         </div>
 
@@ -186,6 +247,8 @@ function ChatInbox() {
               onSend={handleSend}
               onStatusChange={handleStatusChange}
               onAiEnabledChange={handleAiEnabledChange}
+              onLoadOlder={() => loadOlderMessages(activeConversation.id)}
+              loadingOlder={olderLoading}
               sendError={error}
             />
           ) : (

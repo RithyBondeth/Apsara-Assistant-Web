@@ -28,6 +28,7 @@ const PLATFORM_COLORS: Record<PlatformId, string> = {
 export default function CustomerTable({
   customers,
   onDelete,
+  filtered,
   deleting,
 }: ICustomerTableProps) {
   const t = useT("customers");
@@ -37,13 +38,21 @@ export default function CustomerTable({
     return (
       <div className="rounded-lg border">
         <p className="py-12 text-center text-sm text-muted-foreground">
-          {t.emptyTitle}{" "}
-          <Link
-            href="/customers/new"
-            className="font-medium underline-offset-4 hover:underline"
-          >
-            {t.emptyAction}
-          </Link>
+          {/* "Add your first customer" is wrong when the seller HAS customers
+              and just filtered them all out — it reads as data loss. */}
+          {filtered ? (
+            tc.noMatches
+          ) : (
+            <>
+              {t.emptyTitle}{" "}
+              <Link
+                href="/customers/new"
+                className="font-medium underline-offset-4 hover:underline"
+              >
+                {t.emptyAction}
+              </Link>
+            </>
+          )}
         </p>
       </div>
     );

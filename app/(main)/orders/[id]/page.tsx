@@ -55,8 +55,8 @@ function OrderDetailClient({ id }: { id: string }) {
   // ── API Integration ────────────────────────────────────────────────────────
   const { selected, loading, error, fetchOrder, updateOrder, deleteOrder } =
     useOrdersStore();
-  const { customers, fetchCustomers } = useCustomersStore();
-  const { products, fetchProducts } = useProductsStore();
+  const { customers, fetchAllCustomers } = useCustomersStore();
+  const { products, fetchAllProducts } = useProductsStore();
 
   // ── Effects ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -65,9 +65,9 @@ function OrderDetailClient({ id }: { id: string }) {
 
   // ── Line items carry only product_id, so resolve names from the catalogue. ─
   useEffect(() => {
-    fetchCustomers();
-    fetchProducts();
-  }, [fetchCustomers, fetchProducts]);
+    fetchAllCustomers();
+    fetchAllProducts();
+  }, [fetchAllCustomers, fetchAllProducts]);
 
   const productMap = useMemo(
     () => Object.fromEntries(products.map((p) => [p.id, p])),
