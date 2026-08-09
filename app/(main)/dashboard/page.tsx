@@ -7,6 +7,7 @@ import StatCard from "@/components/dashboard/stat-card";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
+import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,17 +25,23 @@ export default function DashboardPage() {
   const { products, loading: productsLoading, fetchProducts } = useProductsStore();
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
   const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
+  const { orders, loading: ordersLoading, fetchOrders } = useOrdersStore();
 
   // ── Effects
   useEffect(() => {
     fetchProducts();
     fetchConversations();
     fetchCustomers();
-  }, [fetchProducts, fetchConversations, fetchCustomers]);
+    fetchOrders();
+  }, [fetchProducts, fetchConversations, fetchCustomers, fetchOrders]);
 
-  const loading = productsLoading || conversationsLoading || customersLoading;
+  const loading = productsLoading || conversationsLoading || customersLoading || ordersLoading;
   const openConversations = conversations.filter((c) => c.status === "open").length;
   const recentConversations = conversations.slice(0, 5);
+  // Cancelled orders are still records but not revenue, so they are excluded.
+  const revenue = orders
+    .filter((o) => o.status !== "cancelled")
+    .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
 
   // ── Build customer lookup
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
@@ -75,8 +82,8 @@ export default function DashboardPage() {
             <StatCard
               icon={ShoppingCart}
               label="Orders"
-              value="—"
-              sub="Coming soon"
+              value={orders.length}
+              sub={`$${revenue.toFixed(2)} excl. cancelled`}
             />
           </div>
         )}

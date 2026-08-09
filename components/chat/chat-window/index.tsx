@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ChevronDown } from "lucide-react";
+import { Send, ChevronDown, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ export default function ChatWindow({
   loading,
   onSend,
   onStatusChange,
+  onCreateOrder,
 }: IChatWindowProps) {
   // ── All States
   const [input, setInput] = useState("");
@@ -87,25 +88,34 @@ export default function ChatWindow({
           </div>
         </div>
 
-        {/* ── Status control */}
-        <DropdownMenu>
+        <div className="flex items-center gap-2">
+          {/* ── The assistant collects order details but cannot confirm a
+                 sale, so the handoff to a real order happens here. */}
+          <Button variant="outline" size="sm" onClick={onCreateOrder}>
+            <ShoppingCart className="mr-1.5 h-4 w-4" />
+            Create order
+          </Button>
+
+          {/* ── Status control */}
+          <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-1 rounded-lg px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Badge className={cn("capitalize", STATUS_STYLES[conversation.status])}>
               {conversation.status}
             </Badge>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {(NEXT_STATUSES[conversation.status] ?? []).map((action) => (
-              <DropdownMenuItem
-                key={action.value}
-                onClick={() => onStatusChange(action.value)}
-              >
-                {action.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <DropdownMenuContent align="end">
+              {(NEXT_STATUSES[conversation.status] ?? []).map((action) => (
+                <DropdownMenuItem
+                  key={action.value}
+                  onClick={() => onStatusChange(action.value)}
+                >
+                  {action.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* ── Messages */}
