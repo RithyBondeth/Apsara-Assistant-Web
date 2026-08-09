@@ -118,7 +118,13 @@ export const useChatStore = create<IChatStore>((set, get) => ({
       }));
       return true;
     } catch (error) {
-      set({ error: extractErrorMessage(error) });
+      // The backend stores the customer's message before it calls the model, so
+      // a failed reply still changed the thread — resync rather than leave the
+      // sent message missing from the view until the next visit. The refetch
+      // clears `error` on entry, so set ours after it settles.
+      const message = extractErrorMessage(error);
+      await get().fetchConversationDetail(conversationId);
+      set({ error: message });
       return false;
     }
   },
