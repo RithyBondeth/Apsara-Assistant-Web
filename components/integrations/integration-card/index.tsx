@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { Check, Copy, Loader2, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,9 +51,24 @@ export default function IntegrationCard({
   onToggleAutoReply,
   onToggleActive,
   onDisconnect,
+  onCheck,
+  onRegisterWebhook,
   busy,
 }: IIntegrationCardProps) {
+  // ── All States
+  const [checking, setChecking] = useState<null | "check" | "register">(null);
+  const [result, setResult] = useState<{ ok: boolean; detail: string } | null>(null);
+
   const copy = PLATFORM_COPY[integration.platform];
+  const isTelegram = integration.platform === "telegram";
+
+  // ── Methods
+  async function run(kind: "check" | "register") {
+    setChecking(kind);
+    setResult(null);
+    setResult(await (kind === "check" ? onCheck() : onRegisterWebhook()));
+    setChecking(null);
+  }
 
   return (
     <Card>
@@ -101,6 +116,42 @@ export default function IntegrationCard({
             <li key={step}>{step}</li>
           ))}
         </ol>
+
+        {/* ── Asking the platform directly, because silence here has several
+               causes that look identical from the outside. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" disabled={busy || checking !== null}
+                  onClick={() => run("check")}>
+            {checking === "check" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+            Test connection
+          </Button>
+          {isTelegram && (
+            <Button variant="outline" size="sm" disabled={busy || checking !== null}
+                    onClick={() => run("register")}>
+              {checking === "register" && (
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+              )}
+              Register webhook
+            </Button>
+          )}
+        </div>
+
+        {result && (
+          <div
+            className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm ${
+              result.ok
+                ? "bg-green-100 text-green-800"
+                : "bg-destructive/10 text-destructive"
+            }`}
+          >
+            {result.ok ? (
+              <Check className="mt-0.5 h-4 w-4 shrink-0" />
+            ) : (
+              <X className="mt-0.5 h-4 w-4 shrink-0" />
+            )}
+            <p className="flex-1">{result.detail}</p>
+          </div>
+        )}
 
         {/* ── Switches. Native checkboxes: the project has no switch component,
                and a labelled checkbox is keyboard- and screen-reader-correct

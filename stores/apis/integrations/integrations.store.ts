@@ -2,6 +2,7 @@ import { create } from "zustand";
 import api from "@/lib/axios";
 import { INTEGRATIONS_API } from "@/utils/constants/apis/integrations.api.constant";
 import {
+  IConnectionCheck,
   IIntegration,
   IIntegrationCreate,
   IIntegrationUpdate,
@@ -16,6 +17,8 @@ interface IIntegrationsStore {
   createIntegration: (data: IIntegrationCreate) => Promise<IIntegration | null>;
   updateIntegration: (id: string, data: IIntegrationUpdate) => Promise<boolean>;
   deleteIntegration: (id: string) => Promise<boolean>;
+  checkIntegration: (id: string) => Promise<IConnectionCheck>;
+  registerWebhook: (id: string) => Promise<IConnectionCheck>;
   clearError: () => void;
 }
 
@@ -76,6 +79,29 @@ export const useIntegrationsStore = create<IIntegrationsStore>((set) => ({
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
       return false;
+    }
+  },
+
+  // Both report through their return value rather than the store's `error`:
+  // a failed check is an answer about the connection, not a failure of the
+  // request, and belongs beside the card it concerns.
+  checkIntegration: async (id) => {
+    try {
+      const { data } = await api.post<IConnectionCheck>(INTEGRATIONS_API.CHECK(id));
+      return data;
+    } catch (error) {
+      return { ok: false, detail: extractErrorMessage(error) };
+    }
+  },
+
+  registerWebhook: async (id) => {
+    try {
+      const { data } = await api.post<IConnectionCheck>(
+        INTEGRATIONS_API.REGISTER_WEBHOOK(id)
+      );
+      return data;
+    } catch (error) {
+      return { ok: false, detail: extractErrorMessage(error) };
     }
   },
 
