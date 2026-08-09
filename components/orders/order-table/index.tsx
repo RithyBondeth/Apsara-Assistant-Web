@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ORDER_STATUS_STYLES } from "@/utils/constants/order.constant";
 import { timeAgo } from "@/utils/functions/date";
+import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import { IOrderTableProps } from "./props";
 
@@ -77,7 +78,7 @@ export default function OrderTable({
                   <span className="text-xs"> · {units} unit{units !== 1 ? "s" : ""}</span>
                 </TableCell>
                 <TableCell className="font-medium">
-                  ${parseFloat(order.total_amount).toFixed(2)}
+                  {formatMoney(order.total_amount, order.currency)}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Badge className={cn("capitalize", ORDER_STATUS_STYLES[order.status])}>

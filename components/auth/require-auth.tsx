@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,39 +22,42 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const hydrated = useSyncExternalStore(subscribeNoop, getTrue, getFalse);
   const { user, fetchMe } = useAuthStore();
+  const revalidated = useRef(false);
+
+  // Send them back where they were headed once signed in, rather than dumping
+  // everyone on the dashboard.
+  const toLogin = useCallback(() => {
+    router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+  }, [router, pathname]);
 
   useEffect(() => {
     if (!hydrated) return;
+    if (!hasToken()) toLogin();
+  }, [hydrated, user, toLogin]);
 
-    // Send them back where they were headed once signed in, rather than
-    // dumping everyone on the dashboard.
-    const toLogin = () =>
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+  useEffect(() => {
+    if (!hydrated || revalidated.current || !hasToken()) return;
+    // Once per mount, guarded by a ref: fetchMe sets `user`, which this effect
+    // would otherwise depend on and loop over.
+    revalidated.current = true;
 
-    if (!hasToken()) {
-      toLogin();
-      return;
-    }
-    if (user) return;
-
-    // A token with no user means a fresh tab or a cleared store. Validating it
-    // now surfaces an expired session as a redirect instead of as a burst of
-    // 401s from whichever screen loaded first.
     let cancelled = false;
     fetchMe().then(() => {
-      // fetchMe drops the token when it fails, but it leaves `user` at null —
-      // the value it already held — so nothing here re-renders. Re-check the
+      // fetchMe drops the token when it fails but leaves `user` at the value it
+      // already held, so a failure may not re-render anything. Re-check the
       // token directly, or an expired session sits on the skeleton forever.
       if (!cancelled && !hasToken()) toLogin();
     });
     return () => {
       cancelled = true;
     };
-  }, [hydrated, user, pathname, router, fetchMe]);
+    // Deliberately not keyed on `user`: this revalidates the session once per
+    // app load. The persisted store can be stale — a profile changed on the
+    // server or in another tab, most consequentially the shop's currency,
+    // which decides how every price on screen is read.
+  }, [hydrated, fetchMe, toLogin]);
 
-  const authenticated = hydrated && user && hasToken();
-
-  if (!authenticated) {
+  if (!(hydrated && user && hasToken())) {
     return (
       <div className="flex-1 space-y-4 p-6" aria-busy="true">
         <Skeleton className="h-8 w-48 rounded-lg" />

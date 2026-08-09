@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
-import { IUser, IToken } from "@/utils/interfaces/auth/auth.interface";
+import { IUser, IToken, IUserUpdate } from "@/utils/interfaces/auth/auth.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IAuthStore {
@@ -13,6 +13,7 @@ interface IAuthStore {
   loginWithOtp: (email: string, code: string) => Promise<boolean>;
   logout: () => Promise<void>;
   fetchMe: () => Promise<void>;
+  updateProfile: (data: IUserUpdate) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -85,6 +86,18 @@ export const useAuthStore = create<IAuthStore>()(
         } catch {
           localStorage.removeItem("access_token");
           set({ user: null, loading: false });
+        }
+      },
+
+      updateProfile: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+          const { data } = await api.patch<IUser>(AUTH_API.ME, payload);
+          set({ user: data, loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
         }
       },
 
