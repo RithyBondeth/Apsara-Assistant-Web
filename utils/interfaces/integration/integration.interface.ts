@@ -31,3 +31,10 @@ export interface IIntegrationUpdate {
   is_active?: boolean;
   auto_reply?: boolean;
 }
+
+export interface IConnectionCheck {
+  ok: boolean;
+  /** The platform's own words on success or failure — more useful than
+   *  anything we could phrase on its behalf. */
+  detail: string;
+}

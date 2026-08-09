@@ -30,6 +30,8 @@ export default function IntegrationsPage() {
     createIntegration,
     updateIntegration,
     deleteIntegration,
+    checkIntegration,
+    registerWebhook,
     clearError,
   } = useIntegrationsStore();
 
@@ -107,6 +109,8 @@ export default function IntegrationsPage() {
                 onToggleActive={(is_active) =>
                   updateIntegration(integration.id, { is_active })
                 }
+                onCheck={() => checkIntegration(integration.id)}
+                onRegisterWebhook={() => registerWebhook(integration.id)}
                 onDisconnect={() =>
                   handleDisconnect(
                     integration.id,
