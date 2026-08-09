@@ -7,4 +7,7 @@ export interface IChatWindowProps {
   loading: boolean;
   onSend: (content: string) => void | Promise<void>;
   onStatusChange: (status: "open" | "closed" | "pending") => void | Promise<void>;
+  /** Turn this conversation into an order — the assistant collects the
+   *  details but cannot confirm a sale itself. */
+  onCreateOrder: () => void;
 }

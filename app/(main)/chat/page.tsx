@@ -6,15 +6,20 @@ import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
 import NewConversationDialog from "@/components/chat/new-conversation-dialog";
+import NewOrderDialog from "@/components/orders/new-order-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
+import { useProductsStore } from "@/stores/apis/products/products.store";
+import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
+import { IOrderCreate } from "@/utils/interfaces/order/order.interface";
 
 export default function ChatPage() {
   // ── All States
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [orderOpen, setOrderOpen] = useState(false);
 
   // ── API Integration
   const {
@@ -33,12 +38,19 @@ export default function ChatPage() {
   } = useChatStore();
 
   const { customers, fetchCustomers } = useCustomersStore();
+  const { products, fetchProducts } = useProductsStore();
+  const {
+    createOrder,
+    error: orderError,
+    clearError: clearOrderError,
+  } = useOrdersStore();
 
   // ── Effects
   useEffect(() => {
     fetchConversations();
     fetchCustomers();
-  }, [fetchConversations, fetchCustomers]);
+    fetchProducts();
+  }, [fetchConversations, fetchCustomers, fetchProducts]);
 
   // ── Methods
   function handleSelectConversation(conversation: IConversation) {
@@ -62,6 +74,13 @@ export default function ChatPage() {
   async function handleStatusChange(status: "open" | "closed" | "pending") {
     if (!activeConversation) return;
     await updateConversationStatus(activeConversation.id, status);
+  }
+
+  async function handleCreateOrder(data: IOrderCreate) {
+    const order = await createOrder(data);
+    // Placing an order moves stock, so the catalogue on screen is now stale.
+    if (order) fetchProducts();
+    return Boolean(order);
   }
 
   // ── Render UI
@@ -133,6 +152,10 @@ export default function ChatPage() {
               loading={messagesLoading}
               onSend={handleSend}
               onStatusChange={handleStatusChange}
+              onCreateOrder={() => {
+                clearOrderError();
+                setOrderOpen(true);
+              }}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
@@ -158,6 +181,22 @@ export default function ChatPage() {
         customers={customers}
         onCreate={handleCreateConversation}
       />
+
+      {/* ── Order started from a conversation: the customer is fixed by the
+             thread, and the order keeps a link back to it. */}
+      {activeConversation && (
+        <NewOrderDialog
+          open={orderOpen}
+          onOpenChange={setOrderOpen}
+          customers={customers}
+          products={products}
+          lockedCustomerId={activeConversation.customer_id}
+          conversationId={activeConversation.id}
+          onCreate={handleCreateOrder}
+          error={orderError}
+          onDismissError={clearOrderError}
+        />
+      )}
     </>
   );
 }
