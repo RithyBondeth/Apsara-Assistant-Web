@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,26 @@ const schema = z.object({
 
 type LoginForm = z.infer<typeof schema>;
 
+/** Only same-site paths are honoured — an absolute or protocol-relative URL
+ *  here would turn the sign-in screen into an open redirect. */
+function safeNext(next: string | null): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/dashboard";
+  return next;
+}
+
+// useSearchParams needs a Suspense boundary on a statically prerendered page,
+// or the production build fails.
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
+  const next = safeNext(useSearchParams().get("next"));
   const { login, loading, error } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
@@ -34,7 +52,8 @@ export default function LoginPage() {
 
   async function onSubmit(values: LoginForm) {
     const ok = await login(values.email, values.password);
-    if (ok) router.push("/dashboard");
+    // Back to whatever the guard interrupted, not always the dashboard.
+    if (ok) router.push(next);
   }
 
   return (
