@@ -1,0 +1,9 @@
+import { IIntegration } from "@/utils/interfaces/integration/integration.interface";
+
+export interface IIntegrationCardProps {
+  integration: IIntegration;
+  onToggleAutoReply: (value: boolean) => unknown;
+  onToggleActive: (value: boolean) => unknown;
+  onDisconnect: () => unknown;
+  busy?: boolean;
+}
