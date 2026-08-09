@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
+import { formatMoney } from "@/utils/functions/money";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { INewOrderDialogProps } from "./props";
 
 interface ILine {
@@ -54,6 +56,10 @@ function OrderForm({
   error,
   onDismissError,
 }: IOrderFormProps) {
+  // A new order is priced in what the shop trades in today; the server records
+  // the same value as the order's own currency.
+  const currency = useAuthStore((s) => s.user?.currency);
+
   // ── All States
   const [customerId, setCustomerId] = useState(lockedCustomerId ?? "");
   const [lines, setLines] = useState<ILine[]>([{ ...EMPTY_LINE }]);
@@ -165,7 +171,7 @@ function OrderForm({
                   <option value="">— Select a product —</option>
                   {sellable.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} — ${parseFloat(p.price).toFixed(2)} ({p.stock}{" "}
+                      {p.name} — {formatMoney(p.price, currency)} ({p.stock}{" "}
                       left)
                     </option>
                   ))}
@@ -238,7 +244,7 @@ function OrderForm({
         {chosen.length > 0 && (
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm font-medium">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatMoney(total, currency)}</span>
           </div>
         )}
 

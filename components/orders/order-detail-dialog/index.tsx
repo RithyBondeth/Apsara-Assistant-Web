@@ -21,6 +21,7 @@ import {
 } from "@/utils/constants/order.constant";
 import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
 import { formatDate } from "@/utils/functions/date";
+import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import { IOrderDetailDialogProps } from "./props";
 
@@ -88,17 +89,17 @@ export default function OrderDetailDialog({
                     {productName(item.product_id)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {item.quantity} × ${parseFloat(item.unit_price).toFixed(2)}
+                    {item.quantity} × {formatMoney(item.unit_price, order.currency)}
                   </p>
                 </div>
                 <p className="shrink-0 text-sm font-medium">
-                  ${parseFloat(item.subtotal).toFixed(2)}
+                  {formatMoney(item.subtotal, order.currency)}
                 </p>
               </div>
             ))}
             <div className="flex items-center justify-between px-3 py-2 font-medium">
               <span className="text-sm">Total</span>
-              <span>${parseFloat(order.total_amount).toFixed(2)}</span>
+              <span>{formatMoney(order.total_amount, order.currency)}</span>
             </div>
           </div>
 

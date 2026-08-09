@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { formatMoney } from "@/utils/functions/money";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { IProductTableProps } from "./props";
 
 export default function ProductTable({
@@ -19,6 +21,9 @@ export default function ProductTable({
   onDelete,
   deleting,
 }: IProductTableProps) {
+  // Products are priced in whatever the shop currently trades in.
+  const currency = useAuthStore((s) => s.user?.currency);
+
   if (products.length === 0) {
     return (
       <div className="rounded-lg border">
@@ -56,7 +61,7 @@ export default function ProductTable({
                 )}
               </TableCell>
               <TableCell className="hidden sm:table-cell">
-                ${parseFloat(product.price).toFixed(2)}
+                {formatMoney(product.price, currency)}
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 {product.stock}

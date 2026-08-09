@@ -21,6 +21,8 @@ export interface IOrder {
   conversation_id: string | null;
   status: TOrderStatus;
   total_amount: string;
+  /** Snapshot taken when the order was placed, not the shop's current setting. */
+  currency: string;
   delivery_address: string | null;
   notes: string | null;
   created_at: string;

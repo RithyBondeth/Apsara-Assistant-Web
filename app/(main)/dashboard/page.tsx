@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/utils/functions/date";
+import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -39,9 +40,20 @@ export default function DashboardPage() {
   const openConversations = conversations.filter((c) => c.status === "open").length;
   const recentConversations = conversations.slice(0, 5);
   // Cancelled orders are still records but not revenue, so they are excluded.
-  const revenue = orders
+  // Totalled per currency rather than summed outright: orders keep whatever
+  // the shop traded in when they were placed, and adding riel to dollars
+  // would produce a confident, meaningless number.
+  const revenueByCurrency = orders
     .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
+    .reduce<Record<string, number>>((totals, order) => {
+      totals[order.currency] =
+        (totals[order.currency] ?? 0) + parseFloat(order.total_amount);
+      return totals;
+    }, {});
+  const currencies = Object.keys(revenueByCurrency);
+  const revenue = currencies
+    .map((code) => formatMoney(revenueByCurrency[code], code))
+    .join(" · ");
 
   // ── Build customer lookup
   const customerMap = Object.fromEntries(customers.map((c) => [c.id, c]));
@@ -83,7 +95,7 @@ export default function DashboardPage() {
               icon={ShoppingCart}
               label="Orders"
               value={orders.length}
-              sub={`$${revenue.toFixed(2)} excl. cancelled`}
+              sub={revenue ? `${revenue} excl. cancelled` : "No revenue yet"}
             />
           </div>
         )}
