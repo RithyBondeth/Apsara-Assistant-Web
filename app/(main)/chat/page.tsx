@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle, X } from "lucide-react";
 import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
@@ -22,6 +22,8 @@ export default function ChatPage() {
     activeConversation,
     conversationsLoading,
     messagesLoading,
+    error,
+    clearError,
     fetchConversations,
     createConversation,
     setActiveConversation,
@@ -108,6 +110,22 @@ export default function ChatPage() {
 
         {/* ── Main: chat window */}
         <div className="flex flex-1 flex-col overflow-hidden">
+          {/* ── Failure banner: the AI reply can fail on its own, after the
+                 customer's message was already saved */}
+          {error && (
+            <div className="flex items-start gap-2 border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
+              <p className="flex-1">{error}</p>
+              <button
+                type="button"
+                onClick={clearError}
+                aria-label="Dismiss"
+                className="shrink-0 rounded p-0.5 hover:bg-destructive/10"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+
           {activeConversation ? (
             <ChatWindow
               conversation={activeConversation}
