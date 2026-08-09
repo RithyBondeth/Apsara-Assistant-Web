@@ -5,6 +5,7 @@ import {
   Users,
   ShoppingCart,
   Settings,
+  Plug,
   BarChart3,
 } from "lucide-react";
 
@@ -41,7 +42,13 @@ export const SIDEBAR_NAV = [
   },
 ];
 
+
 export const SIDEBAR_BOTTOM_NAV = [
+  {
+    title: "Integrations",
+    href: "/integrations",
+    icon: Plug,
+  },
   {
     title: "Settings",
     href: "/settings",
