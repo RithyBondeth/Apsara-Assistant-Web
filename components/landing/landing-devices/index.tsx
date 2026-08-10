@@ -45,15 +45,51 @@ const SIZES = {
 } as const;
 
 /**
- * Tablet and phone share the `md` type scale — text on a real tablet is not
- * smaller than on a phone, it just wraps less. The narrower frame is what
- * makes the phone read as a phone.
+ * One conversation per screen, each in a different language.
  *
- * The counts drive the scrub order across the whole scene: the laptop plays
- * out, then the tablet, then the phone.
+ * The section's claim is that the assistant answers in whatever the customer
+ * wrote — Khmer script, romanized Khmer, or English — so the three screens
+ * have to show three customers, not one thread repeated at three sizes.
+ *
+ * Deliberately not in the translation files: this is fixed sample data, not
+ * UI copy. Translating the Khmer thread into English when the site is set to
+ * English would erase the exact thing it is there to demonstrate.
  */
-const LAPTOP_BUBBLES = 6; // Four messages, the QR card, and the typing dots.
-const TABLET_BUBBLES = 6;
+type Line = { from: "customer" | "shop"; text: string };
+
+const THREADS: { laptop: Line[]; tablet: Line[]; phone: Line[] } = {
+  // Romanized Khmer — Khmer words typed in Latin letters, the way most
+  // customers actually write on Messenger.
+  laptop: [
+    { from: "customer", text: "bong thlai ponman?" },
+    { from: "shop", text: "Tlai 12$ bong! Deuk jonjoun free knong Phnom Penh 🚚" },
+    { from: "customer", text: "Ok yk 1. Bong pay yang mech?" },
+    { from: "shop", text: "Scan KHQR nih bong, banteab mk send receipt oy khnhom 🙏" },
+  ],
+  // Khmer script.
+  tablet: [
+    { from: "customer", text: "សួស្តី! មានក្រមាពណ៌ក្រហមទេ?" },
+    { from: "shop", text: "សួស្តី! មានចាស នៅសល់ ៥ ផ្ទាំង 🧣" },
+    { from: "customer", text: "តម្លៃប៉ុន្មាន? ដឹកដល់សៀមរាបទេ?" },
+    { from: "shop", text: "១២ ដុល្លារ ដឹកដល់សៀមរាបក្នុង ២ ថ្ងៃ" },
+    { from: "customer", text: "អរគុណ! យកមួយផ្ទាំង" },
+    { from: "shop", text: "បានចាស ខ្ញុំកត់ត្រាទុកជូន ✅" },
+  ],
+  // English.
+  phone: [
+    { from: "customer", text: "Hi! Do you ship to Battambang?" },
+    { from: "shop", text: "Yes — 2–3 days, $1.50 delivery 🚚" },
+    { from: "customer", text: "Perfect, I'll take two." },
+  ],
+};
+
+/**
+ * Scrub order across the whole scene: the laptop plays out, then the tablet,
+ * then the phone. Each screen's count is its messages, plus the typing dots,
+ * plus the QR card where there is one.
+ */
+const LAPTOP_BUBBLES = THREADS.laptop.length + 2;
+const TABLET_BUBBLES = THREADS.tablet.length + 1;
 const TABLET_ORDER = 1 + LAPTOP_BUBBLES;
 const PHONE_ORDER = TABLET_ORDER + TABLET_BUBBLES;
 
@@ -100,54 +136,45 @@ function Bubble({
 }
 
 /**
- * The thread: a price asked, answered, and paid for.
- *
- * How much of it each screen carries is what gives the lineup its hierarchy —
- * every device is exactly as tall as its own conversation, so the phone ends
- * early and stays the smallest of the three.
+ * One screen's conversation. Every device is exactly as tall as its own
+ * thread, which is what gives the lineup its hierarchy — the phone's short
+ * English exchange keeps it the smallest of the three.
  */
 function ChatThread({
   t,
   size,
+  lines,
   startOrder,
-  full = true,
+  qr = false,
 }: {
   t: ReturnType<typeof useT<"devices">>;
   size: Size;
+  lines: Line[];
   /** First data-chat-bubble index for this screen. */
   startOrder: number;
-  /** Off on the phone: it stops at the customer's question. */
-  full?: boolean;
+  /** The payment QR, on the one screen whose customer gets as far as paying. */
+  qr?: boolean;
 }) {
   const s = SIZES[size];
   let order = startOrder;
 
   return (
     <div className={`flex flex-col ${s.thread}`}>
-      <Bubble from="customer" order={order++} size={size}>
-        {t.customerMsg1}
-      </Bubble>
-      <Bubble from="shop" order={order++} size={size}>
-        {t.aiMsg1}
-      </Bubble>
-      <Bubble from="customer" order={order++} size={size}>
-        {t.customerPay}
-      </Bubble>
-      {full && (
-        <>
-          <Bubble from="shop" order={order++} size={size}>
-            {t.aiPay}
-          </Bubble>
-          <Bubble from="shop" order={order++} size={size} padded={false}>
-            <QrCard
-              compact={size === "md"}
-              shopName={t.qrShopName}
-              amount={t.qrAmount}
-              currency={t.qrCurrency}
-              hint={t.qrHint}
-            />
-          </Bubble>
-        </>
+      {lines.map((line) => (
+        <Bubble key={line.text} from={line.from} order={order++} size={size}>
+          {line.text}
+        </Bubble>
+      ))}
+      {qr && (
+        <Bubble from="shop" order={order++} size={size} padded={false}>
+          <QrCard
+            compact={size === "md"}
+            shopName={t.qrShopName}
+            amount={t.qrAmount}
+            currency={t.qrCurrency}
+            hint={t.qrHint}
+          />
+        </Bubble>
       )}
       {/* Typing indicator */}
       <div data-chat-bubble={order++} className="flex justify-end opacity-0">
@@ -254,7 +281,13 @@ export default function LandingDevices() {
                   <span className="size-2 rounded-full bg-green-400/70" />
                 </div>
                 <ChatHeader t={t} size="lg" />
-                <ChatThread t={t} size="lg" startOrder={1} />
+                <ChatThread
+                  t={t}
+                  size="lg"
+                  lines={THREADS.laptop}
+                  startOrder={1}
+                  qr
+                />
               </div>
             </div>
             {/* Laptop base / hinge */}
@@ -267,7 +300,7 @@ export default function LandingDevices() {
               a thumbnail. The laptop already carries the whole thread there. */}
           <div
             data-scene="tablet"
-            className="hidden opacity-0 sm:-ml-5 sm:mb-6 sm:block sm:w-[33%]"
+            className="hidden opacity-0 sm:-ml-5 sm:mb-6 sm:block sm:w-[24%]"
           >
             {/* Frame a shade lighter than the page, with a rim light: a
                 neutral-900 bezel on a near-black background disappears, and
@@ -279,7 +312,12 @@ export default function LandingDevices() {
                   <div className="size-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
                 </div>
                 <ChatHeader t={t} size="md" />
-                <ChatThread t={t} size="md" startOrder={TABLET_ORDER} />
+                <ChatThread
+                  t={t}
+                  size="md"
+                  lines={THREADS.tablet}
+                  startOrder={TABLET_ORDER}
+                />
               </div>
             </div>
           </div>
@@ -288,7 +326,7 @@ export default function LandingDevices() {
               In front of the tablet, so the group reads as three depths. */}
           <div
             data-scene="phone"
-            className="hidden opacity-0 sm:-ml-6 sm:mb-1 sm:block sm:w-[16%]"
+            className="hidden opacity-0 sm:-ml-3 sm:mb-1 sm:block sm:w-[16%]"
           >
             <div className="animate-float">
               <div className="rounded-[0.9rem] bg-neutral-800 p-1.5 shadow-2xl shadow-blue-500/20 ring-1 ring-white/10">
@@ -301,8 +339,8 @@ export default function LandingDevices() {
                   <ChatThread
                     t={t}
                     size="md"
+                    lines={THREADS.phone}
                     startOrder={PHONE_ORDER}
-                    full={false}
                   />
                 </div>
               </div>
