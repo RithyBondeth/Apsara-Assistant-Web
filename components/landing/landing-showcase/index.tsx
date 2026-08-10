@@ -11,6 +11,7 @@ import {
   LucideUsers,
 } from "lucide-react";
 import gsap from "gsap";
+import { QrCard } from "@/components/landing/qr-mock";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
@@ -144,6 +145,28 @@ export default function LandingShowcase() {
                   <div className="flex justify-end">
                     <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
                       {t.chatReply}
+                    </div>
+                  </div>
+                  {/* Asked how to pay, the assistant sends the shop's own
+                      KHQR — a second message, as the platforms deliver it. */}
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] rounded-2xl rounded-bl-sm bg-muted px-4 py-2.5 text-sm">
+                      {t.chatPayQuestion}
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 px-4 py-2.5 text-sm text-white shadow-md shadow-blue-500/20">
+                      {t.chatPayReply}
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="rounded-2xl rounded-br-sm bg-gradient-to-br from-blue-600 to-blue-500 p-2 shadow-md shadow-blue-500/20">
+                      <QrCard
+                        shopName={t.qrShopName}
+                        amount={t.qrAmount}
+                        currency={t.qrCurrency}
+                        hint={t.qrHint}
+                      />
                     </div>
                   </div>
                   <div className="flex items-center justify-end gap-1.5 pr-1 text-xs text-muted-foreground">

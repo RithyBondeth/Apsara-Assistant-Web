@@ -41,14 +41,21 @@ function ProfileForm({ user }: { user: IUser }) {
   const [fullName, setFullName] = useState(user.full_name);
   const [businessName, setBusinessName] = useState(user.business_name ?? "");
   const [currency, setCurrency] = useState(user.currency);
+  const [paymentQrUrl, setPaymentQrUrl] = useState(user.payment_qr_url ?? "");
   const [saved, setSaved] = useState(false);
 
   // ── Derived
   const dirty =
     fullName !== user.full_name ||
     businessName !== (user.business_name ?? "") ||
-    currency !== user.currency;
+    currency !== user.currency ||
+    paymentQrUrl.trim() !== (user.payment_qr_url ?? "");
   const switchingCurrency = currency !== user.currency;
+  // Only a full link can be shown, and only a full link can be sent — the API
+  // rejects anything the chat platforms could not fetch for themselves.
+  const qrPreview = /^https?:\/\//.test(paymentQrUrl.trim())
+    ? paymentQrUrl.trim()
+    : null;
 
   // ── Methods
   async function handleSave() {
@@ -57,6 +64,8 @@ function ProfileForm({ user }: { user: IUser }) {
       full_name: fullName.trim(),
       business_name: businessName.trim(),
       currency,
+      // null, not "", is what clears it on the server.
+      payment_qr_url: paymentQrUrl.trim() || null,
     });
     if (ok) {
       setSaved(true);
@@ -109,6 +118,33 @@ function ProfileForm({ user }: { user: IUser }) {
             {formatMoney(sampleAmount(currency), currency)}. The assistant
             quotes customers in it too.
           </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="payment-qr">Payment QR link</Label>
+          <Input
+            id="payment-qr"
+            value={paymentQrUrl}
+            onChange={(e) => setPaymentQrUrl(e.target.value)}
+            placeholder="https://…/my-khqr.png"
+          />
+          <p className="text-xs text-muted-foreground">
+            A link to your KHQR, ABA or Wing code. The assistant sends it to a
+            customer who is ready to pay, then asks them for the receipt.
+            Messenger and Telegram fetch the image from this link, so it has to
+            be one anyone can open. Leave it empty and the assistant never
+            offers a QR.
+          </p>
+          {qrPreview && (
+            /* The seller checks their own link here rather than discovering a
+               broken one from a customer. */
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={qrPreview}
+              alt="Your payment QR"
+              className="mt-1 h-32 w-32 rounded-lg border bg-white object-contain"
+            />
+          )}
         </div>
 
         {/* Switching reinterprets existing prices rather than converting them,

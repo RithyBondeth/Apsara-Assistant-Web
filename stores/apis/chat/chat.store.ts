@@ -4,7 +4,6 @@ import { CONVERSATIONS_API, CHAT_API } from "@/utils/constants/apis/conversation
 import {
   IConversation,
   IConversationDetail,
-  IMessage,
   IChatResponse,
 } from "@/utils/interfaces/chat/chat.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
@@ -112,6 +111,7 @@ export const useChatStore = create<IChatStore>((set, get) => ({
                 ...s.activeConversation.messages,
                 data.customer_message,
                 data.ai_message,
+                ...(data.qr_message ? [data.qr_message] : []),
               ],
             }
           : s.activeConversation,
