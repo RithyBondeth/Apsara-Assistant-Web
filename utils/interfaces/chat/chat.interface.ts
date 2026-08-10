@@ -33,4 +33,9 @@ export interface IConversationDetail extends IConversation {
 export interface IChatResponse {
   customer_message: IMessage;
   ai_message: IMessage;
+  // Only when the assistant chose to send the shop's payment QR. It is a
+  // separate message on Messenger and Telegram, so it is one here too.
+  // Optional, not just nullable: an API that predates the feature omits the
+  // field entirely, and this ships ahead of the backend that returns it.
+  qr_message?: IMessage | null;
 }

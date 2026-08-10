@@ -478,16 +478,17 @@ export function useGsapHeroAnimation<T extends HTMLElement>() {
 /* ─────────────────────────────────────────────────────────────────────────────
    useGsapChatScene
    The devices showpiece: on desktop the mockup stage pins to the viewport
-   while scrolling scrubs a timeline — the laptop settles in, chat bubbles
-   pop up one-by-one across laptop and phone, and the phone slides in last.
+   while scrolling scrubs a timeline — the laptop settles in, the tablet and
+   phone join it, and then the conversation plays bubble-by-bubble across all
+   three screens.
 
    On touch/small screens (where pinning fights the browser chrome) it falls
    back to a non-pinned, play-once cascade. Reduced motion lands everything
    at its final state.
 
    Annotate: the stage wrapper is the hook ref; bubbles get
-   `data-chat-bubble`, the phone frame `data-scene="phone"`, the laptop
-   `data-scene="laptop"`.
+   `data-chat-bubble`, and each device frame gets `data-scene` — "laptop",
+   "tablet" or "phone".
 ───────────────────────────────────────────────────────────────────────────── */
 export function useGsapChatScene<T extends HTMLElement>() {
   const stageRef = useRef<T>(null);
@@ -516,11 +517,19 @@ export function useGsapChatScene<T extends HTMLElement>() {
         { opacity: 1, y: 0, rotateX: 0, scale: 1, duration: 1, ease: "power3.out" },
         0,
       );
+      // Tablet then phone, each entering from further out and later than the
+      // last, so the lineup assembles front-to-back rather than all at once.
+      tl.fromTo(
+        "[data-scene='tablet']",
+        { opacity: 0, y: 100, x: 30, rotate: 10 },
+        { opacity: 1, y: 0, x: 0, rotate: 0, duration: 1, ease: "back.out(1.4)" },
+        0.35,
+      );
       tl.fromTo(
         "[data-scene='phone']",
         { opacity: 0, y: 120, x: 40, rotate: 14 },
         { opacity: 1, y: 0, x: 0, rotate: 0, duration: 1, ease: "back.out(1.4)" },
-        0.45,
+        0.6,
       );
       gsap.utils
         .toArray<HTMLElement>("[data-chat-bubble]")

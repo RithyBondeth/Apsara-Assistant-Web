@@ -4,6 +4,12 @@ import { IMessageBubbleProps } from "./props";
 
 export default function MessageBubble({ message }: IMessageBubbleProps) {
   const isOutgoing = message.sender_type === "assistant";
+  // An image message — today only the shop's payment QR — carries its picture
+  // on an attachment and no text, so a bubble showing `content` alone would
+  // read as an empty message the customer never got.
+  const images = message.attachments.filter(
+    (a) => a.file_type === "image" || message.message_type === "image"
+  );
 
   return (
     <div
@@ -23,7 +29,24 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
             : "rounded-tl-sm bg-muted text-foreground"
         )}
       >
-        {message.content ?? <em className="opacity-60">Empty message</em>}
+        {images.length > 0 ? (
+          <div className="space-y-1.5">
+            {images.map((image) => (
+              /* Plain <img>: the URL is the seller's own, from any host, and
+                 next/image would need every one of them configured. */
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={image.id}
+                src={image.file_url}
+                alt={image.file_name ?? "Attachment"}
+                className="max-h-56 w-full rounded-lg bg-white object-contain"
+              />
+            ))}
+            {message.content && <p>{message.content}</p>}
+          </div>
+        ) : (
+          message.content ?? <em className="opacity-60">Empty message</em>
+        )}
       </div>
       <span className="px-1 text-[10px] text-muted-foreground">
         {timeAgo(message.created_at)}
