@@ -9,6 +9,10 @@ interface IPlatformCopy {
   tokenHint: string;
   /** Where the seller goes to finish the connection on the platform's side. */
   steps: string[];
+  /** Stripe asks for a second secret: the signing secret of the webhook
+   *  endpoint, which is issued by Stripe rather than generated here. */
+  secretLabel?: string;
+  secretHint?: string;
 }
 
 export const PLATFORM_COPY: Record<TIntegrationPlatform, IPlatformCopy> = {
@@ -36,6 +40,22 @@ export const PLATFORM_COPY: Record<TIntegrationPlatform, IPlatformCopy> = {
       "Copy the callback URL and secret token below.",
       "Call setWebhook on your bot with both values.",
       "Telegram will start delivering updates to that URL.",
+    ],
+  },
+  stripe: {
+    label: "Stripe",
+    idLabel: "Stripe account ID",
+    idHint: "Starts with acct_ — find it in Stripe under Settings → Business.",
+    tokenLabel: "Secret key",
+    tokenHint:
+      "A restricted key with write access to Checkout Sessions is enough — it does not need full account access. Stored encrypted and never shown again.",
+    secretLabel: "Webhook signing secret",
+    secretHint:
+      "Starts with whsec_. Stripe shows it once when you add the endpoint below. Without it a payment cannot be proven genuine, so it is required.",
+    steps: [
+      "In Stripe, open Developers → Webhooks and add an endpoint at the URL below.",
+      "Subscribe it to the checkout.session.completed event.",
+      "Copy the signing secret Stripe shows you into the field above.",
     ],
   },
 };

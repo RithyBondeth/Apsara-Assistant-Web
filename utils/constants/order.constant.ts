@@ -1,4 +1,7 @@
-import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
+import {
+  TOrderStatus,
+  TPaymentStatus,
+} from "@/utils/interfaces/order/order.interface";
 
 export const ORDER_STATUSES: TOrderStatus[] = [
   "pending",
@@ -27,3 +30,12 @@ export const ORDER_STATUS_HINTS: Partial<Record<TOrderStatus, string>> = {
 
 export const SHARED_SELECT_CLASS =
   "flex h-8 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+/** Payment sits apart from the order status, so it gets its own scale:
+ *  neutral when nothing is owed yet, amber while a link is outstanding,
+ *  green only once Stripe has confirmed the money. */
+export const PAYMENT_STATUS_STYLES: Record<TPaymentStatus, string> = {
+  unpaid: "bg-muted text-muted-foreground",
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+};

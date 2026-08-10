@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLanguageStore, type TLanguage } from "@/stores/languages/language-store";
+import { useHydrated } from "@/hooks/utils/use-hydrated";
 import { LanguageContext } from "./language-context";
 
 export function LanguageProviderClient({
@@ -12,11 +13,12 @@ export function LanguageProviderClient({
   defaultLanguage: TLanguage;
 }) {
   const { language, isHydrated, setLanguage } = useLanguageStore();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
 
+  // Seeds the store from the server-read cookie the first time. This one stays
+  // an effect: it writes to an external store, which is what effects are for.
   useEffect(() => {
     if (!isHydrated) setLanguage(defaultLanguage);
-    setMounted(true);
   }, [defaultLanguage, isHydrated, setLanguage]);
 
   // Before hydration use the server-read cookie value — eliminates the flash

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, CreditCard, Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import {
   ORDER_STATUSES,
   ORDER_STATUS_HINTS,
   ORDER_STATUS_STYLES,
+  PAYMENT_STATUS_STYLES,
   SHARED_SELECT_CLASS,
 } from "@/utils/constants/order.constant";
 import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
@@ -33,11 +34,14 @@ export default function OrderDetailDialog({
   onOpenChange,
   onStatusChange,
   onDelete,
+  onCreateCheckout,
   error,
   onDismissError,
 }: IOrderDetailDialogProps) {
   // ── All States
   const [saving, setSaving] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   if (!order) return null;
 
@@ -50,6 +54,23 @@ export default function OrderDetailDialog({
     setSaving(true);
     await onStatusChange(status);
     setSaving(false);
+  }
+
+  async function handleCheckout() {
+    setSaving(true);
+    const checkout = await onCreateCheckout();
+    setSaving(false);
+    // Null means the server refused — the reason is already in `error`.
+    if (checkout) {
+      setCheckoutUrl(checkout.checkout_url);
+      setCopied(false);
+    }
+  }
+
+  async function handleCopy() {
+    if (!checkoutUrl) return;
+    await navigator.clipboard.writeText(checkoutUrl);
+    setCopied(true);
   }
 
   async function handleDelete() {
@@ -140,6 +161,57 @@ export default function OrderDetailDialog({
             {ORDER_STATUS_HINTS[order.status] && (
               <p className="text-xs text-muted-foreground">
                 {ORDER_STATUS_HINTS[order.status]}
+              </p>
+            )}
+          </div>
+
+          {/* ── Card payment */}
+          <div className="space-y-1.5">
+            <Label>Payment</Label>
+            <div className="flex items-center gap-2">
+              <Badge className={cn("capitalize", PAYMENT_STATUS_STYLES[order.payment_status])}>
+                {order.payment_status}
+              </Badge>
+              {order.payment_status !== "paid" && order.status !== "cancelled" && (
+                <Button size="sm" variant="outline" disabled={saving}
+                        onClick={handleCheckout}>
+                  <CreditCard className="mr-1.5 h-4 w-4" />
+                  {checkoutUrl ? "New link" : "Payment link"}
+                </Button>
+              )}
+            </div>
+
+            {checkoutUrl ? (
+              <div className="space-y-1.5 rounded-lg border bg-muted/40 p-2">
+                {/* Read-only and selectable: this gets pasted into a Messenger
+                    or Telegram chat, so copying it has to be effortless. */}
+                <input
+                  readOnly
+                  value={checkoutUrl}
+                  onFocus={(e) => e.currentTarget.select()}
+                  aria-label="Stripe payment link"
+                  className="w-full truncate rounded bg-transparent px-1 py-0.5 text-xs"
+                />
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={handleCopy}>
+                    {copied ? (
+                      <Check className="mr-1.5 h-3.5 w-3.5" />
+                    ) : (
+                      <Copy className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    {copied ? "Copied" : "Copy link"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Send this to the customer. The order is marked paid
+                    automatically.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {order.payment_status === "paid"
+                  ? "Confirmed by Stripe."
+                  : "Creates a Stripe page you can send to the customer."}
               </p>
             )}
           </div>

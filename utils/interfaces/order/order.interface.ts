@@ -6,6 +6,10 @@ export type TOrderStatus =
   | "delivered"
   | "cancelled";
 
+/** Tracked apart from the order status: an order can be paid but not shipped,
+ *  or delivered and still unpaid on a cash sale. */
+export type TPaymentStatus = "unpaid" | "pending" | "paid";
+
 export interface IOrderItem {
   id: string;
   product_id: string;
@@ -25,6 +29,7 @@ export interface IOrder {
   currency: string;
   delivery_address: string | null;
   notes: string | null;
+  payment_status: TPaymentStatus;
   created_at: string;
   updated_at: string;
   items: IOrderItem[];
@@ -49,4 +54,11 @@ export interface IOrderUpdate {
   status?: TOrderStatus;
   delivery_address?: string;
   notes?: string;
+}
+
+/** A hosted Stripe payment page for one order. */
+export interface ICheckout {
+  checkout_url: string;
+  session_id: string;
+  payment_status: TPaymentStatus;
 }

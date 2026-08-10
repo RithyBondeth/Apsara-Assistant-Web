@@ -44,11 +44,18 @@ function ConnectForm({
   // ── All States
   const [externalId, setExternalId] = useState("");
   const [token, setToken] = useState("");
+  const [webhookSecret, setWebhookSecret] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [saving, setSaving] = useState(false);
 
   const copy = PLATFORM_COPY[platform];
-  const valid = externalId.trim() !== "" && token.trim() !== "";
+  // Stripe is the only platform with a second secret, and it cannot be skipped:
+  // without it no payment notification can be told apart from a forged one.
+  const needsSecret = platform === "stripe";
+  const valid =
+    externalId.trim() !== "" &&
+    token.trim() !== "" &&
+    (!needsSecret || webhookSecret.trim() !== "");
 
   // ── Methods
   async function handleCreate() {
@@ -59,6 +66,7 @@ function ConnectForm({
       external_id: externalId.trim(),
       access_token: token.trim(),
       display_name: displayName.trim() || undefined,
+      webhook_secret: needsSecret ? webhookSecret.trim() : undefined,
     });
     setSaving(false);
     if (ok) onOpenChange(false);
@@ -70,8 +78,9 @@ function ConnectForm({
       <DialogHeader>
         <DialogTitle>Connect {copy.label}</DialogTitle>
         <DialogDescription>
-          Once connected, customer messages arrive here and the assistant can
-          answer them.
+          {needsSecret
+            ? "Once connected, you can send customers a card payment link for any order, and it will be marked paid automatically."
+            : "Once connected, customer messages arrive here and the assistant can answer them."}
         </DialogDescription>
       </DialogHeader>
 
@@ -97,6 +106,20 @@ function ConnectForm({
           />
           <p className="text-xs text-muted-foreground">{copy.tokenHint}</p>
         </div>
+
+        {needsSecret && (
+          <div className="space-y-1.5">
+            <Label htmlFor="webhook-secret">{copy.secretLabel}</Label>
+            <Input
+              id="webhook-secret"
+              type="password"
+              autoComplete="off"
+              value={webhookSecret}
+              onChange={(e) => setWebhookSecret(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">{copy.secretHint}</p>
+          </div>
+        )}
 
         <div className="space-y-1.5">
           <Label htmlFor="display-name">Label (optional)</Label>

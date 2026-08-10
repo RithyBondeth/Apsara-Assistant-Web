@@ -2,6 +2,7 @@ import { create } from "zustand";
 import api from "@/lib/axios";
 import { ORDERS_API } from "@/utils/constants/apis/orders.api.constant";
 import {
+  ICheckout,
   IOrder,
   IOrderCreate,
   IOrderUpdate,
@@ -19,6 +20,8 @@ interface IOrdersStore {
   createOrder: (data: IOrderCreate) => Promise<IOrder | null>;
   updateOrder: (id: string, data: IOrderUpdate) => Promise<boolean>;
   deleteOrder: (id: string) => Promise<boolean>;
+  /** Opens a Stripe payment page for the order and returns its link. */
+  createCheckout: (id: string) => Promise<ICheckout | null>;
   selectOrder: (order: IOrder | null) => void;
   clearError: () => void;
 }
@@ -92,6 +95,29 @@ export const useOrdersStore = create<IOrdersStore>((set) => ({
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
       return false;
+    }
+  },
+
+  createCheckout: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await api.post<ICheckout>(ORDERS_API.CHECKOUT(id));
+      // Reflect the order moving to "pending" without another round trip. The
+      // jump to "paid" comes from Stripe's webhook, so it lands on a refetch.
+      set((s) => ({
+        orders: s.orders.map((o) =>
+          o.id === id ? { ...o, payment_status: data.payment_status } : o,
+        ),
+        selected:
+          s.selected?.id === id
+            ? { ...s.selected, payment_status: data.payment_status }
+            : s.selected,
+        loading: false,
+      }));
+      return data;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return null;
     }
   },
 
