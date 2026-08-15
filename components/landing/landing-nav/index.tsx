@@ -11,6 +11,7 @@ import {
   LucideSun,
   LucideMoon,
   LucideChevronRight,
+  LucideLanguages,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -58,41 +59,25 @@ function LanguageToggle({ className }: { className?: string }) {
   const language = useLanguage();
   const { setLanguage } = useLanguageStore();
   const hydrated = useHydrated();
-  if (!hydrated) return <div className="h-7 w-[72px]" />;
+  if (!hydrated) return <div className="size-8" />;
+
+  const nextLanguage = language === "en" ? "km" : "en";
+  const label = nextLanguage === "km" ? "Switch to Khmer" : "Switch to English";
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => setLanguage(nextLanguage)}
+      aria-label={label}
+      title={label}
       className={cn(
-        "relative flex items-center gap-0.5 rounded-full bg-muted p-0.5",
+        "relative flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50",
         className,
       )}
     >
-      {/* sliding pill indicator */}
-      <span
-        className={cn(
-          "absolute top-0.5 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-full bg-background shadow-sm transition-all duration-200",
-          language === "km" ? "left-[calc(50%+1px)]" : "left-0.5",
-        )}
-      />
-      <button
-        onClick={() => setLanguage("en")}
-        className={cn(
-          "relative z-10 px-2.5 py-1 text-xs font-semibold rounded-full transition-colors duration-200",
-          language === "en" ? "text-foreground" : "text-muted-foreground",
-        )}
-      >
-        EN
-      </button>
-      <button
-        onClick={() => setLanguage("km")}
-        className={cn(
-          "relative z-10 px-2.5 py-1 text-xs font-semibold rounded-full transition-colors duration-200",
-          language === "km" ? "text-foreground" : "text-muted-foreground",
-        )}
-      >
-        ខ្មែរ
-      </button>
-    </div>
+      <LucideLanguages className="size-4" />
+      <span className="absolute right-1 top-1 size-1.5 rounded-full bg-blue-500 ring-2 ring-background" />
+    </button>
   );
 }
 
@@ -150,30 +135,25 @@ export default function LandingNav() {
 
   return (
     <header
-      className={cn(
-        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
-        scrolled
-          ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm shadow-black/[0.03]"
-          : "bg-transparent",
-      )}
+      className="fixed inset-x-0 top-3 z-50 px-3 sm:px-4"
     >
-      {/* ── Top gradient accent line ─────────────────────────────── */}
       <div
         className={cn(
-          "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent transition-opacity duration-500",
-          scrolled ? "opacity-100" : "opacity-0",
+          "relative mx-auto w-full max-w-6xl overflow-hidden rounded-[1.35rem] border border-border/60 bg-background/75 shadow-lg shadow-slate-950/[0.06] backdrop-blur-2xl transition-all duration-300",
+          scrolled && "border-border/80 bg-background/90 shadow-xl shadow-slate-950/10",
+          open && "rounded-[1.5rem]",
         )}
-      />
+      >
 
       {/* ── Scroll-progress rail ─────────────────────────────────── */}
-      <div className="absolute inset-x-0 top-0 h-[2px] overflow-hidden">
+      <div className="absolute inset-x-5 bottom-0 z-10 h-px overflow-hidden rounded-full bg-border/30">
         <span
           ref={progressRef}
           className="block h-full w-full origin-left scale-x-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400"
         />
       </div>
 
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <nav className="flex w-full items-center justify-between gap-4 px-3 py-2 sm:px-4 lg:px-5">
         {/* ── Logo ─────────────────────────────────────────────── */}
         <Link
           href="/"
@@ -185,6 +165,7 @@ export default function LandingNav() {
 
         {/* ── Desktop centre links ──────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
+          <NavLink href="#home">{t.home}</NavLink>
           <NavLink href="#features">{t.features}</NavLink>
           <NavLink href="#how-it-works">{t.howItWorks}</NavLink>
           <NavLink href="#pricing">{t.pricing}</NavLink>
@@ -253,7 +234,15 @@ export default function LandingNav() {
           open ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
         )}
       >
-        <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 pb-5 pt-3 space-y-1">
+        <div className="mx-3 space-y-1 border-t border-border/50 px-1 pb-4 pt-3">
+          <a
+            href="#home"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-between w-full rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            {t.home}
+            <LucideChevronRight className="size-4 opacity-40" />
+          </a>
           <a
             href="#features"
             onClick={() => setOpen(false)}
@@ -296,6 +285,7 @@ export default function LandingNav() {
             </Link>
           </div>
         </div>
+      </div>
       </div>
     </header>
   );
