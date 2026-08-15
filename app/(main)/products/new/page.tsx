@@ -62,6 +62,7 @@ export default function NewProductPage() {
               loading={loading}
               submitLabel="Add product"
               allowImageSelection
+              allowVariantSelection
             />
             {error && (
               <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>

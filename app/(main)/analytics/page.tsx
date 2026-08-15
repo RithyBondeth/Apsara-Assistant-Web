@@ -96,8 +96,12 @@ export default function AnalyticsPage() {
     return { sold, revenue, byStatus, byPlatform, topProducts, averages };
   }, [orders, conversations, products]);
 
-  const lowStock = products.filter(
-    (product) => product.is_active && product.stock <= product.low_stock_threshold,
+  const lowStock = products.flatMap((product) =>
+    product.is_active
+      ? product.variants
+          .filter((variant) => variant.is_active && variant.stock <= variant.low_stock_threshold)
+          .map((variant) => ({ product, variant }))
+      : [],
   );
 
   // ── Render UI
@@ -224,14 +228,14 @@ export default function AnalyticsPage() {
                 </p>
               ) : (
                 <div className="divide-y">
-                  {lowStock.map((product) => (
-                    <div key={product.id}
+                  {lowStock.map(({ product, variant }) => (
+                    <div key={variant.id}
                          className="flex items-center justify-between py-2 text-sm">
-                      <span className="truncate">{product.name}</span>
+                      <span className="truncate">{product.name} — {variant.name}</span>
                       {/* Still listed and still being offered by the
                           assistant, which is why this is worth surfacing. */}
                       <span className="shrink-0 text-xs text-destructive">
-                        {product.stock === 0 ? "Out of stock" : `${product.stock} left`}
+                        {variant.stock === 0 ? "Out of stock" : `${variant.stock} left`}
                       </span>
                     </div>
                   ))}

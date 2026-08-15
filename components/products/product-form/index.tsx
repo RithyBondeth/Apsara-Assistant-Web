@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, Plus, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,7 @@ export default function ProductForm({
   submitLabel = "Save product",
   allowStockEditing = true,
   allowImageSelection = false,
+  allowVariantSelection = false,
 }: IProductFormProps) {
   const currency = useAuthStore((state) => state.user?.currency ?? "USD");
   const {
@@ -45,6 +46,11 @@ export default function ProductForm({
   });
   const [selectedImages, setSelectedImages] = useState<Array<{ file: File; url: string }>>([]);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [variantMode, setVariantMode] = useState(false);
+  const [variantError, setVariantError] = useState<string | null>(null);
+  const [variants, setVariants] = useState([
+    { id: "variant-1", options: "", sku: "", barcode: "", price: 0, stock: 0, threshold: 5 },
+  ]);
   const urls = useRef<string[]>([]);
 
   useEffect(() => () => urls.current.forEach((url) => URL.revokeObjectURL(url)), []);
@@ -79,9 +85,55 @@ export default function ProductForm({
     });
   }
 
+  function parseOptions(value: string): Record<string, string> | null {
+    const result: Record<string, string> = {};
+    const entries = value.split(",").map((item) => item.trim()).filter(Boolean);
+    if (entries.length === 0 || entries.length > 5) return null;
+    for (const entry of entries) {
+      const separator = entry.indexOf("=");
+      if (separator < 1) return null;
+      const name = entry.slice(0, separator).trim();
+      const optionValue = entry.slice(separator + 1).trim();
+      if (!name || !optionValue || result[name]) return null;
+      result[name] = optionValue;
+    }
+    return result;
+  }
+
+  function submit(values: ProductFormValues) {
+    if (!variantMode) {
+      onSubmit(values, selectedImages.map((item) => item.file));
+      return;
+    }
+    const parsed = variants.map((variant) => ({ variant, options: parseOptions(variant.options) }));
+    if (parsed.some(({ variant, options }) =>
+      !options || variant.price < 0 || variant.stock < 0 || variant.threshold < 0
+    )) {
+      setVariantError("Use options like Color=Red, Size=M and enter non-negative price and stock values.");
+      return;
+    }
+    const signatures = parsed.map(({ options }) => JSON.stringify(options));
+    if (new Set(signatures).size !== signatures.length) {
+      setVariantError("Each variant must have a unique option combination.");
+      return;
+    }
+    setVariantError(null);
+    onSubmit({
+      ...values,
+      variants: parsed.map(({ variant, options }) => ({
+        option_values: options!,
+        sku: variant.sku.trim() || undefined,
+        barcode: variant.barcode.trim() || undefined,
+        price: variant.price,
+        stock: variant.stock,
+        low_stock_threshold: variant.threshold,
+      })),
+    }, selectedImages.map((item) => item.file));
+  }
+
   return (
     <form
-      onSubmit={handleSubmit((values) => onSubmit(values, selectedImages.map((item) => item.file)))}
+      onSubmit={handleSubmit(submit)}
       className="space-y-5"
     >
       {/* ── Name */}
@@ -99,7 +151,61 @@ export default function ProductForm({
         )}
       </div>
 
-      <div className="space-y-1.5">
+      {allowVariantSelection && (
+        <div className="space-y-3 rounded-lg border p-4">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={variantMode}
+              onChange={(event) => setVariantMode(event.target.checked)}
+            />
+            This product has options such as size or color
+          </label>
+          {variantMode && (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Add one row for every sellable combination. Separate options with commas.
+              </p>
+              {variants.map((variant, index) => (
+                <div key={variant.id} className="space-y-2 rounded-md bg-muted/40 p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">Variant {index + 1}</p>
+                    <Button
+                      type="button"
+                      size="icon-xs"
+                      variant="ghost"
+                      aria-label={`Remove variant ${index + 1}`}
+                      disabled={variants.length === 1}
+                      onClick={() => setVariants((current) => current.filter((item) => item.id !== variant.id))}
+                    ><X /></Button>
+                  </div>
+                  <Input
+                    aria-label={`Options for variant ${index + 1}`}
+                    placeholder="Color=Red, Size=M"
+                    value={variant.options}
+                    onChange={(event) => setVariants((current) => current.map((item) =>
+                      item.id === variant.id ? { ...item, options: event.target.value } : item
+                    ))}
+                  />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Input aria-label={`SKU for variant ${index + 1}`} placeholder="SKU (optional)" value={variant.sku} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, sku: event.target.value } : item))} />
+                    <Input aria-label={`Barcode for variant ${index + 1}`} placeholder="Barcode (optional)" value={variant.barcode} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, barcode: event.target.value } : item))} />
+                    <Input aria-label={`Price for variant ${index + 1}`} type="number" min="0" step="0.01" placeholder={`Price (${currency})`} value={variant.price} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, price: Number(event.target.value) } : item))} />
+                    <Input aria-label={`Stock for variant ${index + 1}`} type="number" min="0" placeholder="Opening stock" value={variant.stock} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, stock: Number(event.target.value) } : item))} />
+                    <Input aria-label={`Threshold for variant ${index + 1}`} type="number" min="0" placeholder="Low-stock threshold" value={variant.threshold} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, threshold: Number(event.target.value) } : item))} />
+                  </div>
+                </div>
+              ))}
+              <Button type="button" size="sm" variant="outline" disabled={variants.length >= 100} onClick={() => setVariants((current) => [...current, { id: `variant-${Date.now()}-${current.length}`, options: "", sku: "", barcode: "", price: 0, stock: 0, threshold: 5 }])}>
+                <Plus /> Add variant
+              </Button>
+              {variantError && <p role="alert" className="text-xs text-destructive">{variantError}</p>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!variantMode && <div className="space-y-1.5">
         <Label htmlFor="low_stock_threshold">Low-stock alert at *</Label>
         <Input
           id="low_stock_threshold"
@@ -116,7 +222,7 @@ export default function ProductForm({
             {errors.low_stock_threshold.message}
           </p>
         )}
-      </div>
+      </div>}
 
       {/* ── Description */}
       <div className="space-y-1.5">
@@ -130,7 +236,7 @@ export default function ProductForm({
       </div>
 
       {/* ── Price & Stock */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      {!variantMode && <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="price">Price ({currency}) *</Label>
           <Input
@@ -167,7 +273,7 @@ export default function ProductForm({
         ) : (
           <input type="hidden" {...register("stock", { valueAsNumber: true })} />
         )}
-      </div>
+      </div>}
 
       {allowImageSelection && (
         <div className="space-y-2">
