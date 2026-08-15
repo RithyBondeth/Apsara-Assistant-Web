@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { Kantumruy_Pro, Ubuntu } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/utils/themes/theme-provider";
 import { LanguageProvider } from "@/components/utils/languages/language-provider";
@@ -12,20 +11,6 @@ import {
   siteUrl,
 } from "@/lib/metadata";
 import "./globals.css";
-
-const ubuntu = Ubuntu({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-ubuntu",
-  display: "swap",
-});
-
-const kantumruy = Kantumruy_Pro({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["khmer"],
-  variable: "--font-kantumruy",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -83,7 +68,7 @@ export default async function RootLayout({
       data-lang={language}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${ubuntu.variable} ${kantumruy.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <body
         className="min-h-full flex flex-col"
