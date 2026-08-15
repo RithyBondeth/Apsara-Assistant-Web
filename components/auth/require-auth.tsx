@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +9,6 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { user, fetchMe } = useAuthStore();
-  const revalidated = useRef(false);
   const [checked, setChecked] = useState(false);
 
   // Send them back where they were headed once signed in, rather than dumping
@@ -24,11 +23,6 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   }, [toLogin]);
 
   useEffect(() => {
-    if (revalidated.current) return;
-    // Once per mount, guarded by a ref: fetchMe sets `user`, which this effect
-    // would otherwise depend on and loop over.
-    revalidated.current = true;
-
     let cancelled = false;
     fetchMe().then((ok) => {
       if (cancelled) return;
@@ -38,10 +32,10 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     return () => {
       cancelled = true;
     };
-    // Deliberately not keyed on `user`: this revalidates the session once per
-    // app load. The persisted store can be stale — a profile changed on the
-    // server or in another tab, most consequentially the shop's currency,
-    // which decides how every price on screen is read.
+    // Deliberately not keyed on `user`: the store action is stable, so this
+    // revalidates once per effect setup without looping when it updates the
+    // profile. React Strict Mode sets the effect up twice in development; the
+    // first request is cancelled and the second must be allowed to complete.
   }, [fetchMe, toLogin]);
 
   if (!(checked && user)) {
