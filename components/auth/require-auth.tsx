@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,13 +9,24 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { user, fetchMe } = useAuthStore();
+  const routerRef = useRef(router);
+  const pathnameRef = useRef(pathname);
   const [checked, setChecked] = useState(false);
+
+  // Keep redirect context current without making session revalidation run on
+  // every client-side navigation.
+  useEffect(() => {
+    routerRef.current = router;
+    pathnameRef.current = pathname;
+  }, [router, pathname]);
 
   // Send them back where they were headed once signed in, rather than dumping
   // everyone on the dashboard.
   const toLogin = useCallback(() => {
-    router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-  }, [router, pathname]);
+    routerRef.current.replace(
+      `/login?next=${encodeURIComponent(pathnameRef.current)}`,
+    );
+  }, []);
 
   useEffect(() => {
     window.addEventListener("apsara:unauthorized", toLogin);
@@ -32,10 +43,11 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     return () => {
       cancelled = true;
     };
-    // Deliberately not keyed on `user`: the store action is stable, so this
-    // revalidates once per effect setup without looping when it updates the
-    // profile. React Strict Mode sets the effect up twice in development; the
-    // first request is cancelled and the second must be allowed to complete.
+    // Deliberately not keyed on `user` or `pathname`: the store action is
+    // stable, so this revalidates once per layout mount without looping when
+    // it updates the profile or when the seller changes pages. React Strict
+    // Mode sets the effect up twice in development; the first request is
+    // cancelled and the second must be allowed to complete.
   }, [fetchMe, toLogin]);
 
   if (!(checked && user)) {
