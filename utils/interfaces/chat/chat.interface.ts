@@ -1,9 +1,12 @@
 export interface IAttachment {
   id: string;
-  file_url: string;
+  file_url: string | null;
   file_type: string | null;
   file_name: string | null;
   file_size: number | null;
+  review_status: "pending" | "accepted" | "rejected" | null;
+  reviewed_at: string | null;
+  reviewed_by_user_id: string | null;
 }
 
 export interface IMessage {

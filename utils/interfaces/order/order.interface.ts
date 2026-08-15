@@ -9,6 +9,18 @@ export type TOrderStatus =
 /** Tracked apart from the order status: an order can be paid but not shipped,
  *  or delivered and still unpaid on a cash sale. */
 export type TPaymentStatus = "unpaid" | "pending" | "paid";
+export type TReceiptReviewStatus = "pending" | "accepted" | "rejected";
+
+export interface IReceipt {
+  id: string;
+  file_url: string | null;
+  file_type: string | null;
+  file_name: string | null;
+  file_size: number | null;
+  review_status: TReceiptReviewStatus | null;
+  reviewed_at: string | null;
+  reviewed_by_user_id: string | null;
+}
 
 export interface IOrderItem {
   id: string;
@@ -30,6 +42,10 @@ export interface IOrder {
   delivery_address: string | null;
   notes: string | null;
   payment_status: TPaymentStatus;
+  payment_method: "stripe" | "qr" | null;
+  payment_receipt_attachment_id: string | null;
+  payment_confirmed_by_user_id: string | null;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
   items: IOrderItem[];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, CreditCard, Copy, Check } from "lucide-react";
+import { X, Trash2, CreditCard, Copy, Check, ReceiptText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ import { formatDate } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import { IOrderDetailDialogProps } from "./props";
+import { BASE_URL } from "@/utils/constants/apis/base.api.constant";
 
 export default function OrderDetailDialog({
   order,
@@ -35,6 +36,10 @@ export default function OrderDetailDialog({
   onStatusChange,
   onDelete,
   onCreateCheckout,
+  receipts,
+  receiptsLoading,
+  onConfirmReceipt,
+  onRejectReceipt,
   error,
   onDismissError,
 }: IOrderDetailDialogProps) {
@@ -81,10 +86,16 @@ export default function OrderDetailDialog({
     if (ok) onOpenChange(false);
   }
 
+  async function handleReceipt(receiptId: string, action: "confirm" | "reject") {
+    setSaving(true);
+    await (action === "confirm" ? onConfirmReceipt(receiptId) : onRejectReceipt(receiptId));
+    setSaving(false);
+  }
+
   // ── Render UI
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             Order
@@ -165,7 +176,7 @@ export default function OrderDetailDialog({
             )}
           </div>
 
-          {/* ── Card payment */}
+          {/* ── Payment */}
           <div className="space-y-1.5">
             <Label>Payment</Label>
             <div className="flex items-center gap-2">
@@ -210,11 +221,73 @@ export default function OrderDetailDialog({
             ) : (
               <p className="text-xs text-muted-foreground">
                 {order.payment_status === "paid"
-                  ? "Confirmed by Stripe."
+                  ? order.payment_method === "qr"
+                    ? "Receipt confirmed manually."
+                    : "Confirmed by Stripe."
                   : "Creates a Stripe page you can send to the customer."}
               </p>
             )}
           </div>
+
+          {/* ── Customer payment evidence */}
+          {order.conversation_id && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ReceiptText className="h-4 w-4" />
+                <Label>Customer receipts</Label>
+              </div>
+              {receiptsLoading ? (
+                <p className="text-xs text-muted-foreground">Loading receipts…</p>
+              ) : receipts.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Images sent by this customer will appear here for review.
+                </p>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {receipts.map((receipt) => {
+                    const imageUrl = receipt.file_url ??
+                      `${BASE_URL}/api/v1/attachments/${encodeURIComponent(receipt.id)}/content`;
+                    const isConfirmed = order.payment_receipt_attachment_id === receipt.id;
+                    return (
+                      <div key={receipt.id} className="space-y-2 rounded-lg border p-2">
+                        {/* Private receipt bytes come from the authenticated API. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imageUrl}
+                          alt={receipt.file_name ?? "Customer payment receipt"}
+                          className="h-36 w-full rounded bg-muted object-contain"
+                        />
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="outline" className="capitalize">
+                            {isConfirmed ? "accepted" : receipt.review_status ?? "pending"}
+                          </Badge>
+                          {!isConfirmed && order.payment_status !== "paid" && (
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                disabled={saving || receipt.review_status === "rejected"}
+                                onClick={() => handleReceipt(receipt.id, "reject")}
+                              >
+                                Reject
+                              </Button>
+                              <Button
+                                size="sm"
+                                disabled={saving}
+                                onClick={() => handleReceipt(receipt.id, "confirm")}
+                              >
+                                Confirm
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ── Failures come from the server: reviving a cancelled order is
                  refused when its stock has since been sold. */}
