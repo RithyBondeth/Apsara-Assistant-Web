@@ -147,7 +147,7 @@ export default function OrdersPage() {
             title={statusFilter === "all" ? "No orders yet" : `No ${statusFilter} orders`}
             description={
               statusFilter === "all"
-                ? "Create an order manually, or turn a customer conversation into a sale from Chat."
+                ? "Create an order manually, or turn a customer conversation into a sale from Inbox."
                 : "Try another status, or clear the filter to see every order."
             }
           >

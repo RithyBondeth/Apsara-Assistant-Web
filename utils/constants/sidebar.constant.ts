@@ -1,7 +1,7 @@
 import {
   LayoutDashboard,
   Package,
-  MessageCircle,
+  Inbox,
   Users,
   ShoppingCart,
   Settings,
@@ -34,9 +34,9 @@ export const SIDEBAR_NAV = [
     icon: Users,
   },
   {
-    title: "Chat",
+    title: "Inbox",
     href: "/chat",
-    icon: MessageCircle,
+    icon: Inbox,
   },
   {
     title: "Orders",

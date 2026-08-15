@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Send, ChevronDown, ShoppingCart, Sparkles } from "lucide-react";
+import { ArrowLeft, Bot, Send, ChevronDown, PanelRight, ShoppingCart, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ export default function ChatWindow({
   draftingOrder,
   isLiveChannel,
   onBack,
+  onToggleDetails,
 }: IChatWindowProps) {
   // ── All States
   const [input, setInput] = useState("");
@@ -98,13 +99,29 @@ export default function ChatWindow({
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{displayName}</p>
-            <p className="truncate text-xs capitalize text-muted-foreground">
-              {customer?.phone ?? conversation.platform}
-            </p>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="truncate capitalize">{customer?.phone ?? conversation.platform}</span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                {conversation.handling_mode === "auto" ? <Bot className="size-3" /> : <UserRound className="size-3" />}
+                {conversation.handling_mode === "auto" ? "AI replying" : "You replying"}
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          {onToggleDetails && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onToggleDetails}
+              aria-label="Open customer details"
+              className="xl:hidden"
+            >
+              <PanelRight className="size-4" />
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"

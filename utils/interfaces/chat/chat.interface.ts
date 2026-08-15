@@ -27,12 +27,59 @@ export interface IConversation {
   platform: string;
   source: "channel" | "rehearsal";
   status: "open" | "closed" | "pending";
+  handling_mode: "auto" | "manual";
+  assigned_user_id: string | null;
+  unread_count: number;
+  last_read_at: string | null;
+  first_customer_message_at: string | null;
+  first_response_at: string | null;
+  last_customer_message_at: string | null;
+  last_seller_message_at: string | null;
+  last_message_preview: string | null;
+  last_message_sender: "customer" | "assistant" | "seller" | null;
+  tags: IConversationTag[];
   created_at: string;
   updated_at: string;
 }
 
 export interface IConversationDetail extends IConversation {
   messages: IMessage[];
+  notes: IConversationNote[];
+}
+
+export interface IConversationNote {
+  id: string;
+  conversation_id: string;
+  author_user_id: string | null;
+  content: string;
+  created_at: string;
+}
+
+export interface IConversationTag {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface IInboxMetrics {
+  total: number;
+  open: number;
+  pending: number;
+  closed: number;
+  unread: number;
+  manual: number;
+  unassigned: number;
+  average_first_response_seconds: number | null;
+}
+
+export interface IInboxFilters {
+  search?: string;
+  platform?: "messenger" | "telegram";
+  status?: "open" | "pending" | "closed";
+  unread_only?: boolean;
+  handling_mode?: "auto" | "manual";
+  assignment?: "me" | "unassigned";
+  tag?: string;
 }
 
 export interface IChatResponse {
