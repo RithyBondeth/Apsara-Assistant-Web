@@ -35,6 +35,7 @@ export default function ChatPage() {
     fetchConversationDetail,
     updateConversationStatus,
     sendMessage,
+    sendSellerMessage,
   } = useChatStore();
 
   const { customers, fetchCustomers } = useCustomersStore();
@@ -52,6 +53,18 @@ export default function ChatPage() {
     fetchProducts();
   }, [fetchConversations, fetchCustomers, fetchProducts]);
 
+  // Keep the inbox current without replacing the thread with loading
+  // skeletons. Platform webhooks write to the same API this polls.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      fetchConversations(true);
+      if (activeConversation) {
+        fetchConversationDetail(activeConversation.id, true);
+      }
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [activeConversation, fetchConversationDetail, fetchConversations]);
+
   // ── Methods
   function handleSelectConversation(conversation: IConversation) {
     setActiveConversation(conversation);
@@ -68,7 +81,11 @@ export default function ChatPage() {
 
   async function handleSend(content: string) {
     if (!activeConversation) return;
-    await sendMessage(activeConversation.id, content);
+    if (activeConversation.source === "channel") {
+      await sendSellerMessage(activeConversation.id, content);
+    } else {
+      await sendMessage(activeConversation.id, content);
+    }
   }
 
   async function handleStatusChange(status: "open" | "closed" | "pending") {
@@ -156,6 +173,7 @@ export default function ChatPage() {
                 clearOrderError();
                 setOrderOpen(true);
               }}
+              isLiveChannel={activeConversation.source === "channel"}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">

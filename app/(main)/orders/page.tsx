@@ -34,6 +34,7 @@ export default function OrdersPage() {
     createOrder,
     updateOrder,
     deleteOrder,
+    createCheckout,
     selectOrder,
     clearError,
   } = useOrdersStore();
@@ -147,6 +148,9 @@ export default function OrdersPage() {
         onOpenChange={setDetailOpen}
         onStatusChange={handleStatusChange}
         onDelete={handleDelete}
+        onCreateCheckout={() =>
+          selected ? createCheckout(selected.id) : Promise.resolve(null)
+        }
         error={error}
         onDismissError={clearError}
       />

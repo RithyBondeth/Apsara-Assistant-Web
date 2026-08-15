@@ -6,4 +6,5 @@ export const ORDERS_API = {
   GET: (id: string) => `${API_V1}/orders/${id}`,
   UPDATE: (id: string) => `${API_V1}/orders/${id}`,
   DELETE: (id: string) => `${API_V1}/orders/${id}`,
+  CHECKOUT: (id: string) => `${API_V1}/orders/${id}/checkout`,
 };

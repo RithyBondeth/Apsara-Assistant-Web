@@ -7,6 +7,7 @@ import {
   IProductUpdate,
 } from "@/utils/interfaces/product/product.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { fetchAllPages } from "@/utils/functions/pagination";
 
 interface IProductsStore {
   products: IProduct[];
@@ -30,7 +31,7 @@ export const useProductsStore = create<IProductsStore>((set) => ({
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const { data } = await api.get<IProduct[]>(PRODUCTS_API.LIST);
+      const data = await fetchAllPages<IProduct>(PRODUCTS_API.LIST);
       set({ products: data, loading: false });
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });

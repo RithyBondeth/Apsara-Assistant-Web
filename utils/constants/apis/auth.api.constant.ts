@@ -5,7 +5,6 @@ export const AUTH_API = {
   REGISTER: `${API_V1}/auth/register`,
   LOGOUT: `${API_V1}/auth/logout`,
   ME: `${API_V1}/auth/me`,
-  REFRESH: `${API_V1}/auth/refresh`,
   FORGOT_PASSWORD: `${API_V1}/auth/forgot-password`,
   RESET_PASSWORD: `${API_V1}/auth/reset-password`,
   OTP_REQUEST: `${API_V1}/auth/otp/request`,

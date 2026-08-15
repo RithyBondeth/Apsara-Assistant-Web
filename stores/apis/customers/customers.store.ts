@@ -7,6 +7,7 @@ import {
   ICustomerUpdate,
 } from "@/utils/interfaces/customer/customer.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { fetchAllPages } from "@/utils/functions/pagination";
 
 interface ICustomersStore {
   customers: ICustomer[];
@@ -31,7 +32,7 @@ export const useCustomersStore = create<ICustomersStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const params = platform ? { platform } : {};
-      const { data } = await api.get<ICustomer[]>(CUSTOMERS_API.LIST, { params });
+      const data = await fetchAllPages<ICustomer>(CUSTOMERS_API.LIST, params);
       set({ customers: data, loading: false });
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });

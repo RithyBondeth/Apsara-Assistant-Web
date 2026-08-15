@@ -17,13 +17,15 @@ import { useTheme } from "next-themes";
 import { useLanguageStore } from "@/stores/languages/language-store";
 import { useLanguage } from "@/components/utils/languages/language-context";
 import { useT } from "@/hooks/utils/use-translations";
+import { useHydrated } from "@/hooks/utils/use-hydrated";
 
 /* ── Theme toggle ─────────────────────────────────────────────────────────── */
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="size-8" />;
+  const hydrated = useHydrated();
+  // The resolved theme is unknowable on the server, so hold the space until
+  // hydration rather than render the wrong icon and swap it.
+  if (!hydrated) return <div className="size-8" />;
 
   return (
     <button
@@ -55,9 +57,8 @@ function ThemeToggle() {
 function LanguageToggle({ className }: { className?: string }) {
   const language = useLanguage();
   const { setLanguage } = useLanguageStore();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="h-7 w-[72px]" />;
+  const hydrated = useHydrated();
+  if (!hydrated) return <div className="h-7 w-[72px]" />;
 
   return (
     <div

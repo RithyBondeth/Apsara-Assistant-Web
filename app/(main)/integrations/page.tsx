@@ -15,7 +15,7 @@ import {
   TIntegrationPlatform,
 } from "@/utils/interfaces/integration/integration.interface";
 
-const PLATFORMS: TIntegrationPlatform[] = ["messenger", "telegram"];
+const PLATFORMS: TIntegrationPlatform[] = ["messenger", "telegram", "stripe"];
 
 export default function IntegrationsPage() {
   // ── All States
@@ -45,8 +45,18 @@ export default function IntegrationsPage() {
     return Boolean(await createIntegration(data));
   }
 
-  async function handleDisconnect(id: string, label: string) {
-    if (!confirm(`Disconnect ${label}? Messages from it will stop arriving.`)) return;
+  async function handleDisconnect(
+    id: string,
+    label: string,
+    platform: TIntegrationPlatform,
+  ) {
+    // Keyed on the platform, not the label — a seller who renamed their Stripe
+    // connection would otherwise be warned about messages that never existed.
+    const consequence =
+      platform === "stripe"
+        ? "You will not be able to send card payment links."
+        : "Messages from it will stop arriving.";
+    if (!confirm(`Disconnect ${label}? ${consequence}`)) return;
     await deleteIntegration(id);
   }
 
@@ -115,7 +125,8 @@ export default function IntegrationsPage() {
                   handleDisconnect(
                     integration.id,
                     integration.display_name ||
-                      PLATFORM_COPY[integration.platform].label
+                      PLATFORM_COPY[integration.platform].label,
+                    integration.platform,
                   )
                 }
               />

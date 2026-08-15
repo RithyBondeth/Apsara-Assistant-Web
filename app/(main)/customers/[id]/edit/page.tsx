@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -18,12 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
 
-export default async function EditCustomerPage({
+export default function EditCustomerPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id } = use(params);
   return <EditCustomerClient id={id} />;
 }
 

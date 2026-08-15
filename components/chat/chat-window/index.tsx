@@ -40,6 +40,7 @@ export default function ChatWindow({
   onSend,
   onStatusChange,
   onCreateOrder,
+  isLiveChannel,
 }: IChatWindowProps) {
   // ── All States
   const [input, setInput] = useState("");
@@ -177,7 +178,9 @@ export default function ChatWindow({
               </Button>
             </div>
             <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-              Enter to send · Shift+Enter for new line · AI replies automatically
+              Enter to send · Shift+Enter for new line · {isLiveChannel
+                ? "Sends to the customer"
+                : "Rehearsal: Apsara replies automatically"}
             </p>
           </>
         )}

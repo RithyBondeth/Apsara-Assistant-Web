@@ -9,7 +9,7 @@ export interface IAttachment {
 export interface IMessage {
   id: string;
   conversation_id: string;
-  sender_type: "customer" | "assistant";
+  sender_type: "customer" | "assistant" | "seller";
   message_type: string;
   content: string | null;
   created_at: string;
@@ -20,7 +20,9 @@ export interface IConversation {
   id: string;
   user_id: string;
   customer_id: string;
+  platform_connection_id: string | null;
   platform: string;
+  source: "channel" | "rehearsal";
   status: "open" | "closed" | "pending";
   created_at: string;
   updated_at: string;
