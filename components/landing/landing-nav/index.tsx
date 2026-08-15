@@ -187,6 +187,7 @@ export default function LandingNav() {
         <div className="hidden md:flex items-center gap-0.5">
           <NavLink href="#features">{t.features}</NavLink>
           <NavLink href="#how-it-works">{t.howItWorks}</NavLink>
+          <NavLink href="#pricing">{t.pricing}</NavLink>
         </div>
 
         {/* ── Desktop right controls ────────────────────────────── */}
@@ -267,6 +268,14 @@ export default function LandingNav() {
             className="flex items-center justify-between w-full rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             {t.howItWorks}
+            <LucideChevronRight className="size-4 opacity-40" />
+          </a>
+          <a
+            href="#pricing"
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-between w-full rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            {t.pricing}
             <LucideChevronRight className="size-4 opacity-40" />
           </a>
 

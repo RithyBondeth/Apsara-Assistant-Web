@@ -49,6 +49,9 @@ export default function LandingFooter() {
               <a href="#how-it-works">
                 <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.howItWorks}</p>
               </a>
+              <a href="#pricing">
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.pricing}</p>
+              </a>
             </div>
 
             {/* Company */}
