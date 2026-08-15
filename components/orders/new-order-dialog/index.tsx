@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Sparkles, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,7 @@ function OrderForm({
   products,
   lockedCustomerId,
   conversationId,
+  initialDraft,
   onCreate,
   error,
   onDismissError,
@@ -62,9 +63,14 @@ function OrderForm({
 
   // ── All States
   const [customerId, setCustomerId] = useState(lockedCustomerId ?? "");
-  const [lines, setLines] = useState<ILine[]>([{ ...EMPTY_LINE }]);
-  const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
+  const draftLines = initialDraft?.items
+    .filter((item) => products.some((product) => product.id === item.product_id))
+    .map((item) => ({ product_id: item.product_id, quantity: item.quantity }));
+  const [lines, setLines] = useState<ILine[]>(
+    draftLines?.length ? draftLines : [{ ...EMPTY_LINE }],
+  );
+  const [address, setAddress] = useState(initialDraft?.delivery_address ?? "");
+  const [notes, setNotes] = useState(initialDraft?.notes ?? "");
   const [saving, setSaving] = useState(false);
 
   // ── Derived
@@ -79,7 +85,7 @@ function OrderForm({
   const valid =
     Boolean(customerId) &&
     chosen.length > 0 &&
-    chosen.every((l) => l.quantity > 0);
+    chosen.every((l) => l.quantity > 0 && l.quantity <= stockFor(l.product_id));
 
   // ── Methods
   function updateLine(index: number, patch: Partial<ILine>) {
@@ -121,6 +127,20 @@ function OrderForm({
       </DialogHeader>
 
       <div className="max-h-[60vh] space-y-4 overflow-y-auto py-2">
+        {initialDraft && (
+          <div className="space-y-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
+            <p className="flex items-center gap-1.5 font-medium">
+              <Sparkles className="h-4 w-4" /> AI-generated draft
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Review every detail. Nothing is reserved until you place the order.
+            </p>
+            {[...initialDraft.missing_fields.map((field) => `Missing: ${field}`),
+              ...initialDraft.warnings].map((warning, index) => (
+              <p key={`${warning}-${index}`} className="text-xs text-amber-700">{warning}</p>
+            ))}
+          </div>
+        )}
         {/* ── Customer */}
         <div className="space-y-1.5">
           <Label htmlFor="order-customer">Customer</Label>

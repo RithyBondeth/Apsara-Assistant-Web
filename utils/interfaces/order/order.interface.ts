@@ -58,6 +58,25 @@ export interface IOrderItemCreate {
   quantity: number;
 }
 
+export interface IOrderDraftItem {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  unit_price: string;
+  subtotal: string;
+  stock: number;
+}
+
+export interface IOrderDraft {
+  customer_id: string;
+  conversation_id: string;
+  delivery_address: string | null;
+  notes: string | null;
+  items: IOrderDraftItem[];
+  missing_fields: string[];
+  warnings: string[];
+}
+
 export interface IOrderCreate {
   customer_id: string;
   conversation_id?: string | null;

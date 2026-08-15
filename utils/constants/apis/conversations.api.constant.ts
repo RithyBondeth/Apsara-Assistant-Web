@@ -11,4 +11,6 @@ export const CONVERSATIONS_API = {
 
 export const CHAT_API = {
   SEND: (conversationId: string) => `${API_V1}/chat/${conversationId}`,
+  ORDER_DRAFT: (conversationId: string) =>
+    `${API_V1}/chat/${conversationId}/order-draft`,
 };
