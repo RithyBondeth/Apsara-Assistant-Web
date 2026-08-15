@@ -5,8 +5,10 @@ import {
   IConversation,
   IConversationDetail,
   IChatResponse,
+  IMessage,
 } from "@/utils/interfaces/chat/chat.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { fetchAllPages } from "@/utils/functions/pagination";
 
 interface IChatStore {
   // ── Conversations
@@ -21,12 +23,13 @@ interface IChatStore {
   error: string | null;
 
   // ── Actions
-  fetchConversations: () => Promise<void>;
+  fetchConversations: (silent?: boolean) => Promise<void>;
   createConversation: (customerId: string, platform: string) => Promise<IConversation | null>;
   setActiveConversation: (conversation: IConversation) => void;
-  fetchConversationDetail: (id: string) => Promise<void>;
+  fetchConversationDetail: (id: string, silent?: boolean) => Promise<void>;
   updateConversationStatus: (id: string, status: "open" | "closed" | "pending") => Promise<boolean>;
   sendMessage: (conversationId: string, message: string) => Promise<boolean>;
+  sendSellerMessage: (conversationId: string, message: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -37,11 +40,30 @@ export const useChatStore = create<IChatStore>((set, get) => ({
   messagesLoading: false,
   error: null,
 
-  fetchConversations: async () => {
-    set({ conversationsLoading: true, error: null });
+  fetchConversations: async (silent = false) => {
+    if (!silent) set({ conversationsLoading: true, error: null });
     try {
-      const { data } = await api.get<IConversation[]>(CONVERSATIONS_API.LIST);
-      set({ conversations: data, conversationsLoading: false });
+      if (silent) {
+        // Only the newest window can have changed since the last poll. Keep
+        // older pages already loaded instead of downloading all history every
+        // five seconds.
+        const { data } = await api.get<IConversation[]>(CONVERSATIONS_API.LIST, {
+          params: { skip: 0, limit: 100 },
+        });
+        set((state) => {
+          const recentIds = new Set(data.map((conversation) => conversation.id));
+          return {
+            conversations: [
+              ...data,
+              ...state.conversations.filter((conversation) => !recentIds.has(conversation.id)),
+            ],
+            conversationsLoading: false,
+          };
+        });
+      } else {
+        const data = await fetchAllPages<IConversation>(CONVERSATIONS_API.LIST);
+        set({ conversations: data, conversationsLoading: false });
+      }
     } catch (error) {
       set({ error: extractErrorMessage(error), conversationsLoading: false });
     }
@@ -67,11 +89,14 @@ export const useChatStore = create<IChatStore>((set, get) => ({
     set({ activeConversation: { ...conversation, messages: [] } });
   },
 
-  fetchConversationDetail: async (id) => {
-    set({ messagesLoading: true, error: null });
+  fetchConversationDetail: async (id, silent = false) => {
+    if (!silent) set({ messagesLoading: true, error: null });
     try {
       const { data } = await api.get<IConversationDetail>(CONVERSATIONS_API.GET(id));
-      set({ activeConversation: data, messagesLoading: false });
+      set((state) => ({
+        activeConversation: state.activeConversation?.id === id ? data : state.activeConversation,
+        messagesLoading: false,
+      }));
     } catch (error) {
       set({ error: extractErrorMessage(error), messagesLoading: false });
     }
@@ -125,6 +150,28 @@ export const useChatStore = create<IChatStore>((set, get) => ({
       const message = extractErrorMessage(error);
       await get().fetchConversationDetail(conversationId);
       set({ error: message });
+      return false;
+    }
+  },
+
+  sendSellerMessage: async (conversationId, content) => {
+    set({ error: null });
+    try {
+      const { data } = await api.post<IMessage>(
+        CONVERSATIONS_API.SEND_MESSAGE(conversationId),
+        { content, message_type: "text" },
+      );
+      set((state) => ({
+        activeConversation: state.activeConversation?.id === conversationId
+          ? {
+              ...state.activeConversation,
+              messages: [...state.activeConversation.messages, data],
+            }
+          : state.activeConversation,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error) });
       return false;
     }
   },

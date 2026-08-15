@@ -3,7 +3,9 @@ import { timeAgo } from "@/utils/functions/date";
 import { IMessageBubbleProps } from "./props";
 
 export default function MessageBubble({ message }: IMessageBubbleProps) {
-  const isOutgoing = message.sender_type === "assistant";
+  const isOutgoing = message.sender_type !== "customer";
+  const senderLabel =
+    message.sender_type === "seller" ? "You" : isOutgoing ? "Apsara AI" : "Customer";
   // An image message — today only the shop's payment QR — carries its picture
   // on an attachment and no text, so a bubble showing `content` alone would
   // read as an empty message the customer never got.
@@ -19,7 +21,7 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
       )}
     >
       <span className="px-1 text-[10px] text-muted-foreground">
-        {isOutgoing ? "Apsara AI" : "Customer"}
+        {senderLabel}
       </span>
       <div
         className={cn(

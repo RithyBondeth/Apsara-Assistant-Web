@@ -9,6 +9,7 @@ import {
   TOrderStatus,
 } from "@/utils/interfaces/order/order.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
+import { fetchAllPages } from "@/utils/functions/pagination";
 
 interface IOrdersStore {
   orders: IOrder[];
@@ -35,9 +36,10 @@ export const useOrdersStore = create<IOrdersStore>((set) => ({
   fetchOrders: async (status) => {
     set({ loading: true, error: null });
     try {
-      const { data } = await api.get<IOrder[]>(ORDERS_API.LIST, {
-        params: status && status !== "all" ? { status } : undefined,
-      });
+      const data = await fetchAllPages<IOrder>(
+        ORDERS_API.LIST,
+        status && status !== "all" ? { status } : {},
+      );
       set({ orders: data, loading: false });
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
