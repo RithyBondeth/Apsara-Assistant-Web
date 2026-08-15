@@ -6,7 +6,7 @@ import {
   LucideCheck,
   LucideSparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { useGsapScrollAnimation } from "@/hooks/utils/use-gsap-animation";
 import { useT } from "@/hooks/utils/use-translations";
 import { cn } from "@/lib/utils";
@@ -86,19 +86,20 @@ function PricingCard({
         ))}
       </ul>
 
-      <Link href={href} className="block">
-        <Button
-          className={cn(
-            "w-full rounded-full gap-2",
-            featured &&
-              "bg-blue-600 text-white shadow-md shadow-blue-500/20 hover:bg-blue-700",
-          )}
-          variant={featured ? "default" : "outline"}
-          size="lg"
-        >
-          {cta}
-          <LucideArrowRight className="size-4" aria-hidden="true" />
-        </Button>
+      <Link
+        href={href}
+        className={cn(
+          buttonVariants({
+            variant: featured ? "default" : "outline",
+            size: "lg",
+          }),
+          "w-full gap-2 rounded-full",
+          featured &&
+            "bg-blue-600 text-white shadow-md shadow-blue-500/20 hover:bg-blue-700",
+        )}
+      >
+        {cta}
+        <LucideArrowRight className="size-4" aria-hidden="true" />
       </Link>
     </article>
   );
