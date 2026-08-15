@@ -5,6 +5,8 @@ export interface IProduct {
   description: string | null;
   price: string; // Decimal comes as string from FastAPI
   stock: number;
+  reserved_stock: number;
+  low_stock_threshold: number;
   image_url: string | null;
   is_active: boolean;
   created_at: string;
@@ -15,6 +17,7 @@ export interface IProductCreate {
   description?: string;
   price: number;
   stock: number;
+  low_stock_threshold: number;
   image_url?: string;
 }
 

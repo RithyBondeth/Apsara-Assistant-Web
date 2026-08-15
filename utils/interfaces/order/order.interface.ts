@@ -41,6 +41,7 @@ export interface IOrder {
   currency: string;
   delivery_address: string | null;
   notes: string | null;
+  reservation_expires_at: string | null;
   payment_status: TPaymentStatus;
   payment_method: "stripe" | "qr" | null;
   payment_receipt_attachment_id: string | null;

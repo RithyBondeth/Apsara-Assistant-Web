@@ -9,6 +9,8 @@ const product = {
   description: null,
   price: "12.50",
   stock: 8,
+  reserved_stock: 0,
+  low_stock_threshold: 5,
   image_url: null,
   is_active: true,
   created_at: "2026-08-15T00:00:00Z",
