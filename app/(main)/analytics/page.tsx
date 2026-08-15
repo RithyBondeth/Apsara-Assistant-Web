@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { MessageCircle, Package, ShoppingCart, Users } from "lucide-react";
+import { MessageCircle, Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
 import BreakdownCard from "@/components/analytics/breakdown-card";
@@ -16,6 +16,7 @@ import { ORDER_STATUS_STYLES } from "@/utils/constants/order.constant";
 import { formatMoney } from "@/utils/functions/money";
 import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
 import { buttonVariants } from "@/components/ui/button";
+import { useOperationsStore } from "@/stores/apis/operations/operations.store";
 
 const PLATFORM_LABELS: Record<string, string> = {
   messenger: "Messenger",
@@ -30,6 +31,7 @@ export default function AnalyticsPage() {
   const { products, loading: productsLoading, fetchProducts } = useProductsStore();
   const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
+  const { report, fetchReport } = useOperationsStore();
 
   // ── Effects
   useEffect(() => {
@@ -37,7 +39,8 @@ export default function AnalyticsPage() {
     fetchProducts();
     fetchCustomers();
     fetchConversations();
-  }, [fetchOrders, fetchProducts, fetchCustomers, fetchConversations]);
+    fetchReport(30, 30);
+  }, [fetchOrders, fetchProducts, fetchCustomers, fetchConversations, fetchReport]);
 
   const loading =
     ordersLoading || productsLoading || customersLoading || conversationsLoading;
@@ -109,7 +112,7 @@ export default function AnalyticsPage() {
     return (
       <>
         <AppHeader title="Analytics" description="See what is selling and where attention is needed" />
-        <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 space-y-6 p-4 text-left sm:p-6 lg:p-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-24 rounded-xl" />
@@ -133,7 +136,7 @@ export default function AnalyticsPage() {
         description="See what is selling and where attention is needed"
       />
 
-      <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 space-y-6 p-4 text-left sm:p-6 lg:p-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={ShoppingCart}
@@ -164,6 +167,13 @@ export default function AnalyticsPage() {
             sub={`${conversations.filter((c) => c.status === "open").length} open`}
           />
         </div>
+
+        {report && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card className="text-left"><CardHeader className="border-b"><CardTitle className="flex items-center gap-2"><TrendingUp className="size-4 text-primary"/>Best sellers</CardTitle><p className="text-sm text-muted-foreground">Units sold in the last 30 days</p></CardHeader><CardContent>{report.best_sellers.length===0?<div className="py-8"><p className="font-medium">No fulfilled sales yet</p><p className="mt-1 text-sm text-muted-foreground">Best sellers will rank here once orders are fulfilled.</p></div>:<div className="divide-y">{report.best_sellers.slice(0,8).map((item,index)=><div key={item.variant_id} className="grid grid-cols-[2rem_1fr_auto] items-center gap-2 py-3 text-sm"><span className="text-xs font-semibold text-muted-foreground">{String(index+1).padStart(2,"0")}</span><div><p className="font-medium">{item.product_name}</p><p className="text-xs text-muted-foreground">{item.variant_name}</p></div><span className="font-medium tabular-nums">{item.units_sold} sold</span></div>)}</div>}</CardContent></Card>
+            <Card className="text-left"><CardHeader className="border-b"><CardTitle>Stock forecast</CardTitle><p className="text-sm text-muted-foreground">Projected coverage for the next 30 days</p></CardHeader><CardContent>{report.forecast.length===0?<div className="py-8"><p className="font-medium">Not enough sales data</p><p className="mt-1 text-sm text-muted-foreground">Forecasts appear as sales history builds.</p></div>:<div className="divide-y">{report.forecast.slice(0,8).map(item=><div key={item.variant_id} className="flex flex-col items-start justify-between gap-2 py-3 text-sm sm:flex-row sm:items-center"><div><p className="font-medium">{item.product_name} — {item.variant_name}</p><p className="mt-0.5 text-xs text-muted-foreground">{item.current_stock} in stock · {item.days_of_cover===null?"No current sales velocity":`${item.days_of_cover} days of cover`}</p></div><span className={item.suggested_reorder?"rounded-md bg-amber-100 px-2 py-1 font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300":"text-xs text-muted-foreground"}>{item.suggested_reorder?`Reorder ${item.suggested_reorder}`:"Stock sufficient"}</span></div>)}</div>}</CardContent></Card>
+          </div>
+        )}
 
         {orders.length === 0 && conversations.length === 0 && (
           <Card className="border-primary/20 bg-primary/[0.03]">

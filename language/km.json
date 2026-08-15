@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "ទំព័រដើម",
     "features": "មុខងារ",
     "howItWorks": "របៀបដំណើរការ",
     "pricing": "តម្លៃ",
@@ -25,9 +26,14 @@
   },
   "marquee": {
     "label": "ឆ្លើយតបអតិថិជនរបស់អ្នកគ្រប់បណ្តាញ",
+    "description": "Messenger និង Telegram អាចប្រើបានឥឡូវនេះ។ Instagram និង TikTok នឹងចូលរួមក្នុងប្រអប់សារ Apsara បន្ទាប់។",
+    "liveNow": "ការភ្ជាប់ដែលអាចប្រើបាន",
+    "live": "អាចប្រើបានឥឡូវនេះ",
+    "comingSoon": "មកដល់ឆាប់ៗ",
     "telegram": "Telegram",
     "messenger": "Messenger",
     "instagram": "Instagram",
+    "tiktok": "TikTok",
     "website": "គេហទំព័រ"
   },
   "features": {
@@ -49,10 +55,10 @@
     "f6Desc": "មើលចំនួនផលិតផល អតិថិជន ការសន្ទនា និងការបញ្ជាទិញទាំងអស់ក្នុងមួយទិដ្ឋភាព — ស្គាល់ស្ថានភាពអាជីវកម្មភ្លាមៗ"
   },
   "devices": {
-    "sectionLabel": "ដំណើរការលើគ្រប់ឧបករណ៍",
-    "heading1": "ជំនួយការតែមួយ សម្រាប់",
-    "heading2": "គ្រប់ឧបករណ៍",
-    "description": "មិនថាអតិថិជនរបស់អ្នកសរសេរសារពីកុំព្យូទ័រ ឬសួរសំណួរលឿនៗពីទូរស័ព្ទនោះទេ Apsara ឆ្លើយតបភ្លាមៗ ជាភាសារបស់គេ",
+    "sectionLabel": "ប្រអប់សារតែមួយ សម្រាប់គ្រប់បណ្ដាញ",
+    "heading1": "គ្រប់សារ",
+    "heading2": "ឆ្លើយតបបានយ៉ាងរលូន",
+    "description": "មិនថាអតិថិជនសរសេរជាភាសាខ្មែរ អង់គ្លេស ឬខ្មែរឡាតាំង Apsara ឆ្លើយតបលើ Messenger, Telegram, Instagram និងបណ្ដាញផ្សេងៗ ព្រមទាំងផ្ញើរូបទំនិញ KHQR បង្កាន់ដៃ និងព័ត៌មានការបញ្ជាទិញ",
     "assistantName": "Apsara",
     "statusOnline": "កំពុងដំណើរការ",
     "qrShopName": "ហាងសូត្រ សុខ",
@@ -83,8 +89,21 @@
     "chatInstant": "ឆ្លើយតបភ្លាមៗ",
     "orderLabel": "ការបញ្ជាទិញ",
     "orderStatus": "បានបញ្ជាក់",
+    "orderCreated": "បានបង្កើតពីការសន្ទនា Messenger · ២ នាទីមុន",
+    "orderPaid": "បានបញ្ជាក់ការទូទាត់",
+    "orderItems": "ទំនិញក្នុងការបញ្ជាទិញ",
+    "orderProduct": "ក្រមាត្បាញដោយដៃ",
+    "orderVariant": "ក្រហម",
+    "orderQuantity": "ចំនួន ២",
     "orderCustomer": "អតិថិជន",
     "orderAddress": "អាសយដ្ឋានដឹកជញ្ជូន",
+    "orderSummary": "សង្ខេបការបញ្ជាទិញ",
+    "orderSubtotal": "តម្លៃទំនិញ",
+    "orderDelivery": "ការដឹកជញ្ជូន",
+    "orderFree": "ឥតគិតថ្លៃ",
+    "orderTotal": "សរុប",
+    "orderReady": "រួចរាល់សម្រាប់ការដឹកជញ្ជូន",
+    "orderNext": "ស្តុកត្រូវបានកក់ទុក ហើយអតិថិជនបានទទួលការបញ្ជាក់។",
     "statProducts": "ផលិតផល",
     "statCustomers": "អតិថិជន",
     "statConversations": "ការសន្ទនា",

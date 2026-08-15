@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import AppHeader from "@/components/header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,7 @@ export default function SettingsPage() {
         title="Settings"
         description="Manage the business details Apsara uses with customers"
       />
-      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 p-4 text-left sm:p-6 lg:p-8">
         {/* The form seeds its fields from the user, so it is mounted only once
             there is one — seeding through an effect instead would mean a
             second render pass and a state write from inside the effect. */}
@@ -31,6 +31,7 @@ export default function SettingsPage() {
           <div className="space-y-6">
             <ProfileForm key={user.id} user={user} />
             <PaymentQrManager />
+            <LowStockNotifications user={user} />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
@@ -38,6 +39,19 @@ export default function SettingsPage() {
       </main>
     </>
   );
+}
+
+function LowStockNotifications({user}:{user:IUser}) {
+  const {loading,updateProfile}=useAuthStore();
+  const [email,setEmail]=useState(user.low_stock_email_enabled ?? true);
+  const [telegram,setTelegram]=useState(user.low_stock_telegram_enabled ?? false);
+  const [chatId,setChatId]=useState(user.low_stock_telegram_chat_id ?? "");
+  return <Card className="max-w-xl text-left"><CardHeader className="border-b"><CardTitle>Low-stock notifications</CardTitle><CardDescription>Choose where you want to receive automatic stock alerts.</CardDescription></CardHeader><CardContent className="space-y-4">
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"><input className="mt-0.5 size-4 accent-primary" type="checkbox" checked={email} onChange={e=>setEmail(e.target.checked)}/><span><span className="block font-medium">Email alerts</span><span className="mt-0.5 block text-xs text-muted-foreground">Send an email when a product reaches its low-stock threshold.</span></span></label>
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"><input className="mt-0.5 size-4 accent-primary" type="checkbox" checked={telegram} onChange={e=>setTelegram(e.target.checked)}/><span><span className="block font-medium">Telegram alerts</span><span className="mt-0.5 block text-xs text-muted-foreground">Send the same alert to your Telegram chat.</span></span></label>
+    {telegram&&<div className="space-y-1.5"><Label htmlFor="telegram-alert-chat">Telegram chat ID</Label><Input id="telegram-alert-chat" value={chatId} onChange={e=>setChatId(e.target.value)} placeholder="Your Telegram chat ID"/><p className="text-xs text-muted-foreground">Message your connected bot first, then use that chat&apos;s numeric ID.</p></div>}
+    <Button disabled={loading||telegram&&!chatId.trim()} onClick={()=>updateProfile({low_stock_email_enabled:email,low_stock_telegram_enabled:telegram,low_stock_telegram_chat_id:chatId.trim()||null})}>Save notifications</Button>
+  </CardContent></Card>;
 }
 
 function ProfileForm({ user }: { user: IUser }) {

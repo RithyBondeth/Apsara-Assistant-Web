@@ -7,6 +7,9 @@ export interface IUser {
   // Absent, not null, on an API that predates the feature — this ships ahead
   // of the backend that returns it.
   payment_qr_url?: string | null;
+  low_stock_email_enabled?: boolean;
+  low_stock_telegram_enabled?: boolean;
+  low_stock_telegram_chat_id?: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -22,4 +25,7 @@ export interface IUserUpdate {
   currency?: string;
   // null clears it; the assistant then stops offering a QR at all.
   payment_qr_url?: string | null;
+  low_stock_email_enabled?: boolean;
+  low_stock_telegram_enabled?: boolean;
+  low_stock_telegram_chat_id?: string | null;
 }

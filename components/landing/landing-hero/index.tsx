@@ -37,6 +37,7 @@ export default function LandingHero() {
 
   return (
     <section
+      id="home"
       ref={setSectionRef}
       className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
     >
