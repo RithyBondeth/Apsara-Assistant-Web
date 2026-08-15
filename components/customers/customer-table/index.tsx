@@ -66,6 +66,11 @@ export default function CustomerTable({
                     ID: {customer.platform_id}
                   </p>
                 )}
+                <p className="mt-1 text-xs text-muted-foreground sm:hidden">
+                  {[customer.phone, customer.email, customer.platform]
+                    .filter(Boolean)
+                    .join(" · ") || "No contact details"}
+                </p>
               </TableCell>
 
               {/* ── Contact */}
@@ -108,6 +113,7 @@ export default function CustomerTable({
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/customers/${customer.id}/edit`}
+                    aria-label={`Edit ${customer.name}`}
                     className={buttonVariants({ variant: "ghost", size: "icon" })}
                   >
                     <Pencil className="h-4 w-4" />
@@ -117,6 +123,7 @@ export default function CustomerTable({
                     size="icon"
                     disabled={deleting}
                     onClick={() => onDelete(customer.id)}
+                    aria-label={`Delete ${customer.name}`}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />

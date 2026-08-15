@@ -14,7 +14,7 @@ import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useRouter } from "next/navigation";
 import { IHeaderProps } from "./props";
 
-export default function AppHeader({ title }: IHeaderProps) {
+export default function AppHeader({ title, description }: IHeaderProps) {
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
@@ -24,18 +24,28 @@ export default function AppHeader({ title }: IHeaderProps) {
   }
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-background px-4">
+    <header className="sticky top-0 z-20 flex min-h-14 items-center gap-3 border-b bg-background/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:gap-4">
       {/* ── Sidebar toggle */}
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-5" />
 
       {/* ── Page title */}
-      <h1 className="flex-1 text-base font-semibold">{title}</h1>
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-base font-semibold">{title}</h1>
+        {description && (
+          <p className="hidden truncate text-xs text-muted-foreground sm:block">
+            {description}
+          </p>
+        )}
+      </div>
 
       {/* ── User menu */}
       {user && (
         <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+          <DropdownMenuTrigger
+            aria-label="Open account menu"
+            className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
             <Avatar className="h-8 w-8">
               <AvatarFallback className="text-xs">
                 {user.full_name?.charAt(0).toUpperCase()}

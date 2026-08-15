@@ -18,8 +18,11 @@ export default function SettingsPage() {
 
   return (
     <>
-      <AppHeader title="Settings" />
-      <main className="flex-1 p-6">
+      <AppHeader
+        title="Settings"
+        description="Manage the business details Apsara uses with customers"
+      />
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* The form seeds its fields from the user, so it is mounted only once
             there is one — seeding through an effect instead would mean a
             second render pass and a state write from inside the effect. */}
@@ -56,6 +59,8 @@ function ProfileForm({ user }: { user: IUser }) {
   const qrPreview = /^https?:\/\//.test(paymentQrUrl.trim())
     ? paymentQrUrl.trim()
     : null;
+  const qrInvalid = paymentQrUrl.trim().length > 0 && !qrPreview;
+  const nameInvalid = fullName.trim().length === 0;
 
   // ── Methods
   async function handleSave() {
@@ -86,7 +91,14 @@ function ProfileForm({ user }: { user: IUser }) {
             id="full-name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
+            aria-invalid={nameInvalid}
+            aria-describedby={nameInvalid ? "full-name-error" : undefined}
           />
+          {nameInvalid && (
+            <p id="full-name-error" className="text-xs text-destructive">
+              Your name cannot be empty.
+            </p>
+          )}
         </div>
 
         <div className="space-y-1.5">
@@ -127,14 +139,18 @@ function ProfileForm({ user }: { user: IUser }) {
             value={paymentQrUrl}
             onChange={(e) => setPaymentQrUrl(e.target.value)}
             placeholder="https://…/my-khqr.png"
+            aria-invalid={qrInvalid}
+            aria-describedby="payment-qr-help"
           />
-          <p className="text-xs text-muted-foreground">
-            A link to your KHQR, ABA or Wing code. The assistant sends it to a
-            customer who is ready to pay, then asks them for the receipt.
-            Messenger and Telegram fetch the image from this link, so it has to
-            be one anyone can open. Leave it empty and the assistant never
-            offers a QR.
+          <p id="payment-qr-help" className="text-xs leading-relaxed text-muted-foreground">
+            Use a public image link to your KHQR, ABA, or Wing code. Leave it empty
+            if you do not want Apsara to offer QR payments.
           </p>
+          {qrInvalid && (
+            <p className="text-xs text-destructive">
+              Enter a complete link beginning with http:// or https://.
+            </p>
+          )}
           {qrPreview && (
             /* The seller checks their own link here rather than discovering a
                broken one from a customer. */
@@ -159,17 +175,17 @@ function ProfileForm({ user }: { user: IUser }) {
         )}
 
         {error && (
-          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave} disabled={!dirty || loading}>
+          <Button onClick={handleSave} disabled={!dirty || loading || qrInvalid || nameInvalid}>
             {loading ? "Saving…" : "Save changes"}
           </Button>
           {saved && (
-            <span className="flex items-center gap-1 text-sm text-green-600">
+            <span role="status" className="flex items-center gap-1 text-sm text-green-600">
               <Check className="h-4 w-4" />
               Saved
             </span>

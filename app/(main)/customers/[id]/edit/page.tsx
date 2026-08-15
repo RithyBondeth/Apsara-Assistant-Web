@@ -53,8 +53,8 @@ function EditCustomerClient({ id }: { id: string }) {
   if (loading || !selected) {
     return (
       <>
-        <AppHeader title="Edit Customer" />
-        <main className="flex-1 p-6">
+        <AppHeader title="Edit customer" description="Keep customer contact details accurate" />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-80 max-w-2xl rounded-xl" />
         </main>
@@ -65,9 +65,9 @@ function EditCustomerClient({ id }: { id: string }) {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Edit Customer" />
+      <AppHeader title="Edit customer" description="Keep customer contact details accurate" />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link
           href="/customers"
           className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}

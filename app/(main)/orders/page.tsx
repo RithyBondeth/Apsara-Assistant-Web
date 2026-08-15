@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, ShoppingCart } from "lucide-react";
 import AppHeader from "@/components/header";
 import OrderTable from "@/components/orders/order-table";
 import OrderDetailDialog from "@/components/orders/order-detail-dialog";
@@ -17,6 +17,7 @@ import {
   IOrderCreate,
   TOrderStatus,
 } from "@/utils/interfaces/order/order.interface";
+import EmptyState from "@/components/shared/empty-state";
 
 export default function OrdersPage() {
   // ── All States
@@ -88,11 +89,14 @@ export default function OrdersPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Orders" />
+      <AppHeader
+        title="Orders"
+        description="Track every sale from confirmation through delivery"
+      />
 
-      <main className="flex-1 space-y-4 p-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+      <main className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
             <p className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
               {orders.length} order{orders.length !== 1 ? "s" : ""}
             </p>
@@ -100,7 +104,7 @@ export default function OrdersPage() {
               aria-label="Filter by status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as TOrderStatus | "all")}
-              className={`${SHARED_SELECT_CLASS} w-40`}
+            className={`${SHARED_SELECT_CLASS} w-40`}
             >
               <option value="all">All statuses</option>
               {ORDER_STATUSES.map((status) => (
@@ -126,7 +130,7 @@ export default function OrdersPage() {
         {/* Errors raised while the dialogs are closed would otherwise be
             invisible — the dialogs surface their own. */}
         {error && !detailOpen && !createOpen && (
-          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
@@ -137,6 +141,27 @@ export default function OrdersPage() {
               <Skeleton key={i} className="h-12 rounded-lg" />
             ))}
           </div>
+        ) : orders.length === 0 ? (
+          <EmptyState
+            icon={ShoppingCart}
+            title={statusFilter === "all" ? "No orders yet" : `No ${statusFilter} orders`}
+            description={
+              statusFilter === "all"
+                ? "Create an order manually, or turn a customer conversation into a sale from Chat."
+                : "Try another status, or clear the filter to see every order."
+            }
+          >
+            {statusFilter === "all" ? (
+              <Button size="sm" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1.5 size-4" />
+                Create your first order
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => setStatusFilter("all")}>
+                Clear filter
+              </Button>
+            )}
+          </EmptyState>
         ) : (
           <OrderTable
             orders={orders}

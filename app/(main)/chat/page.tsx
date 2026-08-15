@@ -15,6 +15,7 @@ import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
 import { IOrderCreate, IOrderDraft } from "@/utils/interfaces/order/order.interface";
+import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
   // ── All States
@@ -120,11 +121,19 @@ export default function ChatPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Chat" />
+      <AppHeader
+        title="Chat"
+        description="Handle customer questions, rehearsals, and sales handoffs"
+      />
 
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex min-h-0 flex-1 overflow-hidden">
         {/* ── Sidebar: conversation list */}
-        <div className="flex w-72 shrink-0 flex-col border-r">
+        <div
+          className={cn(
+            "flex w-full shrink-0 flex-col border-r md:w-72",
+            activeConversation && "hidden md:flex",
+          )}
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
             <p className="text-sm font-medium">
@@ -140,6 +149,7 @@ export default function ChatPage() {
               variant="ghost"
               onClick={() => setDialogOpen(true)}
               title="New conversation"
+              aria-label="New conversation"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -162,7 +172,12 @@ export default function ChatPage() {
         </div>
 
         {/* ── Main: chat window */}
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div
+          className={cn(
+            "min-w-0 flex-1 flex-col overflow-hidden md:flex",
+            activeConversation ? "flex" : "hidden",
+          )}
+        >
           {/* ── Failure banner: the AI reply can fail on its own, after the
                  customer's message was already saved */}
           {(error || (!orderOpen && orderError)) && (
@@ -197,6 +212,7 @@ export default function ChatPage() {
               onDraftOrder={handleDraftOrder}
               draftingOrder={drafting}
               isLiveChannel={activeConversation.source === "channel"}
+              onBack={() => setActiveConversation(null)}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">

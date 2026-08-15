@@ -92,6 +92,7 @@ export default async function RootLayout({
     <html
       lang={language}
       data-lang={language}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${ubuntu.variable} ${kantumruyPro.variable} ${geistMono.variable} h-full antialiased`}
     >

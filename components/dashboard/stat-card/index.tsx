@@ -10,8 +10,8 @@ export default function StatCard({
   iconClassName,
 }: IStatCardProps) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-6">
+    <Card className="min-w-0">
+      <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
         <div
           className={cn(
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted",
@@ -22,7 +22,7 @@ export default function StatCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-2xl font-semibold leading-none tracking-tight">
+          <p className="mt-0.5 break-words text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
             {value}
           </p>
           {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}

@@ -32,9 +32,9 @@ export default function NewCustomerPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Add Customer" />
+      <AppHeader title="Add customer" description="Create a customer record for orders and rehearsals" />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link
           href="/customers"
           className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}

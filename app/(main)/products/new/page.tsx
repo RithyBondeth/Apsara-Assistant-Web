@@ -32,9 +32,9 @@ export default function NewProductPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Add Product" />
+      <AppHeader title="Add product" description="Teach Apsara what this item is, costs, and has in stock" />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link href="/products" className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}>
           <ChevronLeft className="mr-1 h-4 w-4" />
           Back to products

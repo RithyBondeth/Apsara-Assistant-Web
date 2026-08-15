@@ -81,14 +81,22 @@ export default function AppSidebar({ className }: ISidebarProps) {
       <SidebarFooter className="pb-4">
         <Separator className="mb-2" />
         <SidebarMenu>
-          {SIDEBAR_BOTTOM_NAV.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton render={<Link href={item.href} />} tooltip={item.title}>
-                <item.icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {SIDEBAR_BOTTOM_NAV.map((item) => {
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  render={<Link href={item.href} />}
+                  isActive={active}
+                  tooltip={item.title}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
 
         {user && (

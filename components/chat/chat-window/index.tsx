@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ChevronDown, ShoppingCart, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, ChevronDown, ShoppingCart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,7 @@ export default function ChatWindow({
   onDraftOrder,
   draftingOrder,
   isLiveChannel,
+  onBack,
 }: IChatWindowProps) {
   // ── All States
   const [input, setInput] = useState("");
@@ -78,30 +79,56 @@ export default function ChatWindow({
   return (
     <div className="flex h-full flex-col">
       {/* ── Chat header */}
-      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-2 border-b px-3 py-3 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          {onBack && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={onBack}
+              aria-label="Back to conversations"
+              className="md:hidden"
+            >
+              <ArrowLeft className="size-4" />
+            </Button>
+          )}
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
             {displayName.charAt(0).toUpperCase()}
           </div>
-          <div>
-            <p className="text-sm font-medium">{displayName}</p>
-            <p className="text-xs capitalize text-muted-foreground">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{displayName}</p>
+            <p className="truncate text-xs capitalize text-muted-foreground">
               {customer?.phone ?? conversation.platform}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onDraftOrder}
-                  disabled={draftingOrder || conversation.messages.length === 0}>
-            <Sparkles className="mr-1.5 h-4 w-4" />
-            {draftingOrder ? "Drafting…" : "Draft order"}
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDraftOrder}
+            disabled={draftingOrder || conversation.messages.length === 0}
+            aria-label={draftingOrder ? "Drafting order" : "Draft order with AI"}
+            className="size-8 px-0 lg:w-auto lg:px-2.5"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden lg:inline">
+              {draftingOrder ? "Drafting…" : "Draft order"}
+            </span>
           </Button>
           {/* ── The assistant collects order details but cannot confirm a
                  sale, so the handoff to a real order happens here. */}
-          <Button variant="outline" size="sm" onClick={onCreateOrder}>
-            <ShoppingCart className="mr-1.5 h-4 w-4" />
-            Create order
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onCreateOrder}
+            aria-label="Create order"
+            className="size-8 px-0 lg:w-auto lg:px-2.5"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span className="hidden lg:inline">Create order</span>
           </Button>
 
           {/* ── Status control */}

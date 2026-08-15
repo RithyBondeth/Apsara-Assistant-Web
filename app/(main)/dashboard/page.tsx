@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
 import { useProductsStore } from "@/stores/apis/products/products.store";
@@ -14,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { timeAgo } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/shared/empty-state";
+import { buttonVariants } from "@/components/ui/button";
 
 const STATUS_STYLES: Record<string, string> = {
   open: "bg-green-100 text-green-700",
@@ -61,9 +64,12 @@ export default function DashboardPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Dashboard" />
+      <AppHeader
+        title="Dashboard"
+        description="A quick pulse check on your shop and customer activity"
+      />
 
-      <main className="flex-1 space-y-6 p-6">
+      <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
         {/* ── Stat cards */}
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -100,10 +106,46 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {!loading &&
+          products.length === 0 &&
+          customers.length === 0 &&
+          conversations.length === 0 && (
+            <Card className="border-primary/20 bg-primary/[0.03]">
+              <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div>
+                  <p className="font-semibold">Get your shop ready for its first conversation</p>
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    Add what you sell, connect a channel, then test how Apsara answers a customer.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/products/new" className={buttonVariants({ size: "sm" })}>
+                    Add a product
+                  </Link>
+                  <Link
+                    href="/integrations"
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    Connect a channel
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
         {/* ── Recent conversations */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Recent Conversations</CardTitle>
+          <CardHeader className="flex-row items-center justify-between pb-3">
+            <CardTitle className="text-base">Recent conversations</CardTitle>
+            {recentConversations.length > 0 && (
+              <Link
+                href="/chat"
+                className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                View all
+                <ArrowRight className="size-3" />
+              </Link>
+            )}
           </CardHeader>
           <CardContent>
             {conversationsLoading ? (
@@ -113,9 +155,13 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : recentConversations.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No conversations yet
-              </p>
+              <EmptyState
+                icon={MessageCircle}
+                title="No conversations yet"
+                description="Add a customer to rehearse a sales conversation, or connect a channel to receive real messages."
+                action={{ label: "Add a customer", href: "/customers/new" }}
+                className="min-h-48 border-0 bg-transparent py-6"
+              />
             ) : (
               <div className="divide-y">
                 {recentConversations.map((conv) => {

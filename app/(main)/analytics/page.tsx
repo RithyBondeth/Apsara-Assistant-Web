@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import Link from "next/link";
 import { MessageCircle, Package, ShoppingCart, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
@@ -14,6 +15,7 @@ import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { ORDER_STATUS_STYLES } from "@/utils/constants/order.constant";
 import { formatMoney } from "@/utils/functions/money";
 import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
+import { buttonVariants } from "@/components/ui/button";
 
 const PLATFORM_LABELS: Record<string, string> = {
   messenger: "Messenger",
@@ -100,8 +102,8 @@ export default function AnalyticsPage() {
   if (loading && orders.length === 0 && products.length === 0) {
     return (
       <>
-        <AppHeader title="Analytics" />
-        <main className="flex-1 space-y-6 p-6">
+        <AppHeader title="Analytics" description="See what is selling and where attention is needed" />
+        <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-24 rounded-xl" />
@@ -120,9 +122,12 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <AppHeader title="Analytics" />
+      <AppHeader
+        title="Analytics"
+        description="See what is selling and where attention is needed"
+      />
 
-      <main className="flex-1 space-y-6 p-6">
+      <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={ShoppingCart}
@@ -144,7 +149,7 @@ export default function AnalyticsPage() {
             icon={Users}
             label="Customers"
             value={customers.length}
-            sub={`${stats.topProducts.length > 0 ? "with orders" : "no orders yet"}`}
+            sub={customers.length === 0 ? "No customers yet" : "Known customers"}
           />
           <StatCard
             icon={MessageCircle}
@@ -153,6 +158,25 @@ export default function AnalyticsPage() {
             sub={`${conversations.filter((c) => c.status === "open").length} open`}
           />
         </div>
+
+        {orders.length === 0 && conversations.length === 0 && (
+          <Card className="border-primary/20 bg-primary/[0.03]">
+            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">Your analytics will grow with your shop</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Sales and conversation data will appear here automatically once activity starts.
+                </p>
+              </div>
+              <Link
+                href={products.length === 0 ? "/products/new" : "/integrations"}
+                className={buttonVariants({ size: "sm" })}
+              >
+                {products.length === 0 ? "Add a product" : "Connect a channel"}
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid gap-4 lg:grid-cols-2">
           <BreakdownCard

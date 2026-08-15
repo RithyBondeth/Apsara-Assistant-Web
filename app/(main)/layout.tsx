@@ -10,7 +10,7 @@ export default function MainLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen">
+      <SidebarInset className="flex min-h-svh min-w-0 flex-col">
         <RequireAuth>{children}</RequireAuth>
       </SidebarInset>
     </SidebarProvider>
