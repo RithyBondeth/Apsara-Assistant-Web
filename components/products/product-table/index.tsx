@@ -53,15 +53,30 @@ export default function ProductTable({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                <p className="font-medium">{product.name}</p>
-                {product.description && (
-                  <p className="line-clamp-1 text-xs text-muted-foreground">
-                    {product.description}
-                  </p>
-                )}
-                <p className="mt-1 text-xs text-muted-foreground sm:hidden">
-                  {formatMoney(product.price, currency)} · {product.stock} in stock
-                </p>
+                <div className="flex items-center gap-3">
+                  {product.images?.[0] || product.image_url ? (
+                    // Uploaded media URLs are dynamic API resources.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={product.images?.find((image) => image.is_primary)?.url ?? product.images?.[0]?.url ?? product.image_url ?? ""}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-md border object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 shrink-0 rounded-md bg-muted" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-medium">{product.name}</p>
+                    {product.description && (
+                      <p className="line-clamp-1 text-xs text-muted-foreground">
+                        {product.description}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-muted-foreground sm:hidden">
+                      {formatMoney(product.price, currency)} · {product.stock} in stock
+                    </p>
+                  </div>
+                </div>
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 {formatMoney(product.price, currency)}

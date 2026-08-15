@@ -12,6 +12,7 @@ import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
 import { CURRENCIES, formatMoney, sampleAmount } from "@/utils/functions/money";
 import { IUser } from "@/utils/interfaces/auth/auth.interface";
+import PaymentQrManager from "@/components/settings/payment-qr-manager";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -27,7 +28,10 @@ export default function SettingsPage() {
             there is one — seeding through an effect instead would mean a
             second render pass and a state write from inside the effect. */}
         {user ? (
-          <ProfileForm key={user.id} user={user} />
+          <div className="space-y-6">
+            <ProfileForm key={user.id} user={user} />
+            <PaymentQrManager />
+          </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
         )}
@@ -44,22 +48,14 @@ function ProfileForm({ user }: { user: IUser }) {
   const [fullName, setFullName] = useState(user.full_name);
   const [businessName, setBusinessName] = useState(user.business_name ?? "");
   const [currency, setCurrency] = useState(user.currency);
-  const [paymentQrUrl, setPaymentQrUrl] = useState(user.payment_qr_url ?? "");
   const [saved, setSaved] = useState(false);
 
   // ── Derived
   const dirty =
     fullName !== user.full_name ||
     businessName !== (user.business_name ?? "") ||
-    currency !== user.currency ||
-    paymentQrUrl.trim() !== (user.payment_qr_url ?? "");
+    currency !== user.currency;
   const switchingCurrency = currency !== user.currency;
-  // Only a full link can be shown, and only a full link can be sent — the API
-  // rejects anything the chat platforms could not fetch for themselves.
-  const qrPreview = /^https?:\/\//.test(paymentQrUrl.trim())
-    ? paymentQrUrl.trim()
-    : null;
-  const qrInvalid = paymentQrUrl.trim().length > 0 && !qrPreview;
   const nameInvalid = fullName.trim().length === 0;
 
   // ── Methods
@@ -69,8 +65,6 @@ function ProfileForm({ user }: { user: IUser }) {
       full_name: fullName.trim(),
       business_name: businessName.trim(),
       currency,
-      // null, not "", is what clears it on the server.
-      payment_qr_url: paymentQrUrl.trim() || null,
     });
     if (ok) {
       setSaved(true);
@@ -132,37 +126,6 @@ function ProfileForm({ user }: { user: IUser }) {
           </p>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="payment-qr">Payment QR link</Label>
-          <Input
-            id="payment-qr"
-            value={paymentQrUrl}
-            onChange={(e) => setPaymentQrUrl(e.target.value)}
-            placeholder="https://…/my-khqr.png"
-            aria-invalid={qrInvalid}
-            aria-describedby="payment-qr-help"
-          />
-          <p id="payment-qr-help" className="text-xs leading-relaxed text-muted-foreground">
-            Use a public image link to your KHQR, ABA, or Wing code. Leave it empty
-            if you do not want Apsara to offer QR payments.
-          </p>
-          {qrInvalid && (
-            <p className="text-xs text-destructive">
-              Enter a complete link beginning with http:// or https://.
-            </p>
-          )}
-          {qrPreview && (
-            /* The seller checks their own link here rather than discovering a
-               broken one from a customer. */
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={qrPreview}
-              alt="Your payment QR"
-              className="mt-1 h-32 w-32 rounded-lg border bg-white object-contain"
-            />
-          )}
-        </div>
-
         {/* Switching reinterprets existing prices rather than converting them,
             which is a decision the seller should make knowingly. */}
         {switchingCurrency && (
@@ -181,7 +144,7 @@ function ProfileForm({ user }: { user: IUser }) {
         )}
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave} disabled={!dirty || loading || qrInvalid || nameInvalid}>
+          <Button onClick={handleSave} disabled={!dirty || loading || nameInvalid}>
             {loading ? "Saving…" : "Save changes"}
           </Button>
           {saved && (

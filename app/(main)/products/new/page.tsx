@@ -21,12 +21,20 @@ export default function NewProductPage() {
   const router = useRouter();
 
   // ── API Integration
-  const { createProduct, loading } = useProductsStore();
+  const { createProduct, uploadImages, loading, error } = useProductsStore();
 
   // ── Methods
-  async function handleSubmit(values: ProductFormValues) {
-    const ok = await createProduct(values);
-    if (ok) router.push("/products");
+  async function handleSubmit(values: ProductFormValues, images: File[]) {
+    const product = await createProduct(values);
+    if (!product) return;
+    if (images.length > 0) {
+      const uploaded = await uploadImages(product.id, images);
+      if (!uploaded) {
+        router.push(`/products/${product.id}/edit`);
+        return;
+      }
+    }
+    router.push("/products");
   }
 
   // ── Render UI
@@ -53,7 +61,11 @@ export default function NewProductPage() {
               onSubmit={handleSubmit}
               loading={loading}
               submitLabel="Add product"
+              allowImageSelection
             />
+            {error && (
+              <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>
+            )}
           </CardContent>
         </Card>
       </main>

@@ -12,6 +12,7 @@ const product = {
   reserved_stock: 2,
   low_stock_threshold: 3,
   image_url: null,
+  images: [],
   is_active: true,
   created_at: "2026-08-15T00:00:00Z",
 };
