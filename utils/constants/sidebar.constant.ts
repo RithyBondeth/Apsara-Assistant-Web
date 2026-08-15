@@ -8,6 +8,8 @@ import {
   Plug,
   BarChart3,
   Warehouse,
+  Truck,
+  Undo2,
 } from "lucide-react";
 
 export const SIDEBAR_NAV = [
@@ -41,6 +43,8 @@ export const SIDEBAR_NAV = [
     href: "/orders",
     icon: ShoppingCart,
   },
+  { title: "Purchasing", href: "/purchasing", icon: Truck },
+  { title: "Returns", href: "/returns", icon: Undo2 },
   {
     title: "Analytics",
     href: "/analytics",

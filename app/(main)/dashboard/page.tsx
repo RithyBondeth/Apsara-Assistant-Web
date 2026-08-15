@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, Package, MessageCircle, ShoppingCart, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
 import { useProductsStore } from "@/stores/apis/products/products.store";
@@ -17,6 +17,7 @@ import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import EmptyState from "@/components/shared/empty-state";
 import { buttonVariants } from "@/components/ui/button";
+import { useOperationsStore } from "@/stores/apis/operations/operations.store";
 
 const STATUS_STYLES: Record<string, string> = {
   open: "bg-green-100 text-green-700",
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
   const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
   const { orders, loading: ordersLoading, fetchOrders } = useOrdersStore();
+  const { alerts, fetchAlerts } = useOperationsStore();
 
   // ── Effects
   useEffect(() => {
@@ -37,7 +39,8 @@ export default function DashboardPage() {
     fetchConversations();
     fetchCustomers();
     fetchOrders();
-  }, [fetchProducts, fetchConversations, fetchCustomers, fetchOrders]);
+    fetchAlerts();
+  }, [fetchProducts, fetchConversations, fetchCustomers, fetchOrders, fetchAlerts]);
 
   const loading = productsLoading || conversationsLoading || customersLoading || ordersLoading;
   const openConversations = conversations.filter((c) => c.status === "open").length;
@@ -132,6 +135,18 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
+
+        {alerts.length > 0 && (
+          <Card className="border-amber-300 bg-amber-50/60 dark:bg-amber-950/20">
+            <CardHeader className="flex-row items-center justify-between pb-2">
+              <CardTitle className="flex items-center gap-2 text-base"><AlertTriangle className="size-4 text-amber-600"/>Low-stock alerts</CardTitle>
+              <Link href="/purchasing" className="text-xs font-medium text-primary hover:underline">Create purchase order</Link>
+            </CardHeader>
+            <CardContent className="divide-y">
+              {alerts.slice(0,5).map(alert=><div key={alert.id} className="flex items-center justify-between py-2 text-sm"><span>{alert.product_name} — {alert.variant_name}</span><span className="text-destructive">{alert.stock} left · threshold {alert.threshold}</span></div>)}
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── Recent conversations */}
         <Card>

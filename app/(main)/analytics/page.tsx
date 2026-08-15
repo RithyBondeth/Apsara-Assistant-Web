@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
-import { MessageCircle, Package, ShoppingCart, Users } from "lucide-react";
+import { MessageCircle, Package, ShoppingCart, TrendingUp, Users } from "lucide-react";
 import AppHeader from "@/components/header";
 import StatCard from "@/components/dashboard/stat-card";
 import BreakdownCard from "@/components/analytics/breakdown-card";
@@ -16,6 +16,7 @@ import { ORDER_STATUS_STYLES } from "@/utils/constants/order.constant";
 import { formatMoney } from "@/utils/functions/money";
 import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
 import { buttonVariants } from "@/components/ui/button";
+import { useOperationsStore } from "@/stores/apis/operations/operations.store";
 
 const PLATFORM_LABELS: Record<string, string> = {
   messenger: "Messenger",
@@ -30,6 +31,7 @@ export default function AnalyticsPage() {
   const { products, loading: productsLoading, fetchProducts } = useProductsStore();
   const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
   const { conversations, conversationsLoading, fetchConversations } = useChatStore();
+  const { report, fetchReport } = useOperationsStore();
 
   // ── Effects
   useEffect(() => {
@@ -37,7 +39,8 @@ export default function AnalyticsPage() {
     fetchProducts();
     fetchCustomers();
     fetchConversations();
-  }, [fetchOrders, fetchProducts, fetchCustomers, fetchConversations]);
+    fetchReport(30, 30);
+  }, [fetchOrders, fetchProducts, fetchCustomers, fetchConversations, fetchReport]);
 
   const loading =
     ordersLoading || productsLoading || customersLoading || conversationsLoading;
@@ -164,6 +167,13 @@ export default function AnalyticsPage() {
             sub={`${conversations.filter((c) => c.status === "open").length} open`}
           />
         </div>
+
+        {report && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card><CardHeader><CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="size-4"/>30-day best sellers</CardTitle></CardHeader><CardContent>{report.best_sellers.length===0?<p className="py-6 text-center text-sm text-muted-foreground">No fulfilled sales in this period.</p>:<div className="divide-y">{report.best_sellers.slice(0,8).map(item=><div key={item.variant_id} className="flex items-center justify-between py-2 text-sm"><span>{item.product_name} — {item.variant_name}</span><span className="text-muted-foreground">{item.units_sold} units</span></div>)}</div>}</CardContent></Card>
+            <Card><CardHeader><CardTitle className="text-base">30-day stock forecast</CardTitle></CardHeader><CardContent><div className="divide-y">{report.forecast.slice(0,8).map(item=><div key={item.variant_id} className="flex items-center justify-between gap-4 py-2 text-sm"><div><p>{item.product_name} — {item.variant_name}</p><p className="text-xs text-muted-foreground">{item.units_sold} sold · {item.days_of_cover===null?"No current sales velocity":`${item.days_of_cover} days cover`}</p></div><span className={item.suggested_reorder?"text-amber-600":"text-muted-foreground"}>{item.suggested_reorder?`Reorder ${item.suggested_reorder}`:"Stock sufficient"}</span></div>)}</div></CardContent></Card>
+          </div>
+        )}
 
         {orders.length === 0 && conversations.length === 0 && (
           <Card className="border-primary/20 bg-primary/[0.03]">

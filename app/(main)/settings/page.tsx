@@ -31,6 +31,7 @@ export default function SettingsPage() {
           <div className="space-y-6">
             <ProfileForm key={user.id} user={user} />
             <PaymentQrManager />
+            <LowStockNotifications user={user} />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
@@ -38,6 +39,19 @@ export default function SettingsPage() {
       </main>
     </>
   );
+}
+
+function LowStockNotifications({user}:{user:IUser}) {
+  const {loading,updateProfile}=useAuthStore();
+  const [email,setEmail]=useState(user.low_stock_email_enabled ?? true);
+  const [telegram,setTelegram]=useState(user.low_stock_telegram_enabled ?? false);
+  const [chatId,setChatId]=useState(user.low_stock_telegram_chat_id ?? "");
+  return <Card className="max-w-xl"><CardHeader><CardTitle className="text-base">Low-stock notifications</CardTitle></CardHeader><CardContent className="space-y-4">
+    <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={email} onChange={e=>setEmail(e.target.checked)}/>Email me when a variant reaches its threshold</label>
+    <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={telegram} onChange={e=>setTelegram(e.target.checked)}/>Send alerts through my connected Telegram bot</label>
+    {telegram&&<div className="space-y-1.5"><Label htmlFor="telegram-alert-chat">Telegram chat ID</Label><Input id="telegram-alert-chat" value={chatId} onChange={e=>setChatId(e.target.value)} placeholder="Your Telegram chat ID"/><p className="text-xs text-muted-foreground">Message your connected bot first, then use that chat&apos;s numeric ID.</p></div>}
+    <Button disabled={loading||telegram&&!chatId.trim()} onClick={()=>updateProfile({low_stock_email_enabled:email,low_stock_telegram_enabled:telegram,low_stock_telegram_chat_id:chatId.trim()||null})}>Save notifications</Button>
+  </CardContent></Card>;
 }
 
 function ProfileForm({ user }: { user: IUser }) {
