@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   LucideMessageCircle,
   LucideClipboardList,
@@ -9,6 +10,9 @@ import {
   LucideZap,
   LucideShoppingBag,
   LucideUsers,
+  LucideCreditCard,
+  LucideMapPin,
+  LucidePackageCheck,
 } from "lucide-react";
 import gsap from "gsap";
 import { QrCard } from "@/components/landing/qr-mock";
@@ -31,9 +35,9 @@ export default function LandingShowcase() {
   const [paused, setPaused] = useState(false);
 
   const TABS = [
-    { key: "autoreply" as const, icon: LucideMessageCircle, title: t.tab1Title },
-    { key: "orders" as const, icon: LucideClipboardList, title: t.tab2Title },
-    { key: "analytics" as const, icon: LucideBarChart3, title: t.tab3Title },
+    { key: "autoreply" as const, icon: LucideMessageCircle, title: t.tab1Title, description: t.tab1Desc },
+    { key: "orders" as const, icon: LucideClipboardList, title: t.tab2Title, description: t.tab2Desc },
+    { key: "analytics" as const, icon: LucideBarChart3, title: t.tab3Title, description: t.tab3Desc },
   ];
 
   // Auto-advance the active tab, paused on hover/focus and skipped entirely
@@ -108,24 +112,34 @@ export default function LandingShowcase() {
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as TabKey)}
-            className="mx-auto w-full max-w-xl items-center"
+            className="mx-auto w-full max-w-3xl items-center"
           >
-            <TabsList className="h-auto w-full gap-1 rounded-2xl bg-muted/60 p-1.5 sm:grid sm:grid-cols-3">
+            <TabsList
+              variant="line"
+              aria-label="Apsara feature demonstrations"
+              style={{ height: "auto" }}
+              className="grid h-auto w-full grid-cols-3 gap-0 border-b border-border/70 p-0"
+            >
               {TABS.map((tab) => (
                 <TabsTrigger
                   key={tab.key}
                   value={tab.key}
-                  className="flex h-auto flex-col items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs sm:flex-row sm:justify-center sm:text-sm"
+                  className="h-auto min-w-0 justify-start gap-2 rounded-none px-2 py-3 text-left whitespace-normal data-active:text-blue-600 after:bottom-[-1px] after:h-[3px] after:bg-blue-600 sm:gap-3 sm:px-4 sm:py-4"
                 >
-                  <tab.icon className="size-4" strokeWidth={1.8} />
-                  <span className="font-medium">{tab.title}</span>
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-current sm:size-9">
+                    <tab.icon className="size-4" strokeWidth={1.8} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-xs font-semibold sm:text-sm">{tab.title}</span>
+                    <span className="mt-0.5 hidden truncate text-[10px] font-normal text-muted-foreground sm:block">{tab.description}</span>
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
 
           {/* Auto-advance progress rail */}
-          <div className="mx-auto mt-2 h-0.5 w-full max-w-xl overflow-hidden rounded-full bg-border/50">
+          <div className="mx-auto mt-2 h-px w-full max-w-3xl overflow-hidden rounded-full bg-border/40">
             <span
               ref={progressRef}
               className="block h-full w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-400"
@@ -177,22 +191,60 @@ export default function LandingShowcase() {
               )}
 
               {activeTab === "orders" && (
-                <div className="mx-auto flex max-w-sm flex-col gap-3 rounded-2xl border border-border/60 bg-background p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-muted-foreground">{t.orderLabel} #A204</span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-600">
-                      <LucideCheck className="size-3" strokeWidth={2} />
-                      {t.orderStatus}
+                <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border/70 bg-background text-left shadow-sm">
+                  <div className="flex flex-col items-start justify-between gap-3 border-b border-border/60 px-5 py-4 sm:flex-row sm:items-center">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{t.orderLabel} #A204</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-[10px] font-semibold text-blue-600">
+                          <LucideCheck className="size-3" strokeWidth={2.5} />
+                          {t.orderStatus}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">{t.orderCreated}</p>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                      <LucideCreditCard className="size-3.5" /> {t.orderPaid}
                     </span>
                   </div>
-                  <div className="h-px bg-border/60" />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t.orderCustomer}</span>
-                    <span className="font-medium">សុខ ដារា</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{t.orderAddress}</span>
-                    <span className="font-medium">Phnom Penh</span>
+
+                  <div className="grid md:grid-cols-[1.25fr_0.75fr]">
+                    <div className="space-y-4 p-5 md:border-r md:border-border/60">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.orderItems}</p>
+                      <div className="flex items-center gap-3">
+                        <Image src="/landing/chat/red-krama.webp" alt="Red Cambodian krama scarf" width={56} height={56} className="size-14 rounded-xl border border-border/60 object-cover" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold">{t.orderProduct}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{t.orderVariant} · {t.orderQuantity}</p>
+                        </div>
+                        <span className="text-sm font-semibold tabular-nums">$24.00</span>
+                      </div>
+                      <div className="grid gap-3 rounded-xl bg-muted/45 p-3 sm:grid-cols-2">
+                        <div className="flex items-start gap-2">
+                          <LucideUsers className="mt-0.5 size-3.5 text-blue-600" />
+                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.orderCustomer}</p><p className="mt-0.5 text-xs font-medium">សុខ ដារា</p></div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <LucideMapPin className="mt-0.5 size-3.5 text-blue-600" />
+                          <div><p className="text-[10px] uppercase tracking-wide text-muted-foreground">{t.orderAddress}</p><p className="mt-0.5 text-xs font-medium">Phnom Penh</p></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col justify-between gap-5 bg-muted/20 p-5">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.orderSummary}</p>
+                        <dl className="mt-3 space-y-2.5 text-xs">
+                          <div className="flex justify-between"><dt className="text-muted-foreground">{t.orderSubtotal}</dt><dd className="font-medium tabular-nums">$24.00</dd></div>
+                          <div className="flex justify-between"><dt className="text-muted-foreground">{t.orderDelivery}</dt><dd className="font-medium text-emerald-600">{t.orderFree}</dd></div>
+                          <div className="flex justify-between border-t border-border/60 pt-2.5 text-sm"><dt className="font-semibold">{t.orderTotal}</dt><dd className="font-bold tabular-nums">$24.00</dd></div>
+                        </dl>
+                      </div>
+                      <div className="rounded-xl border border-blue-500/20 bg-blue-500/[0.04] p-3">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 dark:text-blue-400"><LucidePackageCheck className="size-4" />{t.orderReady}</div>
+                        <p className="mt-1 pl-6 text-[10px] leading-relaxed text-muted-foreground">{t.orderNext}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
