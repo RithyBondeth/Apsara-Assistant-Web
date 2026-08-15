@@ -59,6 +59,9 @@ export default function ProductTable({
                     {product.description}
                   </p>
                 )}
+                <p className="mt-1 text-xs text-muted-foreground sm:hidden">
+                  {formatMoney(product.price, currency)} · {product.stock} in stock
+                </p>
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 {formatMoney(product.price, currency)}
@@ -75,6 +78,7 @@ export default function ProductTable({
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/products/${product.id}/edit`}
+                    aria-label={`Edit ${product.name}`}
                     className={buttonVariants({ variant: "ghost", size: "icon" })}
                   >
                     <Pencil className="h-4 w-4" />
@@ -84,6 +88,7 @@ export default function ProductTable({
                     size="icon"
                     disabled={deleting}
                     onClick={() => onDelete(product.id)}
+                    aria-label={`Delete ${product.name}`}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />

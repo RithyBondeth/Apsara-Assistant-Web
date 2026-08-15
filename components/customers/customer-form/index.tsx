@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export default function CustomerForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(schema),
@@ -38,15 +39,22 @@ export default function CustomerForm({
       platform_id: defaultValues?.platform_id ?? "",
     },
   });
+  const selectedPlatform = useWatch({ control, name: "platform" });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* ── Name */}
       <div className="space-y-1.5">
         <Label htmlFor="name">Full name *</Label>
-        <Input id="name" placeholder="Sophea Chan" {...register("name")} />
+        <Input
+          id="name"
+          placeholder="Sophea Chan"
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? "customer-name-error" : undefined}
+          {...register("name")}
+        />
         {errors.name && (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
+          <p id="customer-name-error" className="text-xs text-destructive">{errors.name.message}</p>
         )}
       </div>
 
@@ -58,9 +66,16 @@ export default function CustomerForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="customer@example.com" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="customer@example.com"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "customer-email-error" : undefined}
+            {...register("email")}
+          />
           {errors.email && (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
+            <p id="customer-email-error" className="text-xs text-destructive">{errors.email.message}</p>
           )}
         </div>
       </div>
@@ -86,7 +101,8 @@ export default function CustomerForm({
           <Label htmlFor="platform_id">Platform ID</Label>
           <Input
             id="platform_id"
-            placeholder="Messenger user ID…"
+            placeholder={selectedPlatform ? `${selectedPlatform} user ID…` : "Choose a platform first"}
+            disabled={!selectedPlatform}
             {...register("platform_id")}
           />
         </div>

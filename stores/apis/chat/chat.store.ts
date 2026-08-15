@@ -25,7 +25,7 @@ interface IChatStore {
   // ── Actions
   fetchConversations: (silent?: boolean) => Promise<void>;
   createConversation: (customerId: string, platform: string) => Promise<IConversation | null>;
-  setActiveConversation: (conversation: IConversation) => void;
+  setActiveConversation: (conversation: IConversation | null) => void;
   fetchConversationDetail: (id: string, silent?: boolean) => Promise<void>;
   updateConversationStatus: (id: string, status: "open" | "closed" | "pending") => Promise<boolean>;
   sendMessage: (conversationId: string, message: string) => Promise<boolean>;
@@ -86,7 +86,9 @@ export const useChatStore = create<IChatStore>((set, get) => ({
 
   setActiveConversation: (conversation) => {
     // Optimistically set the header while messages load
-    set({ activeConversation: { ...conversation, messages: [] } });
+    set({
+      activeConversation: conversation ? { ...conversation, messages: [] } : null,
+    });
   },
 
   fetchConversationDetail: async (id, silent = false) => {

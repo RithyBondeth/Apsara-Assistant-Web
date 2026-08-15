@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IProductFormProps, ProductFormValues } from "./props";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
 
 const schema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -23,6 +24,7 @@ export default function ProductForm({
   loading,
   submitLabel = "Save product",
 }: IProductFormProps) {
+  const currency = useAuthStore((state) => state.user?.currency ?? "USD");
   const {
     register,
     handleSubmit,
@@ -43,9 +45,15 @@ export default function ProductForm({
       {/* ── Name */}
       <div className="space-y-1.5">
         <Label htmlFor="name">Product name *</Label>
-        <Input id="name" placeholder="Khmer silk scarf" {...register("name")} />
+        <Input
+          id="name"
+          placeholder="Khmer silk scarf"
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? "product-name-error" : undefined}
+          {...register("name")}
+        />
         {errors.name && (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
+          <p id="product-name-error" className="text-xs text-destructive">{errors.name.message}</p>
         )}
       </div>
 
@@ -63,17 +71,19 @@ export default function ProductForm({
       {/* ── Price & Stock */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="price">Price ($) *</Label>
+          <Label htmlFor="price">Price ({currency}) *</Label>
           <Input
             id="price"
             type="number"
             step="0.01"
             min="0"
             placeholder="9.99"
+            aria-invalid={Boolean(errors.price)}
+            aria-describedby={errors.price ? "product-price-error" : undefined}
             {...register("price", { valueAsNumber: true })}
           />
           {errors.price && (
-            <p className="text-xs text-destructive">{errors.price.message}</p>
+            <p id="product-price-error" className="text-xs text-destructive">{errors.price.message}</p>
           )}
         </div>
 
@@ -84,10 +94,12 @@ export default function ProductForm({
             type="number"
             min="0"
             placeholder="100"
+            aria-invalid={Boolean(errors.stock)}
+            aria-describedby={errors.stock ? "product-stock-error" : undefined}
             {...register("stock", { valueAsNumber: true })}
           />
           {errors.stock && (
-            <p className="text-xs text-destructive">{errors.stock.message}</p>
+            <p id="product-stock-error" className="text-xs text-destructive">{errors.stock.message}</p>
           )}
         </div>
       </div>

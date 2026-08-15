@@ -49,8 +49,8 @@ function EditProductClient({ id }: { id: string }) {
   if (loading || !selected) {
     return (
       <>
-        <AppHeader title="Edit Product" />
-        <main className="flex-1 p-6">
+        <AppHeader title="Edit product" description="Update what Apsara knows about this item" />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-96 max-w-2xl rounded-xl" />
         </main>
@@ -61,9 +61,9 @@ function EditProductClient({ id }: { id: string }) {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Edit Product" />
+      <AppHeader title="Edit product" description="Update what Apsara knows about this item" />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link href="/products" className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}>
           <ChevronLeft className="mr-1 h-4 w-4" />
           Back to products

@@ -12,6 +12,7 @@ export interface IChatWindowProps {
   onCreateOrder: () => void;
   onDraftOrder: () => void | Promise<void>;
   draftingOrder: boolean;
+  onBack?: () => void;
   /** Connected threads send the seller's text to the real customer; local
    * rehearsals submit a simulated customer turn and show the AI response. */
   isLiveChannel: boolean;
