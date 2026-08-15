@@ -5,17 +5,20 @@ import {
   ICheckout,
   IOrder,
   IOrderCreate,
+  IOrderDraft,
   IReceipt,
   IOrderUpdate,
   TOrderStatus,
 } from "@/utils/interfaces/order/order.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 import { fetchAllPages } from "@/utils/functions/pagination";
+import { CHAT_API } from "@/utils/constants/apis/conversations.api.constant";
 
 interface IOrdersStore {
   orders: IOrder[];
   selected: IOrder | null;
   loading: boolean;
+  drafting: boolean;
   error: string | null;
   receipts: IReceipt[];
   receiptsLoading: boolean;
@@ -23,6 +26,7 @@ interface IOrdersStore {
   fetchOrders: (status?: TOrderStatus | "all") => Promise<void>;
   fetchOrder: (id: string) => Promise<void>;
   createOrder: (data: IOrderCreate) => Promise<IOrder | null>;
+  draftOrder: (conversationId: string) => Promise<IOrderDraft | null>;
   updateOrder: (id: string, data: IOrderUpdate) => Promise<boolean>;
   deleteOrder: (id: string) => Promise<boolean>;
   /** Opens a Stripe payment page for the order and returns its link. */
@@ -38,6 +42,7 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
   orders: [],
   selected: null,
   loading: false,
+  drafting: false,
   error: null,
   receipts: [],
   receiptsLoading: false,
@@ -74,6 +79,18 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
       return data;
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
+      return null;
+    }
+  },
+
+  draftOrder: async (conversationId) => {
+    set({ drafting: true, error: null });
+    try {
+      const { data } = await api.post<IOrderDraft>(CHAT_API.ORDER_DRAFT(conversationId));
+      set({ drafting: false });
+      return data;
+    } catch (error) {
+      set({ drafting: false, error: extractErrorMessage(error) });
       return null;
     }
   },

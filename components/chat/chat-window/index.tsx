@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Send, ChevronDown, ShoppingCart } from "lucide-react";
+import { Send, ChevronDown, ShoppingCart, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,8 @@ export default function ChatWindow({
   onSend,
   onStatusChange,
   onCreateOrder,
+  onDraftOrder,
+  draftingOrder,
   isLiveChannel,
 }: IChatWindowProps) {
   // ── All States
@@ -90,6 +92,11 @@ export default function ChatWindow({
         </div>
 
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onDraftOrder}
+                  disabled={draftingOrder || conversation.messages.length === 0}>
+            <Sparkles className="mr-1.5 h-4 w-4" />
+            {draftingOrder ? "Drafting…" : "Draft order"}
+          </Button>
           {/* ── The assistant collects order details but cannot confirm a
                  sale, so the handoff to a real order happens here. */}
           <Button variant="outline" size="sm" onClick={onCreateOrder}>

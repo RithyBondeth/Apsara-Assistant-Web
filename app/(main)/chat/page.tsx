@@ -14,12 +14,13 @@ import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { IConversation } from "@/utils/interfaces/chat/chat.interface";
-import { IOrderCreate } from "@/utils/interfaces/order/order.interface";
+import { IOrderCreate, IOrderDraft } from "@/utils/interfaces/order/order.interface";
 
 export default function ChatPage() {
   // ── All States
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [orderDraft, setOrderDraft] = useState<IOrderDraft | null>(null);
 
   // ── API Integration
   const {
@@ -42,6 +43,8 @@ export default function ChatPage() {
   const { products, fetchProducts } = useProductsStore();
   const {
     createOrder,
+    draftOrder,
+    drafting,
     error: orderError,
     clearError: clearOrderError,
   } = useOrdersStore();
@@ -100,6 +103,20 @@ export default function ChatPage() {
     return Boolean(order);
   }
 
+  async function handleDraftOrder() {
+    if (!activeConversation) return;
+    clearOrderError();
+    const draft = await draftOrder(activeConversation.id);
+    if (draft) {
+      // The proposal carries a stock snapshot, but another order may have
+      // moved inventory while the model was working. Refresh before review;
+      // the server still performs the final locked check on submission.
+      await fetchProducts();
+      setOrderDraft(draft);
+      setOrderOpen(true);
+    }
+  }
+
   // ── Render UI
   return (
     <>
@@ -148,12 +165,15 @@ export default function ChatPage() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* ── Failure banner: the AI reply can fail on its own, after the
                  customer's message was already saved */}
-          {error && (
+          {(error || (!orderOpen && orderError)) && (
             <div className="flex items-start gap-2 border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
-              <p className="flex-1">{error}</p>
+              <p className="flex-1">{error ?? orderError}</p>
               <button
                 type="button"
-                onClick={clearError}
+                onClick={() => {
+                  clearError();
+                  clearOrderError();
+                }}
                 aria-label="Dismiss"
                 className="shrink-0 rounded p-0.5 hover:bg-destructive/10"
               >
@@ -171,8 +191,11 @@ export default function ChatPage() {
               onStatusChange={handleStatusChange}
               onCreateOrder={() => {
                 clearOrderError();
+                setOrderDraft(null);
                 setOrderOpen(true);
               }}
+              onDraftOrder={handleDraftOrder}
+              draftingOrder={drafting}
               isLiveChannel={activeConversation.source === "channel"}
             />
           ) : (
@@ -202,14 +225,18 @@ export default function ChatPage() {
 
       {/* ── Order started from a conversation: the customer is fixed by the
              thread, and the order keeps a link back to it. */}
-      {activeConversation && (
+      {(activeConversation || orderDraft) && (
         <NewOrderDialog
           open={orderOpen}
-          onOpenChange={setOrderOpen}
+          onOpenChange={(open) => {
+            setOrderOpen(open);
+            if (!open) setOrderDraft(null);
+          }}
           customers={customers}
           products={products}
-          lockedCustomerId={activeConversation.customer_id}
-          conversationId={activeConversation.id}
+          lockedCustomerId={orderDraft?.customer_id ?? activeConversation?.customer_id}
+          conversationId={orderDraft?.conversation_id ?? activeConversation?.id}
+          initialDraft={orderDraft}
           onCreate={handleCreateOrder}
           error={orderError}
           onDismissError={clearOrderError}
