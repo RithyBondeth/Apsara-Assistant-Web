@@ -6,13 +6,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
 api.interceptors.response.use(
   (res) => res,
   (error) => {
@@ -25,8 +18,7 @@ api.interceptors.response.use(
       !isAuthRequest &&
       typeof window !== "undefined"
     ) {
-      localStorage.removeItem("access_token");
-      window.location.href = "/login";
+      window.dispatchEvent(new Event("apsara:unauthorized"));
     }
     return Promise.reject(error);
   }

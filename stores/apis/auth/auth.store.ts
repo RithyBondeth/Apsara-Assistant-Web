@@ -12,7 +12,7 @@ interface IAuthStore {
   login: (email: string, password: string) => Promise<boolean>;
   loginWithOtp: (email: string, code: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  fetchMe: () => Promise<void>;
+  fetchMe: () => Promise<boolean>;
   updateProfile: (data: IUserUpdate) => Promise<boolean>;
   clearError: () => void;
 }
@@ -33,11 +33,9 @@ export const useAuthStore = create<IAuthStore>()(
           form.append("username", email);
           form.append("password", password);
 
-          const { data: token } = await api.post<IToken>(AUTH_API.LOGIN, form, {
+          await api.post<IToken>(AUTH_API.LOGIN, form, {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
           });
-
-          localStorage.setItem("access_token", token.access_token);
 
           // Fetch user profile after getting the token
           const { data: user } = await api.get<IUser>(AUTH_API.ME);
@@ -53,12 +51,10 @@ export const useAuthStore = create<IAuthStore>()(
       loginWithOtp: async (email, code) => {
         set({ loading: true, error: null });
         try {
-          const { data: token } = await api.post<IToken>(AUTH_API.OTP_VERIFY, {
+          await api.post<IToken>(AUTH_API.OTP_VERIFY, {
             email,
             code,
           });
-
-          localStorage.setItem("access_token", token.access_token);
 
           const { data: user } = await api.get<IUser>(AUTH_API.ME);
           set({ user, loading: false });
@@ -73,7 +69,6 @@ export const useAuthStore = create<IAuthStore>()(
         try {
           await api.post(AUTH_API.LOGOUT);
         } finally {
-          localStorage.removeItem("access_token");
           set({ user: null });
         }
       },
@@ -83,9 +78,10 @@ export const useAuthStore = create<IAuthStore>()(
         try {
           const { data } = await api.get<IUser>(AUTH_API.ME);
           set({ user: data, loading: false });
+          return true;
         } catch {
-          localStorage.removeItem("access_token");
           set({ user: null, loading: false });
+          return false;
         }
       },
 
