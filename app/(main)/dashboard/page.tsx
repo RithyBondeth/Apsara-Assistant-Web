@@ -72,7 +72,7 @@ export default function DashboardPage() {
         description="A quick pulse check on your shop and customer activity"
       />
 
-      <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 space-y-6 p-4 text-left sm:p-6 lg:p-8">
         {/* ── Stat cards */}
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -137,13 +137,14 @@ export default function DashboardPage() {
           )}
 
         {alerts.length > 0 && (
-          <Card className="border-amber-300 bg-amber-50/60 dark:bg-amber-950/20">
-            <CardHeader className="flex-row items-center justify-between pb-2">
-              <CardTitle className="flex items-center gap-2 text-base"><AlertTriangle className="size-4 text-amber-600"/>Low-stock alerts</CardTitle>
-              <Link href="/purchasing" className="text-xs font-medium text-primary hover:underline">Create purchase order</Link>
+          <Card className="border-amber-300/70 bg-amber-50/60 text-left dark:bg-amber-950/20">
+            <CardHeader className="border-b border-amber-200/70 sm:grid-cols-[1fr_auto]">
+              <CardTitle className="flex items-center gap-2"><span className="rounded-md bg-amber-100 p-1.5 dark:bg-amber-950"><AlertTriangle className="size-4 text-amber-700 dark:text-amber-400"/></span>Stock needs attention</CardTitle>
+              <p className="text-sm text-muted-foreground">{alerts.length} variant{alerts.length === 1 ? "" : "s"} at or below threshold</p>
+              <Link href="/purchasing" className="text-sm font-medium text-primary hover:underline sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-center">Create purchase order</Link>
             </CardHeader>
             <CardContent className="divide-y">
-              {alerts.slice(0,5).map(alert=><div key={alert.id} className="flex items-center justify-between py-2 text-sm"><span>{alert.product_name} — {alert.variant_name}</span><span className="text-destructive">{alert.stock} left · threshold {alert.threshold}</span></div>)}
+              {alerts.slice(0,5).map(alert=><div key={alert.id} className="flex flex-col items-start justify-between gap-1 py-3 text-sm sm:flex-row sm:items-center"><span className="font-medium">{alert.product_name} — {alert.variant_name}</span><span className="text-amber-800 dark:text-amber-300"><strong>{alert.stock}</strong> left · alert at {alert.threshold}</span></div>)}
             </CardContent>
           </Card>
         )}
