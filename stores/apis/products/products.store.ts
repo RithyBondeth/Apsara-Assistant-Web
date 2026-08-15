@@ -5,6 +5,9 @@ import {
   IProduct,
   IProductCreate,
   IProductImage,
+  IProductVariant,
+  IProductVariantCreate,
+  IProductVariantUpdate,
   IProductUpdate,
 } from "@/utils/interfaces/product/product.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
@@ -23,6 +26,10 @@ interface IProductsStore {
   uploadImages: (id: string, files: File[]) => Promise<boolean>;
   orderImages: (id: string, imageIds: string[], primaryImageId: string) => Promise<boolean>;
   deleteImage: (id: string, imageId: string) => Promise<boolean>;
+  assignImageVariant: (id: string, imageId: string, variantId: string | null) => Promise<boolean>;
+  createVariant: (id: string, data: IProductVariantCreate) => Promise<boolean>;
+  updateVariant: (id: string, variantId: string, data: IProductVariantUpdate) => Promise<boolean>;
+  deleteVariant: (id: string, variantId: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -159,6 +166,82 @@ export const useProductsStore = create<IProductsStore>((set) => ({
         selected: state.selected?.id === id
           ? { ...state.selected, images: remove(state.selected.images) }
           : state.selected,
+        loading: false,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  assignImageVariant: async (id, imageId, variantId) => {
+    set({ loading: true, error: null });
+    try {
+      const { data: image } = await api.patch<IProductImage>(
+        PRODUCTS_API.IMAGE_VARIANT(id, imageId),
+        { variant_id: variantId },
+      );
+      const replace = (images: IProductImage[]) =>
+        images.map((item) => (item.id === image.id ? image : item));
+      set((state) => ({
+        products: state.products.map((product) =>
+          product.id === id ? { ...product, images: replace(product.images) } : product,
+        ),
+        selected: state.selected?.id === id
+          ? { ...state.selected, images: replace(state.selected.images) }
+          : state.selected,
+        loading: false,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  createVariant: async (id, payload) => {
+    set({ loading: true, error: null });
+    try {
+      await api.post<IProductVariant>(PRODUCTS_API.VARIANTS(id), payload);
+      const { data } = await api.get<IProduct>(PRODUCTS_API.GET(id));
+      set((state) => ({
+        products: state.products.map((product) => (product.id === id ? data : product)),
+        selected: data,
+        loading: false,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  updateVariant: async (id, variantId, payload) => {
+    set({ loading: true, error: null });
+    try {
+      await api.patch<IProductVariant>(PRODUCTS_API.VARIANT(id, variantId), payload);
+      const { data } = await api.get<IProduct>(PRODUCTS_API.GET(id));
+      set((state) => ({
+        products: state.products.map((product) => (product.id === id ? data : product)),
+        selected: data,
+        loading: false,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  deleteVariant: async (id, variantId) => {
+    set({ loading: true, error: null });
+    try {
+      await api.delete(PRODUCTS_API.VARIANT(id, variantId));
+      const { data } = await api.get<IProduct>(PRODUCTS_API.GET(id));
+      set((state) => ({
+        products: state.products.map((product) => (product.id === id ? data : product)),
+        selected: data,
         loading: false,
       }));
       return true;

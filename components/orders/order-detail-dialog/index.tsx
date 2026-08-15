@@ -121,6 +121,9 @@ export default function OrderDetailDialog({
                     {productName(item.product_id)}
                   </p>
                   <p className="text-xs text-muted-foreground">
+                    {item.variant_name}{item.variant_sku ? ` · ${item.variant_sku}` : ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
                     {item.quantity} × {formatMoney(item.unit_price, order.currency)}
                   </p>
                 </div>

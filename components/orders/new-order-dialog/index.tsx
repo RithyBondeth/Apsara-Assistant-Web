@@ -21,10 +21,11 @@ import { INewOrderDialogProps } from "./props";
 
 interface ILine {
   product_id: string;
+  variant_id: string;
   quantity: number;
 }
 
-const EMPTY_LINE: ILine = { product_id: "", quantity: 1 };
+const EMPTY_LINE: ILine = { product_id: "", variant_id: "", quantity: 1 };
 
 export default function NewOrderDialog({
   open,
@@ -64,8 +65,10 @@ function OrderForm({
   // ── All States
   const [customerId, setCustomerId] = useState(lockedCustomerId ?? "");
   const draftLines = initialDraft?.items
-    .filter((item) => products.some((product) => product.id === item.product_id))
-    .map((item) => ({ product_id: item.product_id, quantity: item.quantity }));
+    .filter((item) => products.some((product) =>
+      product.id === item.product_id && product.variants.some((variant) => variant.id === item.variant_id),
+    ))
+    .map((item) => ({ product_id: item.product_id, variant_id: item.variant_id, quantity: item.quantity }));
   const [lines, setLines] = useState<ILine[]>(
     draftLines?.length ? draftLines : [{ ...EMPTY_LINE }],
   );
@@ -76,16 +79,24 @@ function OrderForm({
   // ── Derived
   // Only sellable products: the server rejects inactive or out-of-stock lines,
   // so offering them here would only produce a failed submit.
-  const sellable = products.filter((p) => p.is_active && p.stock > 0);
-  const chosen = lines.filter((l) => l.product_id);
+  const sellable = products.flatMap((product) =>
+    product.is_active
+      ? product.variants
+          .filter((variant) => variant.is_active && variant.stock > 0)
+          .map((variant) => ({ product, variant }))
+      : [],
+  );
+  const chosen = lines.filter((line) => line.product_id && line.variant_id);
   const total = chosen.reduce((sum, line) => {
-    const product = products.find((p) => p.id === line.product_id);
-    return sum + (product ? parseFloat(product.price) * line.quantity : 0);
+    const variant = products
+      .find((product) => product.id === line.product_id)
+      ?.variants.find((item) => item.id === line.variant_id);
+    return sum + (variant ? parseFloat(variant.price) * line.quantity : 0);
   }, 0);
   const valid =
     Boolean(customerId) &&
     chosen.length > 0 &&
-    chosen.every((l) => l.quantity > 0 && l.quantity <= stockFor(l.product_id));
+    chosen.every((line) => line.quantity > 0 && line.quantity <= stockFor(line.variant_id));
 
   // ── Methods
   function updateLine(index: number, patch: Partial<ILine>) {
@@ -94,8 +105,8 @@ function OrderForm({
     );
   }
 
-  function stockFor(productId: string) {
-    return products.find((p) => p.id === productId)?.stock ?? 0;
+  function stockFor(variantId: string) {
+    return products.flatMap((product) => product.variants).find((variant) => variant.id === variantId)?.stock ?? 0;
   }
 
   async function handleCreate() {
@@ -108,6 +119,7 @@ function OrderForm({
       notes: notes.trim() || undefined,
       items: chosen.map((l) => ({
         product_id: l.product_id,
+        variant_id: l.variant_id,
         quantity: l.quantity,
       })),
     });
@@ -179,19 +191,21 @@ function OrderForm({
               <div key={index} className="flex items-start gap-2">
                 <select
                   aria-label={`Product for line ${index + 1}`}
-                  value={line.product_id}
-                  onChange={(e) =>
+                  value={line.variant_id}
+                  onChange={(e) => {
+                    const selected = sellable.find((item) => item.variant.id === e.target.value);
                     updateLine(index, {
-                      product_id: e.target.value,
+                      product_id: selected?.product.id ?? "",
+                      variant_id: selected?.variant.id ?? "",
                       quantity: 1,
-                    })
-                  }
+                    });
+                  }}
                   className={SHARED_SELECT_CLASS}
                 >
                   <option value="">— Select a product —</option>
-                  {sellable.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} — {formatMoney(p.price, currency)} ({p.stock}{" "}
+                  {sellable.map(({ product, variant }) => (
+                    <option key={variant.id} value={variant.id}>
+                      {product.name} — {variant.name} — {formatMoney(variant.price, currency)} ({variant.stock}{" "}
                       left)
                     </option>
                   ))}
@@ -199,7 +213,7 @@ function OrderForm({
                 <Input
                   type="number"
                   min={1}
-                  max={stockFor(line.product_id) || undefined}
+                  max={stockFor(line.variant_id) || undefined}
                   aria-label={`Quantity for line ${index + 1}`}
                   value={line.quantity}
                   onChange={(e) =>

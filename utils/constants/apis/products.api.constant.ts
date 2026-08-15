@@ -10,4 +10,9 @@ export const PRODUCTS_API = {
   IMAGE_ORDER: (id: string) => `${API_V1}/products/${id}/images/order`,
   DELETE_IMAGE: (id: string, imageId: string) =>
     `${API_V1}/products/${id}/images/${imageId}`,
+  IMAGE_VARIANT: (id: string, imageId: string) =>
+    `${API_V1}/products/${id}/images/${imageId}/variant`,
+  VARIANTS: (id: string) => `${API_V1}/products/${id}/variants`,
+  VARIANT: (id: string, variantId: string) =>
+    `${API_V1}/products/${id}/variants/${variantId}`,
 };

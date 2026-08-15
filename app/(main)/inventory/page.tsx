@@ -20,7 +20,7 @@ import {
 import { useInventoryStore } from "@/stores/apis/inventory/inventory.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { timeAgo } from "@/utils/functions/date";
-import { IProduct } from "@/utils/interfaces/product/product.interface";
+import { IProduct, IProductVariant } from "@/utils/interfaces/product/product.interface";
 
 const MOVEMENT_LABELS: Record<string, string> = {
   opening_balance: "Opening balance",
@@ -47,7 +47,7 @@ export default function InventoryPage() {
     releaseExpired,
     clearError,
   } = useInventoryStore();
-  const [selected, setSelected] = useState<IProduct | null>(null);
+  const [selected, setSelected] = useState<{ product: IProduct; variant: IProductVariant } | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [releaseMessage, setReleaseMessage] = useState<string | null>(null);
 
@@ -67,24 +67,32 @@ export default function InventoryPage() {
   }, [fetchMovements, fetchProducts, releaseExpired]);
 
   const summary = useMemo(() => {
-    const active = products.filter((product) => product.is_active);
+    const active = products.flatMap((product) =>
+      product.is_active
+        ? product.variants.filter((variant) => variant.is_active).map((variant) => ({ product, variant }))
+        : [],
+    );
     return {
-      available: active.reduce((sum, product) => sum + product.stock, 0),
-      reserved: active.reduce((sum, product) => sum + product.reserved_stock, 0),
-      low: active.filter((product) => product.stock <= product.low_stock_threshold),
+      available: active.reduce((sum, item) => sum + item.variant.stock, 0),
+      reserved: active.reduce((sum, item) => sum + item.variant.reserved_stock, 0),
+      low: active.filter((item) => item.variant.stock <= item.variant.low_stock_threshold),
     };
   }, [products]);
 
   async function handleAdjustment(quantityDelta: number, reason: string) {
     if (!selected) return false;
-    const ok = await adjustStock(selected.id, { quantity_delta: quantityDelta, reason });
+    const ok = await adjustStock(selected.product.id, {
+      quantity_delta: quantityDelta,
+      reason,
+      variant_id: selected.variant.id,
+    });
     if (ok) await Promise.all([fetchProducts(), fetchMovements()]);
     return ok;
   }
 
-  function openAdjustment(product: IProduct) {
+  function openAdjustment(product: IProduct, variant: IProductVariant) {
     clearError();
-    setSelected(product);
+    setSelected({ product, variant });
     setDialogOpen(true);
   }
 
@@ -150,27 +158,29 @@ export default function InventoryPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map((product) => {
-                      const low = product.is_active && product.stock <= product.low_stock_threshold;
+                    {products.flatMap((product) => product.variants.map((variant) => {
+                      const low = product.is_active && variant.is_active && variant.stock <= variant.low_stock_threshold;
                       return (
-                        <TableRow key={product.id}>
-                          <TableCell className="font-medium">{product.name}</TableCell>
-                          <TableCell>{product.stock}</TableCell>
-                          <TableCell>{product.reserved_stock}</TableCell>
-                          <TableCell className="hidden sm:table-cell">{product.low_stock_threshold}</TableCell>
+                        <TableRow key={variant.id}>
+                          <TableCell className="font-medium">
+                            {product.name}<span className="block text-xs font-normal text-muted-foreground">{variant.name}{variant.sku ? ` · ${variant.sku}` : ""}</span>
+                          </TableCell>
+                          <TableCell>{variant.stock}</TableCell>
+                          <TableCell>{variant.reserved_stock}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{variant.low_stock_threshold}</TableCell>
                           <TableCell>
                             <Badge variant={low ? "destructive" : "secondary"}>
-                              {low ? (product.stock === 0 ? "Out" : "Low") : "Healthy"}
+                              {!variant.is_active ? "Inactive" : low ? (variant.stock === 0 ? "Out" : "Low") : "Healthy"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button variant="outline" size="sm" onClick={() => openAdjustment(product)}>
+                            <Button variant="outline" size="sm" onClick={() => openAdjustment(product, variant)}>
                               Adjust
                             </Button>
                           </TableCell>
                         </TableRow>
                       );
-                    })}
+                    }))}
                   </TableBody>
                 </Table>
               </div>
@@ -202,7 +212,10 @@ export default function InventoryPage() {
                       const product = products.find((item) => item.id === movement.product_id);
                       return (
                         <TableRow key={movement.id}>
-                          <TableCell className="font-medium">{product?.name ?? movement.product_name}</TableCell>
+                          <TableCell className="font-medium">
+                            {product?.name ?? movement.product_name}
+                            {movement.variant_name && <span className="block text-xs font-normal text-muted-foreground">{movement.variant_name}{movement.variant_sku ? ` · ${movement.variant_sku}` : ""}</span>}
+                          </TableCell>
                           <TableCell>{MOVEMENT_LABELS[movement.kind] ?? movement.kind}</TableCell>
                           <TableCell className={movement.quantity_delta < 0 ? "text-destructive" : movement.quantity_delta > 0 ? "text-emerald-600" : "text-muted-foreground"}>
                             {movement.quantity_delta > 0 ? "+" : ""}{movement.quantity_delta}
@@ -222,7 +235,8 @@ export default function InventoryPage() {
       </main>
 
       <AdjustStockDialog
-        product={selected}
+        product={selected?.product ?? null}
+        variant={selected?.variant ?? null}
         open={dialogOpen}
         loading={inventoryLoading}
         error={error}

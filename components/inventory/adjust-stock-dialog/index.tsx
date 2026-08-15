@@ -19,10 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { IProduct } from "@/utils/interfaces/product/product.interface";
+import { IProduct, IProductVariant } from "@/utils/interfaces/product/product.interface";
 
 interface AdjustStockDialogProps {
   product: IProduct | null;
+  variant: IProductVariant | null;
   open: boolean;
   loading: boolean;
   error: string | null;
@@ -32,6 +33,7 @@ interface AdjustStockDialogProps {
 
 export default function AdjustStockDialog({
   product,
+  variant,
   open,
   loading,
   error,
@@ -53,7 +55,7 @@ export default function AdjustStockDialog({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!product || quantity < 1 || reason.trim().length < 3) return;
+    if (!product || !variant || quantity < 1 || reason.trim().length < 3) return;
     const ok = await onSubmit(direction === "remove" ? -quantity : quantity, reason.trim());
     if (ok) handleOpenChange(false);
   }
@@ -64,8 +66,8 @@ export default function AdjustStockDialog({
         <DialogHeader>
           <DialogTitle>Adjust stock</DialogTitle>
           <DialogDescription>
-            {product
-              ? `${product.name} currently has ${product.stock} available and ${product.reserved_stock} reserved.`
+            {product && variant
+              ? `${product.name} — ${variant.name} currently has ${variant.stock} available and ${variant.reserved_stock} reserved.`
               : "Record a received, damaged, returned, or corrected quantity."}
           </DialogDescription>
         </DialogHeader>
@@ -90,7 +92,7 @@ export default function AdjustStockDialog({
               id="adjustment-quantity"
               type="number"
               min="1"
-              max={direction === "remove" ? product?.stock : undefined}
+              max={direction === "remove" ? variant?.stock : undefined}
               value={quantity}
               onChange={(event) => setQuantity(Number(event.target.value))}
               required
@@ -117,7 +119,7 @@ export default function AdjustStockDialog({
           <Button
             form="stock-adjustment-form"
             type="submit"
-            disabled={loading || !product || quantity < 1 || reason.trim().length < 3}
+            disabled={loading || !product || !variant || quantity < 1 || reason.trim().length < 3}
           >
             {loading ? "Saving…" : "Save adjustment"}
           </Button>

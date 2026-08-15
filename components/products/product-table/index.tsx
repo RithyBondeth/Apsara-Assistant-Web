@@ -67,6 +67,9 @@ export default function ProductTable({
                   )}
                   <div className="min-w-0">
                     <p className="font-medium">{product.name}</p>
+                    {product.variants.length > 1 && (
+                      <p className="text-xs text-muted-foreground">{product.variants.length} variants</p>
+                    )}
                     {product.description && (
                       <p className="line-clamp-1 text-xs text-muted-foreground">
                         {product.description}
@@ -79,7 +82,12 @@ export default function ProductTable({
                 </div>
               </TableCell>
               <TableCell className="hidden sm:table-cell">
-                {formatMoney(product.price, currency)}
+                {(() => {
+                  const prices = product.variants.filter((variant) => variant.is_active).map((variant) => Number(variant.price));
+                  const min = prices.length ? Math.min(...prices) : Number(product.price);
+                  const max = prices.length ? Math.max(...prices) : Number(product.price);
+                  return min === max ? formatMoney(min, currency) : `${formatMoney(min, currency)}–${formatMoney(max, currency)}`;
+                })()}
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 {product.stock}

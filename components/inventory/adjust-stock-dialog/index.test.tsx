@@ -2,6 +2,13 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import AdjustStockDialog from ".";
 
+const variant = {
+  id: "variant-1", product_id: "product-1", option_values: {}, name: "Default",
+  sku: null, barcode: null, price: "12.50", stock: 8, reserved_stock: 2,
+  low_stock_threshold: 3, is_active: true, is_default: true,
+  created_at: "2026-08-15T00:00:00Z", updated_at: "2026-08-15T00:00:00Z",
+};
+
 const product = {
   id: "product-1",
   user_id: "seller-1",
@@ -13,6 +20,7 @@ const product = {
   low_stock_threshold: 3,
   image_url: null,
   images: [],
+  variants: [variant],
   is_active: true,
   created_at: "2026-08-15T00:00:00Z",
 };
@@ -24,6 +32,7 @@ describe("AdjustStockDialog", () => {
     render(
       <AdjustStockDialog
         product={product}
+        variant={variant}
         open
         loading={false}
         error={null}

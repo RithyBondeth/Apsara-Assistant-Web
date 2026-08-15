@@ -7,6 +7,7 @@ export interface IProductFormProps {
   submitLabel?: string;
   allowStockEditing?: boolean;
   allowImageSelection?: boolean;
+  allowVariantSelection?: boolean;
 }
 
 export interface ProductFormValues {
@@ -15,4 +16,12 @@ export interface ProductFormValues {
   price: number;
   stock: number;
   low_stock_threshold: number;
+  variants?: Array<{
+    option_values: Record<string, string>;
+    sku?: string;
+    barcode?: string;
+    price: number;
+    stock: number;
+    low_stock_threshold: number;
+  }>;
 }

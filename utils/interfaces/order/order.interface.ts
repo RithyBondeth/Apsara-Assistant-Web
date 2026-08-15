@@ -25,6 +25,10 @@ export interface IReceipt {
 export interface IOrderItem {
   id: string;
   product_id: string;
+  variant_id: string;
+  variant_name: string;
+  variant_sku: string | null;
+  variant_options: Record<string, string>;
   quantity: number;
   unit_price: string; // Decimal comes as string from FastAPI
   subtotal: string;
@@ -56,12 +60,16 @@ export interface IOrder {
 // product record, so a client-supplied price would be ignored.
 export interface IOrderItemCreate {
   product_id: string;
+  variant_id: string;
   quantity: number;
 }
 
 export interface IOrderDraftItem {
   product_id: string;
   product_name: string;
+  variant_id: string;
+  variant_name: string;
+  variant_options: Record<string, string>;
   quantity: number;
   unit_price: string;
   subtotal: string;

@@ -6,20 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProductsStore } from "@/stores/apis/products/products.store";
-import { IProductImage } from "@/utils/interfaces/product/product.interface";
+import { IProductImage, IProductVariant } from "@/utils/interfaces/product/product.interface";
+import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
 
 interface ProductImageManagerProps {
   productId: string;
   images: IProductImage[];
   legacyImageUrl?: string | null;
+  variants: IProductVariant[];
 }
 
 export default function ProductImageManager({
   productId,
   images,
   legacyImageUrl,
+  variants,
 }: ProductImageManagerProps) {
-  const { loading, error, uploadImages, orderImages, deleteImage, clearError } = useProductsStore();
+  const { loading, error, uploadImages, orderImages, deleteImage, assignImageVariant, clearError } = useProductsStore();
 
   async function handleUpload(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -94,6 +97,18 @@ export default function ProductImageManager({
                   {!image.is_primary && <Button type="button" size="xs" variant="outline" disabled={loading} onClick={() => makePrimary(image.id)}>Set cover</Button>}
                   <Button type="button" size="icon-xs" variant="destructive" aria-label={`Remove ${image.file_name}`} disabled={loading} onClick={() => remove(image)}><Trash2 /></Button>
                 </div>
+                <select
+                  aria-label={`Variant for ${image.file_name}`}
+                  value={image.variant_id ?? ""}
+                  disabled={loading}
+                  className={`${SHARED_SELECT_CLASS} mt-2`}
+                  onChange={(event) => assignImageVariant(productId, image.id, event.target.value || null)}
+                >
+                  <option value="">All variants</option>
+                  {variants.map((variant) => (
+                    <option key={variant.id} value={variant.id}>{variant.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
           ))}

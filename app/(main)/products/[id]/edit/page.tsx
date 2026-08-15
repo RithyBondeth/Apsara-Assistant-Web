@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import AppHeader from "@/components/header";
 import ProductForm from "@/components/products/product-form";
 import ProductImageManager from "@/components/products/product-image-manager";
+import ProductVariantManager from "@/components/products/product-variant-manager";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -42,12 +43,15 @@ function EditProductClient({ id }: { id: string }) {
 
   // ── Methods
   async function handleSubmit(values: ProductFormValues) {
-    const ok = await updateProduct(id, values);
+    const payload = selected && selected.variants.length > 1
+      ? { name: values.name, description: values.description }
+      : values;
+    const ok = await updateProduct(id, payload);
     if (ok) router.push("/products");
   }
 
   // ── Conditional rendering
-  if (loading || !selected) {
+  if (!selected) {
     return (
       <>
         <AppHeader title="Edit product" description="Update what Apsara knows about this item" />
@@ -88,6 +92,16 @@ function EditProductClient({ id }: { id: string }) {
 
         <Card className="mt-6 max-w-2xl">
           <CardHeader>
+            <CardTitle>Product variants</CardTitle>
+            <CardDescription>Manage option combinations, prices, SKUs, barcodes, and thresholds.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProductVariantManager productId={selected.id} variants={selected.variants} />
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6 max-w-2xl">
+          <CardHeader>
             <CardTitle>Product images</CardTitle>
             <CardDescription>Upload, reorder, and choose the cover image.</CardDescription>
           </CardHeader>
@@ -95,6 +109,7 @@ function EditProductClient({ id }: { id: string }) {
             <ProductImageManager
               productId={selected.id}
               images={selected.images}
+              variants={selected.variants}
               legacyImageUrl={selected.image_url}
             />
           </CardContent>
