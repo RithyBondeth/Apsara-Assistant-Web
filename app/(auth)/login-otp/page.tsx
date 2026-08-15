@@ -14,7 +14,6 @@ import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
 import { extractErrorMessage } from "@/utils/functions/error";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useMagneticHover } from "@/hooks/utils/use-gsap-interactions";
-import { useAuthFormAnimation } from "@/hooks/utils/use-gsap-auth";
 import {
   LucideMail,
   LucideKeyRound,
@@ -50,13 +49,11 @@ export default function LoginOtpPage() {
 }
 
 // ── Step 1: request a one-time code by email ──────────────────────
-// Each step runs its own [data-auth] cascade so remounting (switching
-// steps) replays the entrance.
+// Each step mounts fresh [data-auth] elements, which replays the CSS entrance.
 function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
-  const cardRef = useAuthFormAnimation<HTMLDivElement>();
 
   const {
     register,
@@ -78,7 +75,7 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
   }
 
   return (
-    <div ref={cardRef} className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
         <h1 className="text-2xl font-bold tracking-tight">Sign in with a code</h1>
@@ -154,7 +151,6 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
   const [resendIn, setResendIn] = useState(RESEND_SECONDS);
   const [resending, setResending] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
-  const cardRef = useAuthFormAnimation<HTMLDivElement>();
 
   const {
     register,
@@ -185,7 +181,7 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
   }
 
   return (
-    <div ref={cardRef} className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
         <h1 className="text-2xl font-bold tracking-tight">Enter your code</h1>

@@ -221,6 +221,18 @@ html.lenis, html.lenis body {
   40%, 60%      { transform: translateX(4px);  }
 }
 
+/* Auth form entrance is CSS-owned so SSR and the first client render have
+   identical attributes. A JS animation here mutates inline styles while
+   React 19 is still validating hydration. */
+@keyframes auth-form-enter {
+  from { opacity: 0; transform: translateY(26px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+}
+
+.auth-form-enter [data-auth] {
+  animation: auth-form-enter 0.65s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @layer utilities {
   .bg-dots {
     background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
