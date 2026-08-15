@@ -53,6 +53,9 @@
 
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 :root {
+  --font-ubuntu: Ubuntu, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-kantumruy: "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS", sans-serif;
+  --font-geist-mono: "Geist Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --background:              0 0% 100%;
   --foreground:              0 0% 3.9%;
   --card:                    0 0% 100%;
