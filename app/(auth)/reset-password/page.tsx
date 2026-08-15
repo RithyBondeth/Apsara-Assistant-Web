@@ -13,7 +13,6 @@ import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
 import { extractErrorMessage } from "@/utils/functions/error";
 import { useMagneticHover } from "@/hooks/utils/use-gsap-interactions";
-import { useAuthFormAnimation } from "@/hooks/utils/use-gsap-auth";
 import {
   LucideLock,
   LucideEye,
@@ -60,10 +59,8 @@ const getTrue = () => true;
 const getFalse = () => false;
 
 function InvalidLink() {
-  const cardRef = useAuthFormAnimation<HTMLDivElement>();
-
   return (
-    <div ref={cardRef} className="flex flex-col items-center gap-6 text-center">
+    <div className="flex flex-col items-center gap-6 text-center">
       <div data-auth className="flex size-14 items-center justify-center rounded-full bg-destructive/10 opacity-0">
         <LucideShieldAlert className="size-7 text-destructive" />
       </div>
@@ -92,7 +89,6 @@ function ResetForm({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
-  const cardRef = useAuthFormAnimation<HTMLDivElement>();
 
   const {
     register,
@@ -117,7 +113,7 @@ function ResetForm({ token }: { token: string }) {
   }
 
   return (
-    <div ref={cardRef} className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
         <h1 className="text-2xl font-bold tracking-tight">Reset password</h1>

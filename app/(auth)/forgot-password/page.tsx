@@ -12,7 +12,6 @@ import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
 import { extractErrorMessage } from "@/utils/functions/error";
 import { useMagneticHover } from "@/hooks/utils/use-gsap-interactions";
-import { useAuthFormAnimation } from "@/hooks/utils/use-gsap-auth";
 import {
   LucideMail,
   LucideLoader2,
@@ -37,13 +36,12 @@ export default function ForgotPasswordPage() {
   );
 }
 
-// Each step is its own component so remounting replays the [data-auth]
-// cascade (the hook's entrance effect runs once per mount).
+// Each step is its own component so mounting its [data-auth] elements replays
+// the CSS entrance animation.
 function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
-  const cardRef = useAuthFormAnimation<HTMLDivElement>();
 
   const {
     register,
@@ -65,7 +63,7 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
   }
 
   return (
-    <div ref={cardRef} className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
         <h1 className="text-2xl font-bold tracking-tight">Forgot password?</h1>
@@ -134,13 +132,10 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
   );
 }
 
-// Mounted after the card's entrance already ran, so it replays the
-// [data-auth] cascade itself.
+// Newly mounted [data-auth] elements replay the CSS entrance automatically.
 function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => void }) {
-  const ref = useAuthFormAnimation<HTMLDivElement>();
-
   return (
-    <div ref={ref} className="flex flex-col items-center gap-6 text-center">
+    <div className="flex flex-col items-center gap-6 text-center">
       <div data-auth className="flex size-14 items-center justify-center rounded-full bg-blue-500/10 opacity-0">
         <LucideMailCheck className="size-7 text-blue-500" />
       </div>
