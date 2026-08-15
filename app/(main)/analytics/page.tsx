@@ -96,7 +96,9 @@ export default function AnalyticsPage() {
     return { sold, revenue, byStatus, byPlatform, topProducts, averages };
   }, [orders, conversations, products]);
 
-  const outOfStock = products.filter((p) => p.is_active && p.stock === 0);
+  const lowStock = products.filter(
+    (product) => product.is_active && product.stock <= product.low_stock_threshold,
+  );
 
   // ── Render UI
   if (loading && orders.length === 0 && products.length === 0) {
@@ -216,20 +218,20 @@ export default function AnalyticsPage() {
               <CardTitle className="text-base">Needs restocking</CardTitle>
             </CardHeader>
             <CardContent>
-              {outOfStock.length === 0 ? (
+              {lowStock.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted-foreground">
                   Everything on sale is in stock.
                 </p>
               ) : (
                 <div className="divide-y">
-                  {outOfStock.map((product) => (
+                  {lowStock.map((product) => (
                     <div key={product.id}
                          className="flex items-center justify-between py-2 text-sm">
                       <span className="truncate">{product.name}</span>
                       {/* Still listed and still being offered by the
                           assistant, which is why this is worth surfacing. */}
                       <span className="shrink-0 text-xs text-destructive">
-                        Out of stock
+                        {product.stock === 0 ? "Out of stock" : `${product.stock} left`}
                       </span>
                     </div>
                   ))}

@@ -7,6 +7,7 @@ import {
   Settings,
   Plug,
   BarChart3,
+  Warehouse,
 } from "lucide-react";
 
 export const SIDEBAR_NAV = [
@@ -19,6 +20,11 @@ export const SIDEBAR_NAV = [
     title: "Products",
     href: "/products",
     icon: Package,
+  },
+  {
+    title: "Inventory",
+    href: "/inventory",
+    icon: Warehouse,
   },
   {
     title: "Customers",

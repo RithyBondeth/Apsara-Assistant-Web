@@ -80,6 +80,7 @@ function EditProductClient({ id }: { id: string }) {
               onSubmit={handleSubmit}
               loading={loading}
               submitLabel="Save changes"
+              allowStockEditing={false}
             />
           </CardContent>
         </Card>

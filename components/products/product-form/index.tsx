@@ -15,6 +15,7 @@ const schema = z.object({
   description: z.string().optional().default(""),
   price: z.number().min(0, "Price must be 0 or more"),
   stock: z.number().int().min(0, "Stock must be 0 or more"),
+  low_stock_threshold: z.number().int().min(0, "Threshold must be 0 or more"),
   image_url: z.string().optional().default(""),
 });
 
@@ -23,6 +24,7 @@ export default function ProductForm({
   onSubmit,
   loading,
   submitLabel = "Save product",
+  allowStockEditing = true,
 }: IProductFormProps) {
   const currency = useAuthStore((state) => state.user?.currency ?? "USD");
   const {
@@ -36,6 +38,7 @@ export default function ProductForm({
       description: defaultValues?.description ?? "",
       price: defaultValues?.price ? parseFloat(String(defaultValues.price)) : 0,
       stock: defaultValues?.stock ?? 0,
+      low_stock_threshold: defaultValues?.low_stock_threshold ?? 5,
       image_url: defaultValues?.image_url ?? "",
     },
   });
@@ -54,6 +57,25 @@ export default function ProductForm({
         />
         {errors.name && (
           <p id="product-name-error" className="text-xs text-destructive">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="low_stock_threshold">Low-stock alert at *</Label>
+        <Input
+          id="low_stock_threshold"
+          type="number"
+          min="0"
+          placeholder="5"
+          {...register("low_stock_threshold", { valueAsNumber: true })}
+        />
+        <p className="text-xs text-muted-foreground">
+          Inventory is flagged when available stock reaches this level.
+        </p>
+        {errors.low_stock_threshold && (
+          <p className="text-xs text-destructive">
+            {errors.low_stock_threshold.message}
+          </p>
         )}
       </div>
 
@@ -87,21 +109,25 @@ export default function ProductForm({
           )}
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="stock">Stock *</Label>
-          <Input
-            id="stock"
-            type="number"
-            min="0"
-            placeholder="100"
-            aria-invalid={Boolean(errors.stock)}
-            aria-describedby={errors.stock ? "product-stock-error" : undefined}
-            {...register("stock", { valueAsNumber: true })}
-          />
-          {errors.stock && (
-            <p id="product-stock-error" className="text-xs text-destructive">{errors.stock.message}</p>
-          )}
-        </div>
+        {allowStockEditing ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="stock">Opening stock *</Label>
+            <Input
+              id="stock"
+              type="number"
+              min="0"
+              placeholder="100"
+              aria-invalid={Boolean(errors.stock)}
+              aria-describedby={errors.stock ? "product-stock-error" : undefined}
+              {...register("stock", { valueAsNumber: true })}
+            />
+            {errors.stock && (
+              <p id="product-stock-error" className="text-xs text-destructive">{errors.stock.message}</p>
+            )}
+          </div>
+        ) : (
+          <input type="hidden" {...register("stock", { valueAsNumber: true })} />
+        )}
       </div>
 
       {/* ── Image URL */}

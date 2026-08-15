@@ -5,6 +5,7 @@ export interface IProductFormProps {
   onSubmit: (data: ProductFormValues) => void | Promise<void>;
   loading?: boolean;
   submitLabel?: string;
+  allowStockEditing?: boolean;
 }
 
 export interface ProductFormValues {
@@ -12,5 +13,6 @@ export interface ProductFormValues {
   description?: string;
   price: number;
   stock: number;
+  low_stock_threshold: number;
   image_url?: string;
 }
