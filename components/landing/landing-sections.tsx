@@ -8,6 +8,7 @@ import LandingStats from "./landing-stats";
 import LandingFeatures from "./landing-features";
 import LandingShowcase from "./landing-showcase";
 import LandingHowItWorks from "./landing-how-it-works";
+import LandingPricing from "./landing-pricing";
 import LandingCta from "./landing-cta";
 import LandingFooter from "./landing-footer";
 
@@ -35,6 +36,7 @@ export function LandingSections() {
       <LandingFeatures     key={`features-${language}`} />
       <LandingShowcase     key={`showcase-${language}`} />
       <LandingHowItWorks   key={`hiw-${language}`} />
+      <LandingPricing      key={`pricing-${language}`} />
       <LandingCta          key={`cta-${language}`} />
       <LandingFooter       key={`footer-${language}`} />
     </>
