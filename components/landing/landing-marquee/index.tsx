@@ -2,7 +2,6 @@
 
 import type { ComponentType } from "react";
 import { useId } from "react";
-import { LucideGlobe } from "lucide-react";
 import { useT } from "@/hooks/utils/use-translations";
 
 type IconProps = { className?: string };
@@ -70,13 +69,19 @@ function InstagramIcon({ className }: IconProps) {
   );
 }
 
-/** Website is Apsara's own channel (no brand), so it keeps a globe glyph. */
-function WebsiteIcon({ className }: IconProps) {
-  return <LucideGlobe className={className} strokeWidth={1.9} />;
+function TikTokIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.72-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.41-.67.42-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"
+      />
+    </svg>
+  );
 }
 
 /**
- * Infinite channel marquee — the four channels Apsara actually answers on.
+ * Infinite channel marquee showing what is live now and what is next.
  * Pure CSS animation (see `.marquee` / `.marquee-track` in globals.css):
  * the track renders its items twice and translates by half its width, so
  * the loop is seamless. Pauses on hover; the global reduced-motion rule
@@ -85,23 +90,31 @@ function WebsiteIcon({ className }: IconProps) {
 export default function LandingMarquee() {
   const t = useT("marquee");
 
-  const CHANNELS: { icon: ComponentType<IconProps>; label: string; tone?: string }[] = [
-    { icon: TelegramIcon, label: t.telegram },
-    { icon: MessengerIcon, label: t.messenger },
-    { icon: InstagramIcon, label: t.instagram },
-    { icon: WebsiteIcon, label: t.website, tone: "text-emerald-500" },
+  const CHANNELS: { icon: ComponentType<IconProps>; label: string; live: boolean; tone?: string }[] = [
+    { icon: MessengerIcon, label: t.messenger, live: true },
+    { icon: TelegramIcon, label: t.telegram, live: true },
+    { icon: InstagramIcon, label: t.instagram, live: false },
+    { icon: TikTokIcon, label: t.tiktok, live: false, tone: "text-foreground" },
   ];
 
   // Repeat the set so the half-track is wider than any viewport
   const items = [...CHANNELS, ...CHANNELS, ...CHANNELS];
 
   return (
-    <section className="relative border-y border-border/60 bg-card/20 py-9 sm:py-12">
-      <p className="mb-6 text-center text-sm font-semibold uppercase tracking-widest text-muted-foreground/70">
-        {t.label}
-      </p>
+    <section className="relative overflow-hidden border-y border-border/60 bg-card/20 py-12 sm:py-16">
+      <div className="pointer-events-none absolute left-1/4 top-0 size-48 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 size-40 translate-y-1/2 rounded-full bg-violet-500/10 blur-3xl" />
 
-      <div className="marquee">
+      <div className="relative mx-auto mb-8 max-w-2xl px-4 text-center sm:mb-10">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+          <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex size-2 rounded-full bg-emerald-500" /></span>
+          {t.liveNow}
+        </div>
+        <h2 className="font-heading text-xl font-semibold tracking-tight sm:text-2xl">{t.label}</h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{t.description}</p>
+      </div>
+
+      <div className="marquee relative" aria-label={t.label}>
         <div className="marquee-track">
           {[0, 1].map((copy) => (
             <div
@@ -112,10 +125,18 @@ export default function LandingMarquee() {
               {items.map((channel, i) => (
                 <span
                   key={`${copy}-${i}`}
-                  className="mx-6 inline-flex items-center gap-3 rounded-full border border-border/50 bg-card/60 px-7 py-3.5 text-base font-medium text-foreground/80 shadow-sm backdrop-blur-sm sm:mx-8"
+                  className="group mx-2.5 inline-flex min-w-56 items-center gap-3 rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-left shadow-sm backdrop-blur-md transition-colors hover:border-blue-500/30 hover:bg-background sm:mx-3"
                 >
-                  <channel.icon className={`size-6 ${channel.tone ?? ""}`} />
-                  {channel.label}
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted/70">
+                    <channel.icon className={`size-5 ${channel.tone ?? ""}`} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-foreground">{channel.label}</span>
+                    <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                      <span className={`size-1.5 rounded-full ${channel.live ? "bg-emerald-500" : "bg-amber-400"}`} />
+                      {channel.live ? t.live : t.comingSoon}
+                    </span>
+                  </span>
                 </span>
               ))}
             </div>
