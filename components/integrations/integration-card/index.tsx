@@ -168,7 +168,7 @@ export default function IntegrationCard({
             Let the assistant reply automatically
           </label>
           <p className="pl-6 text-xs text-muted-foreground">
-            Off, messages still arrive in Chat — you answer them yourself.
+            Off, messages still arrive in Inbox — you answer them yourself.
           </p>
 
           <label className="flex items-center gap-2 text-sm">

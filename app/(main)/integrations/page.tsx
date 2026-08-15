@@ -108,7 +108,7 @@ export default function IntegrationsPage() {
           <EmptyState
             icon={Plug}
             title="Connect your first sales channel"
-            description="Messenger and Telegram bring real customer messages into Chat. Stripe lets you send secure card payment links from an order."
+            description="Messenger and Telegram bring real customer messages into Inbox. Stripe lets you send secure card payment links from an order."
           >
             <Button size="sm" onClick={() => openConnect("messenger")}>
               <Plus className="mr-1.5 size-4" />

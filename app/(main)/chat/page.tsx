@@ -1,263 +1,281 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, MessageCircle, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Bot, Clock3, Inbox, MessageCircle, Plus, Search, UserRound, X } from "lucide-react";
 import AppHeader from "@/components/header";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
+import InboxContext from "@/components/chat/inbox-context";
 import NewConversationDialog from "@/components/chat/new-conversation-dialog";
 import NewOrderDialog from "@/components/orders/new-order-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useChatStore } from "@/stores/apis/chat/chat.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
-import { IConversation } from "@/utils/interfaces/chat/chat.interface";
+import { IConversation, IInboxFilters } from "@/utils/interfaces/chat/chat.interface";
 import { IOrderCreate, IOrderDraft } from "@/utils/interfaces/order/order.interface";
 import { cn } from "@/lib/utils";
 
+const SELECT_CLASS = "h-8 min-w-0 rounded-lg border border-input bg-background px-2 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
+
+function responseTime(seconds: number | null | undefined) {
+  if (seconds == null) return "—";
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
+  return `${(seconds / 3600).toFixed(1)}h`;
+}
+
 export default function ChatPage() {
-  // ── All States
   const [dialogOpen, setDialogOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [orderDraft, setOrderDraft] = useState<IOrderDraft | null>(null);
+  const [filters, setFilters] = useState<IInboxFilters>({});
+  const [search, setSearch] = useState("");
 
-  // ── API Integration
-  const {
-    conversations,
-    activeConversation,
-    conversationsLoading,
-    messagesLoading,
-    error,
-    clearError,
-    fetchConversations,
-    createConversation,
-    setActiveConversation,
-    fetchConversationDetail,
-    updateConversationStatus,
-    sendMessage,
-    sendSellerMessage,
-  } = useChatStore();
-
+  const chat = useChatStore();
   const { customers, fetchCustomers } = useCustomersStore();
   const { products, fetchProducts } = useProductsStore();
+  const ordersStore = useOrdersStore();
   const {
-    createOrder,
-    draftOrder,
-    drafting,
-    error: orderError,
-    clearError: clearOrderError,
-  } = useOrdersStore();
+    activeConversation,
+    fetchConversations,
+    fetchConversationDetail,
+    fetchInboxMetrics,
+  } = chat;
+  const { fetchOrders } = ordersStore;
 
-  // ── Effects
   useEffect(() => {
-    fetchConversations();
+    fetchInboxMetrics();
     fetchCustomers();
     fetchProducts();
-  }, [fetchConversations, fetchCustomers, fetchProducts]);
+    fetchOrders();
+  }, [fetchInboxMetrics, fetchCustomers, fetchProducts, fetchOrders]);
 
-  // Keep the inbox current without replacing the thread with loading
-  // skeletons. Platform webhooks write to the same API this polls.
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      const next = { ...filters, search: search.trim() || undefined };
+      fetchConversations(false, next);
+    }, 250);
+    return () => window.clearTimeout(timeout);
+  }, [filters, search, fetchConversations]);
+
   useEffect(() => {
     const id = window.setInterval(() => {
-      fetchConversations(true);
-      if (activeConversation) {
-        fetchConversationDetail(activeConversation.id, true);
-      }
+      const currentFilters = { ...filters, search: search.trim() || undefined };
+      fetchConversations(true, currentFilters);
+      fetchInboxMetrics();
+      if (activeConversation) fetchConversationDetail(activeConversation.id, true);
     }, 5000);
     return () => window.clearInterval(id);
-  }, [activeConversation, fetchConversationDetail, fetchConversations]);
+  }, [activeConversation, fetchConversationDetail, fetchConversations, fetchInboxMetrics, filters, search]);
 
-  // ── Methods
-  function handleSelectConversation(conversation: IConversation) {
-    setActiveConversation(conversation);
-    fetchConversationDetail(conversation.id);
+  const activeCustomer = customers.find((customer) => customer.id === chat.activeConversation?.customer_id);
+  const customerOrders = useMemo(
+    () => ordersStore.orders.filter((order) => order.customer_id === chat.activeConversation?.customer_id),
+    [ordersStore.orders, chat.activeConversation?.customer_id],
+  );
+
+  function selectConversation(conversation: IConversation) {
+    chat.setActiveConversation(conversation);
+    chat.fetchConversationDetail(conversation.id);
   }
 
-  async function handleCreateConversation(customerId: string, platform: string) {
-    const conv = await createConversation(customerId, platform);
-    if (conv) {
-      setActiveConversation(conv);
-      fetchConversationDetail(conv.id);
-    }
+  async function createConversation(customerId: string, platform: string) {
+    const conversation = await chat.createConversation(customerId, platform);
+    if (conversation) selectConversation(conversation);
   }
 
-  async function handleSend(content: string) {
-    if (!activeConversation) return;
-    if (activeConversation.source === "channel") {
-      await sendSellerMessage(activeConversation.id, content);
+  async function send(content: string) {
+    if (!chat.activeConversation) return;
+    if (chat.activeConversation.source === "channel") {
+      await chat.sendSellerMessage(chat.activeConversation.id, content);
     } else {
-      await sendMessage(activeConversation.id, content);
+      await chat.sendMessage(chat.activeConversation.id, content);
     }
+    chat.fetchConversations(true, filters);
   }
 
-  async function handleStatusChange(status: "open" | "closed" | "pending") {
-    if (!activeConversation) return;
-    await updateConversationStatus(activeConversation.id, status);
+  async function changeStatus(status: "open" | "closed" | "pending") {
+    if (!chat.activeConversation) return;
+    if (await chat.updateConversationStatus(chat.activeConversation.id, status)) chat.fetchInboxMetrics();
   }
 
-  async function handleCreateOrder(data: IOrderCreate) {
-    const order = await createOrder(data);
-    // Placing an order moves stock, so the catalogue on screen is now stale.
-    if (order) fetchProducts();
+  async function changeHandlingMode(mode: "auto" | "manual") {
+    if (!chat.activeConversation) return false;
+    const changed = await chat.setHandlingMode(chat.activeConversation.id, mode);
+    if (changed) chat.fetchInboxMetrics();
+    return changed;
+  }
+
+  async function createOrder(data: IOrderCreate) {
+    const order = await ordersStore.createOrder(data);
+    if (order) {
+      fetchProducts();
+      ordersStore.fetchOrders();
+    }
     return Boolean(order);
   }
 
-  async function handleDraftOrder() {
-    if (!activeConversation) return;
-    clearOrderError();
-    const draft = await draftOrder(activeConversation.id);
+  async function draftOrder() {
+    if (!chat.activeConversation) return;
+    ordersStore.clearError();
+    const draft = await ordersStore.draftOrder(chat.activeConversation.id);
     if (draft) {
-      // The proposal carries a stock snapshot, but another order may have
-      // moved inventory while the model was working. Refresh before review;
-      // the server still performs the final locked check on submission.
       await fetchProducts();
       setOrderDraft(draft);
       setOrderOpen(true);
     }
   }
 
-  // ── Render UI
+  const context = chat.activeConversation ? (
+    <InboxContext
+      key={chat.activeConversation.id}
+      conversation={chat.activeConversation}
+      customer={activeCustomer}
+      orders={customerOrders}
+      onHandlingModeChange={changeHandlingMode}
+      onAddNote={(content) => chat.addNote(chat.activeConversation!.id, content)}
+      onDeleteNote={(noteId) => chat.deleteNote(chat.activeConversation!.id, noteId)}
+      onAddTag={(name) => chat.addTag(chat.activeConversation!.id, name)}
+      onDeleteTag={(tagId) => chat.deleteTag(chat.activeConversation!.id, tagId)}
+    />
+  ) : null;
+
+  const preset = filters.unread_only ? "unread" : filters.assignment === "me" ? "mine" : "all";
+
   return (
     <>
-      <AppHeader
-        title="Chat"
-        description="Handle customer questions, rehearsals, and sales handoffs"
-      />
+      <AppHeader title="Inbox" description="Messenger and Telegram conversations in one workspace" />
 
-      <main className="flex min-h-0 flex-1 overflow-hidden">
-        {/* ── Sidebar: conversation list */}
-        <div
-          className={cn(
-            "flex w-full shrink-0 flex-col border-r md:w-72",
-            activeConversation && "hidden md:flex",
-          )}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <p className="text-sm font-medium">
-              Conversations
-              {conversations.length > 0 && (
-                <span className="ml-1.5 text-muted-foreground">
-                  ({conversations.length})
-                </span>
-              )}
-            </p>
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              onClick={() => setDialogOpen(true)}
-              title="New conversation"
-              aria-label="New conversation"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {conversationsLoading ? (
-            <div className="space-y-2 p-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-lg" />
-              ))}
-            </div>
-          ) : (
-            <ConversationList
-              conversations={conversations}
-              customers={customers}
-              activeId={activeConversation?.id}
-              onSelect={handleSelectConversation}
-            />
-          )}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="hidden grid-cols-4 border-b bg-muted/20 lg:grid">
+          <Metric icon={Inbox} label="Open conversations" value={chat.metrics?.open ?? 0} />
+          <Metric icon={MessageCircle} label="Unread messages" value={chat.metrics?.unread ?? 0} />
+          <Metric icon={UserRound} label="Manual takeover" value={chat.metrics?.manual ?? 0} />
+          <Metric icon={Clock3} label="Avg. first response" value={responseTime(chat.metrics?.average_first_response_seconds)} />
         </div>
 
-        {/* ── Main: chat window */}
-        <div
-          className={cn(
-            "min-w-0 flex-1 flex-col overflow-hidden md:flex",
-            activeConversation ? "flex" : "hidden",
-          )}
-        >
-          {/* ── Failure banner: the AI reply can fail on its own, after the
-                 customer's message was already saved */}
-          {(error || (!orderOpen && orderError)) && (
-            <div className="flex items-start gap-2 border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
-              <p className="flex-1">{error ?? orderError}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  clearError();
-                  clearOrderError();
-                }}
-                aria-label="Dismiss"
-                className="shrink-0 rounded p-0.5 hover:bg-destructive/10"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <main className="flex min-h-0 flex-1 overflow-hidden">
+          <aside className={cn("flex w-full shrink-0 flex-col border-r bg-background md:w-80", chat.activeConversation && "hidden md:flex")}>
+            <div className="space-y-3 border-b p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold">Conversations</p>
+                  <p className="text-[11px] text-muted-foreground">{chat.conversations.length} in this view</p>
+                </div>
+                <Button size="icon-sm" variant="outline" onClick={() => setDialogOpen(true)} aria-label="New rehearsal conversation">
+                  <Plus />
+                </Button>
+              </div>
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Input value={search} onChange={(event) => setSearch(event.target.value)} className="pl-8" placeholder="Search customers…" />
+              </div>
+              <div className="grid grid-cols-3 rounded-lg bg-muted p-0.5">
+                {(["all", "unread", "mine"] as const).map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setFilters((current) => ({ ...current, unread_only: item === "unread" || undefined, assignment: item === "mine" ? "me" : undefined }))}
+                    className={cn("rounded-md px-2 py-1.5 text-xs font-medium capitalize text-muted-foreground transition", preset === item && "bg-background text-foreground shadow-sm")}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <select value={filters.platform ?? ""} onChange={(event) => setFilters((current) => ({ ...current, platform: (event.target.value || undefined) as IInboxFilters["platform"] }))} className={SELECT_CLASS} aria-label="Filter by channel">
+                  <option value="">All channels</option>
+                  <option value="messenger">Messenger</option>
+                  <option value="telegram">Telegram</option>
+                </select>
+                <select value={filters.status ?? ""} onChange={(event) => setFilters((current) => ({ ...current, status: (event.target.value || undefined) as IInboxFilters["status"] }))} className={SELECT_CLASS} aria-label="Filter by status">
+                  <option value="">Any status</option>
+                  <option value="open">Open</option>
+                  <option value="pending">Pending</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
             </div>
-          )}
 
-          {activeConversation ? (
-            <ChatWindow
-              conversation={activeConversation}
-              customer={customers.find((c) => c.id === activeConversation.customer_id)}
-              loading={messagesLoading}
-              onSend={handleSend}
-              onStatusChange={handleStatusChange}
-              onCreateOrder={() => {
-                clearOrderError();
-                setOrderDraft(null);
-                setOrderOpen(true);
-              }}
-              onDraftOrder={handleDraftOrder}
-              draftingOrder={drafting}
-              isLiveChannel={activeConversation.source === "channel"}
-              onBack={() => setActiveConversation(null)}
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
-              <MessageCircle className="h-10 w-10 opacity-30" />
-              <p className="text-sm">Select a conversation to start chatting</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDialogOpen(true)}
-              >
-                <Plus className="mr-1.5 h-4 w-4" />
-                New conversation
-              </Button>
-            </div>
-          )}
-        </div>
-      </main>
+            {chat.conversationsLoading ? (
+              <div className="space-y-2 p-3">{Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-xl" />)}</div>
+            ) : (
+              <ConversationList conversations={chat.conversations} customers={customers} activeId={chat.activeConversation?.id} onSelect={selectConversation} />
+            )}
+          </aside>
 
-      {/* ── New conversation dialog */}
-      <NewConversationDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        customers={customers}
-        onCreate={handleCreateConversation}
-      />
+          <section className={cn("min-w-0 flex-1 flex-col overflow-hidden bg-background md:flex", chat.activeConversation ? "flex" : "hidden")}>
+            {(chat.error || (!orderOpen && ordersStore.error)) && (
+              <div className="flex items-start gap-2 border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                <p className="flex-1">{chat.error ?? ordersStore.error}</p>
+                <button type="button" onClick={() => { chat.clearError(); ordersStore.clearError(); }} aria-label="Dismiss" className="rounded p-0.5 hover:bg-destructive/10"><X className="size-4" /></button>
+              </div>
+            )}
+            {chat.activeConversation ? (
+              <ChatWindow
+                conversation={chat.activeConversation}
+                customer={activeCustomer}
+                loading={chat.messagesLoading}
+                onSend={send}
+                onStatusChange={changeStatus}
+                onCreateOrder={() => { ordersStore.clearError(); setOrderDraft(null); setOrderOpen(true); }}
+                onDraftOrder={draftOrder}
+                draftingOrder={ordersStore.drafting}
+                isLiveChannel={chat.activeConversation.source === "channel"}
+                onBack={() => chat.setActiveConversation(null)}
+                onToggleDetails={() => setDetailsOpen(true)}
+              />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center px-6 text-center text-muted-foreground">
+                <div className="mb-4 rounded-2xl bg-primary/10 p-4 text-primary"><Bot className="size-7" /></div>
+                <p className="font-medium text-foreground">Your unified inbox</p>
+                <p className="mt-1 max-w-sm text-sm leading-6">Select a Messenger or Telegram conversation to reply, review orders, and manage the handoff between you and Apsara.</p>
+              </div>
+            )}
+          </section>
 
-      {/* ── Order started from a conversation: the customer is fixed by the
-             thread, and the order keeps a link back to it. */}
-      {(activeConversation || orderDraft) && (
+          {context && <aside className="hidden w-80 shrink-0 border-l xl:block">{context}</aside>}
+        </main>
+      </div>
+
+      <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <SheetContent className="gap-0 p-0 xl:hidden">
+          <SheetHeader className="border-b"><SheetTitle>Customer details</SheetTitle></SheetHeader>
+          <div className="min-h-0 flex-1">{context}</div>
+        </SheetContent>
+      </Sheet>
+
+      <NewConversationDialog open={dialogOpen} onOpenChange={setDialogOpen} customers={customers} onCreate={createConversation} />
+
+      {(chat.activeConversation || orderDraft) && (
         <NewOrderDialog
           open={orderOpen}
-          onOpenChange={(open) => {
-            setOrderOpen(open);
-            if (!open) setOrderDraft(null);
-          }}
+          onOpenChange={(open) => { setOrderOpen(open); if (!open) setOrderDraft(null); }}
           customers={customers}
           products={products}
-          lockedCustomerId={orderDraft?.customer_id ?? activeConversation?.customer_id}
-          conversationId={orderDraft?.conversation_id ?? activeConversation?.id}
+          lockedCustomerId={orderDraft?.customer_id ?? chat.activeConversation?.customer_id}
+          conversationId={orderDraft?.conversation_id ?? chat.activeConversation?.id}
           initialDraft={orderDraft}
-          onCreate={handleCreateOrder}
-          error={orderError}
-          onDismissError={clearOrderError}
+          onCreate={createOrder}
+          error={ordersStore.error}
+          onDismissError={ordersStore.clearError}
         />
       )}
     </>
+  );
+}
+
+function Metric({ icon: Icon, label, value }: { icon: typeof Inbox; label: string; value: string | number }) {
+  return (
+    <div className="flex items-center gap-3 border-r px-4 py-3 last:border-r-0">
+      <div className="rounded-lg bg-background p-2 text-primary ring-1 ring-foreground/10"><Icon className="size-4" /></div>
+      <div><p className="text-base font-semibold tabular-nums">{value}</p><p className="text-[11px] text-muted-foreground">{label}</p></div>
+    </div>
   );
 }
