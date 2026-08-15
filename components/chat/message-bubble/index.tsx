@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
 import { IMessageBubbleProps } from "./props";
+import { BASE_URL } from "@/utils/constants/apis/base.api.constant";
+
+function attachmentUrl(id: string, publicUrl: string | null) {
+  return publicUrl ?? `${BASE_URL}/api/v1/attachments/${encodeURIComponent(id)}/content`;
+}
 
 export default function MessageBubble({ message }: IMessageBubbleProps) {
   const isOutgoing = message.sender_type !== "customer";
@@ -39,7 +44,7 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={image.id}
-                src={image.file_url}
+                src={attachmentUrl(image.id, image.file_url)}
                 alt={image.file_name ?? "Attachment"}
                 className="max-h-56 w-full rounded-lg bg-white object-contain"
               />

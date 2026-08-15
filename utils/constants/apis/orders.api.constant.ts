@@ -7,4 +7,9 @@ export const ORDERS_API = {
   UPDATE: (id: string) => `${API_V1}/orders/${id}`,
   DELETE: (id: string) => `${API_V1}/orders/${id}`,
   CHECKOUT: (id: string) => `${API_V1}/orders/${id}/checkout`,
+  RECEIPTS: (id: string) => `${API_V1}/orders/${id}/receipts`,
+  CONFIRM_RECEIPT: (id: string, receiptId: string) =>
+    `${API_V1}/orders/${id}/receipts/${receiptId}/confirm`,
+  REJECT_RECEIPT: (id: string, receiptId: string) =>
+    `${API_V1}/orders/${id}/receipts/${receiptId}/reject`,
 };

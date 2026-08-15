@@ -35,6 +35,11 @@ export default function OrdersPage() {
     updateOrder,
     deleteOrder,
     createCheckout,
+    receipts,
+    receiptsLoading,
+    fetchReceipts,
+    confirmReceipt,
+    rejectReceipt,
     selectOrder,
     clearError,
   } = useOrdersStore();
@@ -55,6 +60,7 @@ export default function OrdersPage() {
   function handleSelect(order: IOrder) {
     clearError();
     selectOrder(order);
+    void fetchReceipts(order.id);
     setDetailOpen(true);
   }
 
@@ -150,6 +156,14 @@ export default function OrdersPage() {
         onDelete={handleDelete}
         onCreateCheckout={() =>
           selected ? createCheckout(selected.id) : Promise.resolve(null)
+        }
+        receipts={receipts}
+        receiptsLoading={receiptsLoading}
+        onConfirmReceipt={(receiptId) =>
+          selected ? confirmReceipt(selected.id, receiptId) : Promise.resolve(false)
+        }
+        onRejectReceipt={(receiptId) =>
+          selected ? rejectReceipt(selected.id, receiptId) : Promise.resolve(false)
         }
         error={error}
         onDismissError={clearError}
