@@ -1,3 +1,13 @@
+export interface IProductImage {
+  id: string;
+  url: string;
+  file_name: string;
+  file_size: number;
+  position: number;
+  is_primary: boolean;
+  created_at: string;
+}
+
 export interface IProduct {
   id: string;
   user_id: string;
@@ -8,6 +18,7 @@ export interface IProduct {
   reserved_stock: number;
   low_stock_threshold: number;
   image_url: string | null;
+  images: IProductImage[];
   is_active: boolean;
   created_at: string;
 }
@@ -18,7 +29,6 @@ export interface IProductCreate {
   price: number;
   stock: number;
   low_stock_threshold: number;
-  image_url?: string;
 }
 
 export interface IProductUpdate extends Partial<IProductCreate> {

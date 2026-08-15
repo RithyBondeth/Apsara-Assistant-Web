@@ -6,4 +6,8 @@ export const PRODUCTS_API = {
   GET: (id: string) => `${API_V1}/products/${id}`,
   UPDATE: (id: string) => `${API_V1}/products/${id}`,
   DELETE: (id: string) => `${API_V1}/products/${id}`,
+  IMAGES: (id: string) => `${API_V1}/products/${id}/images`,
+  IMAGE_ORDER: (id: string) => `${API_V1}/products/${id}/images/order`,
+  DELETE_IMAGE: (id: string, imageId: string) =>
+    `${API_V1}/products/${id}/images/${imageId}`,
 };

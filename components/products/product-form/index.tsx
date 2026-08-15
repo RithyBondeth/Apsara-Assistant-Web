@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { ImagePlus, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +18,6 @@ const schema = z.object({
   price: z.number().min(0, "Price must be 0 or more"),
   stock: z.number().int().min(0, "Stock must be 0 or more"),
   low_stock_threshold: z.number().int().min(0, "Threshold must be 0 or more"),
-  image_url: z.string().optional().default(""),
 });
 
 export default function ProductForm({
@@ -25,6 +26,7 @@ export default function ProductForm({
   loading,
   submitLabel = "Save product",
   allowStockEditing = true,
+  allowImageSelection = false,
 }: IProductFormProps) {
   const currency = useAuthStore((state) => state.user?.currency ?? "USD");
   const {
@@ -39,12 +41,49 @@ export default function ProductForm({
       price: defaultValues?.price ? parseFloat(String(defaultValues.price)) : 0,
       stock: defaultValues?.stock ?? 0,
       low_stock_threshold: defaultValues?.low_stock_threshold ?? 5,
-      image_url: defaultValues?.image_url ?? "",
     },
   });
+  const [selectedImages, setSelectedImages] = useState<Array<{ file: File; url: string }>>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const urls = useRef<string[]>([]);
+
+  useEffect(() => () => urls.current.forEach((url) => URL.revokeObjectURL(url)), []);
+
+  function chooseImages(files: FileList | null) {
+    if (!files) return;
+    const incoming = Array.from(files);
+    if (selectedImages.length + incoming.length > 8) {
+      setImageError("A product can have at most 8 images.");
+      return;
+    }
+    const invalid = incoming.find(
+      (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 5_000_000,
+    );
+    if (invalid) {
+      setImageError("Use PNG, JPEG, or WebP images up to 5 MB each.");
+      return;
+    }
+    const added = incoming.map((file) => {
+      const url = URL.createObjectURL(file);
+      urls.current.push(url);
+      return { file, url };
+    });
+    setSelectedImages((current) => [...current, ...added]);
+    setImageError(null);
+  }
+
+  function removeImage(index: number) {
+    setSelectedImages((current) => {
+      URL.revokeObjectURL(current[index].url);
+      return current.filter((_, itemIndex) => itemIndex !== index);
+    });
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form
+      onSubmit={handleSubmit((values) => onSubmit(values, selectedImages.map((item) => item.file)))}
+      className="space-y-5"
+    >
       {/* ── Name */}
       <div className="space-y-1.5">
         <Label htmlFor="name">Product name *</Label>
@@ -130,16 +169,54 @@ export default function ProductForm({
         )}
       </div>
 
-      {/* ── Image URL */}
-      <div className="space-y-1.5">
-        <Label htmlFor="image_url">Image URL</Label>
-        <Input
-          id="image_url"
-          type="url"
-          placeholder="https://…"
-          {...register("image_url")}
-        />
-      </div>
+      {allowImageSelection && (
+        <div className="space-y-2">
+          <Label htmlFor="product-images">Product images</Label>
+          <label
+            htmlFor="product-images"
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed p-5 text-sm text-muted-foreground hover:bg-muted/50"
+          >
+            <ImagePlus className="h-4 w-4" />
+            Choose up to 8 images
+          </label>
+          <Input
+            id="product-images"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+            className="sr-only"
+            onChange={(event) => chooseImages(event.target.files)}
+          />
+          {selectedImages.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {selectedImages.map((image, index) => (
+                <div key={image.url} className="relative aspect-square overflow-hidden rounded-lg border">
+                  {/* Local object URLs do not benefit from Next image optimization. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={image.url} alt={`Selected product ${index + 1}`} className="h-full w-full object-cover" />
+                  <Button
+                    type="button"
+                    size="icon-xs"
+                    variant="destructive"
+                    aria-label={`Remove image ${index + 1}`}
+                    className="absolute right-1 top-1"
+                    onClick={() => removeImage(index)}
+                  >
+                    <X />
+                  </Button>
+                  {index === 0 && (
+                    <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white">
+                      Cover
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {imageError && <p role="alert" className="text-xs text-destructive">{imageError}</p>}
+          <p className="text-xs text-muted-foreground">PNG, JPEG, or WebP. Maximum 5 MB each.</p>
+        </div>
+      )}
 
       <Button type="submit" disabled={loading}>
         {loading ? "Saving…" : submitLabel}

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import AppHeader from "@/components/header";
 import ProductForm from "@/components/products/product-form";
+import ProductImageManager from "@/components/products/product-image-manager";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -81,6 +82,20 @@ function EditProductClient({ id }: { id: string }) {
               loading={loading}
               submitLabel="Save changes"
               allowStockEditing={false}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6 max-w-2xl">
+          <CardHeader>
+            <CardTitle>Product images</CardTitle>
+            <CardDescription>Upload, reorder, and choose the cover image.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProductImageManager
+              productId={selected.id}
+              images={selected.images}
+              legacyImageUrl={selected.image_url}
             />
           </CardContent>
         </Card>
