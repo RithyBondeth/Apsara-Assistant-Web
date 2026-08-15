@@ -92,7 +92,11 @@ export default function AppSidebar({ className }: ISidebarProps) {
         </SidebarMenu>
 
         {user && (
-          <div className="mt-2 flex items-center gap-3 px-2">
+          <Link
+            href="/settings"
+            aria-label="Open profile settings"
+            className="mt-2 flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          >
             <Avatar className="h-7 w-7 shrink-0">
               <AvatarFallback className="text-xs">
                 {user.full_name?.charAt(0).toUpperCase()}
@@ -108,7 +112,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
                 </p>
               </div>
             )}
-          </div>
+          </Link>
         )}
       </SidebarFooter>
     </Sidebar>
