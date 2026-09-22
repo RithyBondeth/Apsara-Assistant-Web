@@ -208,7 +208,10 @@
       "apsara": "Apsara AI",
       "customer": "Customer",
       "attachment": "Attachment",
-      "empty": "Empty message"
+      "empty": "Empty message",
+      "cannotRead": "The assistant can't read this — reply yourself.",
+      "voiceUnavailable": "The voice note could not be saved.",
+      "audioUnsupported": "Your browser cannot play this audio."
     },
     "context": {
       "ownership": "Ownership",
@@ -245,6 +248,14 @@
       "platform": "Platform",
       "creating": "Creating…",
       "start": "Start conversation"
+    },
+    "kinds": {
+      "image": "📷 Photo",
+      "voice": "🎤 Voice message",
+      "video": "🎬 Video",
+      "sticker": "🧩 Sticker",
+      "file": "📎 File",
+      "other": "📎 Unsupported message"
     }
   },
   "time": {
