@@ -324,7 +324,21 @@
       },
       "reject": "Reject",
       "confirm": "Confirm",
-      "confirmDelete": "Delete this order? Its items return to your stock."
+      "confirmDelete": "Delete this order? Its items return to your stock.",
+      "scan": "Read receipt",
+      "rescan": "Read again",
+      "scanning": "Reading…",
+      "reads": "Reads {read}",
+      "reference": "Ref {reference}",
+      "verdicts": {
+        "match": "Matches the order",
+        "amount_mismatch": "Amount differs — order is {amount}",
+        "currency_differs": "Different currency — check the rate",
+        "duplicate": "Same reference as an earlier receipt",
+        "duplicateUsedFor": "Already used for order {order}",
+        "not_a_receipt": "Not a payment receipt",
+        "unreadable": "Could not read it — check it yourself"
+      }
     },
     "form": {
       "title": "New order",

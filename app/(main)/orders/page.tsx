@@ -45,6 +45,8 @@ export default function OrdersPage() {
     fetchReceipts,
     confirmReceipt,
     rejectReceipt,
+    scanReceipt,
+    scanningReceiptId,
     selectOrder,
     clearError,
   } = useOrdersStore();
@@ -198,6 +200,10 @@ export default function OrdersPage() {
         onRejectReceipt={(receiptId) =>
           selected ? rejectReceipt(selected.id, receiptId) : Promise.resolve(false)
         }
+        onScanReceipt={(receiptId) =>
+          selected ? scanReceipt(selected.id, receiptId) : Promise.resolve(false)
+        }
+        scanningReceiptId={scanningReceiptId}
         error={error}
         onDismissError={clearError}
       />

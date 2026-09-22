@@ -34,6 +34,8 @@ interface IOrdersStore {
   fetchReceipts: (id: string) => Promise<void>;
   confirmReceipt: (id: string, receiptId: string) => Promise<boolean>;
   rejectReceipt: (id: string, receiptId: string) => Promise<boolean>;
+  scanReceipt: (id: string, receiptId: string) => Promise<boolean>;
+  scanningReceiptId: string | null;
   selectOrder: (order: IOrder | null) => void;
   clearError: () => void;
 }
@@ -46,6 +48,7 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
   error: null,
   receipts: [],
   receiptsLoading: false,
+  scanningReceiptId: null,
   receiptOrderId: null,
 
   fetchOrders: async (status) => {
@@ -179,6 +182,24 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
       return true;
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  // Reads (or re-reads) one receipt. Its own flag rather than `loading`, so
+  // the rest of the dialog stays usable during the few seconds a vision
+  // call takes.
+  scanReceipt: async (id, receiptId) => {
+    set({ scanningReceiptId: receiptId, error: null });
+    try {
+      const { data } = await api.post<IReceipt>(ORDERS_API.SCAN_RECEIPT(id, receiptId));
+      set((s) => ({
+        receipts: s.receipts.map((receipt) => receipt.id === receiptId ? data : receipt),
+        scanningReceiptId: null,
+      }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), scanningReceiptId: null });
       return false;
     }
   },
