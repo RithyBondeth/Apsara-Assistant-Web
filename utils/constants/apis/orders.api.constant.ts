@@ -12,4 +12,6 @@ export const ORDERS_API = {
     `${API_V1}/orders/${id}/receipts/${receiptId}/confirm`,
   REJECT_RECEIPT: (id: string, receiptId: string) =>
     `${API_V1}/orders/${id}/receipts/${receiptId}/reject`,
+  SCAN_RECEIPT: (id: string, receiptId: string) =>
+    `${API_V1}/orders/${id}/receipts/${receiptId}/scan`,
 };

@@ -11,6 +11,14 @@ export type TOrderStatus =
 export type TPaymentStatus = "unpaid" | "pending" | "paid";
 export type TReceiptReviewStatus = "pending" | "accepted" | "rejected";
 
+export type TReceiptVerdict =
+  | "match"
+  | "amount_mismatch"
+  | "currency_differs"
+  | "duplicate"
+  | "not_a_receipt"
+  | "unreadable";
+
 export interface IReceipt {
   id: string;
   file_url: string | null;
@@ -20,6 +28,24 @@ export interface IReceipt {
   review_status: TReceiptReviewStatus | null;
   reviewed_at: string | null;
   reviewed_by_user_id: string | null;
+  // What a vision model read off the image, and how it compares with the
+  // order. All absent until scanned; the reading is advice, confirming is
+  // still the seller's decision.
+  ocr_status?: "read" | "not_receipt" | "failed" | null;
+  ocr_amount?: string | null;
+  ocr_currency?: string | null;
+  ocr_reference?: string | null;
+  ocr_data?: {
+    bank?: string | null;
+    payer?: string | null;
+    payee?: string | null;
+    paid_at?: string | null;
+    error?: string;
+  } | null;
+  ocr_at?: string | null;
+  verdict?: TReceiptVerdict | null;
+  read?: string | null;
+  duplicate_of_order_id?: string | null;
 }
 
 export interface IOrderItem {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, CreditCard, Copy, Check, ReceiptText } from "lucide-react";
+import { X, Trash2, CreditCard, Copy, Check, ReceiptText, ScanLine, Loader2, AlertTriangle, Ban, CircleCheck, CircleHelp } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   PAYMENT_STATUS_STYLES,
   SHARED_SELECT_CLASS,
 } from "@/utils/constants/order.constant";
-import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
+import { IReceipt, TOrderStatus, TReceiptVerdict } from "@/utils/interfaces/order/order.interface";
 import { formatDate } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
@@ -41,6 +41,8 @@ export default function OrderDetailDialog({
   receiptsLoading,
   onConfirmReceipt,
   onRejectReceipt,
+  onScanReceipt,
+  scanningReceiptId,
   error,
   onDismissError,
 }: IOrderDetailDialogProps) {
@@ -259,6 +261,12 @@ export default function OrderDetailDialog({
                           alt={receipt.file_name ?? d.receiptAlt}
                           className="h-36 w-full rounded bg-muted object-contain"
                         />
+                        <ReceiptReading
+                          receipt={receipt}
+                          orderTotal={formatMoney(order.total_amount, order.currency)}
+                          scanning={scanningReceiptId === receipt.id}
+                          onScan={() => onScanReceipt(receipt.id)}
+                        />
                         <div className="flex items-center justify-between gap-2">
                           <Badge variant="outline">
                             {d.review[(isConfirmed ? "accepted" : receipt.review_status ?? "pending") as keyof typeof d.review]
@@ -274,8 +282,12 @@ export default function OrderDetailDialog({
                               >
                                 {d.reject}
                               </Button>
+                              {/* Confirming a receipt the reading disputes is
+                                  still allowed — the reading can be wrong —
+                                  but it should not be the inviting button. */}
                               <Button
                                 size="sm"
+                                variant={receipt.verdict && receipt.verdict !== "match" ? "outline" : "default"}
                                 disabled={saving}
                                 onClick={() => handleReceipt(receipt.id, "confirm")}
                               >
@@ -326,5 +338,70 @@ export default function OrderDetailDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ── What the model read, and how it compares ─────────────────────────────────
+
+const VERDICT_STYLES: Record<TReceiptVerdict, { icon: typeof CircleCheck; className: string }> = {
+  match: { icon: CircleCheck, className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" },
+  amount_mismatch: { icon: AlertTriangle, className: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" },
+  currency_differs: { icon: AlertTriangle, className: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" },
+  duplicate: { icon: Ban, className: "bg-destructive/10 text-destructive" },
+  not_a_receipt: { icon: CircleHelp, className: "bg-muted text-muted-foreground" },
+  unreadable: { icon: CircleHelp, className: "bg-muted text-muted-foreground" },
+};
+
+function ReceiptReading({
+  receipt,
+  orderTotal,
+  scanning,
+  onScan,
+}: {
+  receipt: IReceipt;
+  orderTotal: string;
+  scanning: boolean;
+  onScan: () => void;
+}) {
+  const d = useAppT("orders").detail;
+  const verdict = receipt.verdict ?? null;
+  const style = verdict ? VERDICT_STYLES[verdict] : null;
+  const Icon = style?.icon;
+
+  const verdictText = verdict
+    ? verdict === "duplicate" && receipt.duplicate_of_order_id
+      ? fmt(d.verdicts.duplicateUsedFor, { order: receipt.duplicate_of_order_id.slice(0, 8).toUpperCase() })
+      : fmt(d.verdicts[verdict], { amount: orderTotal })
+    : null;
+
+  const details = [
+    receipt.ocr_data?.bank,
+    receipt.ocr_data?.payer,
+    receipt.ocr_data?.paid_at,
+  ].filter(Boolean).join(" · ");
+
+  return (
+    <div className="space-y-1.5 text-xs">
+      {style && Icon && verdictText && (
+        <div className={cn("flex items-start gap-1.5 rounded-md px-2 py-1.5", style.className)}>
+          <Icon className="mt-0.5 size-3.5 shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium">
+              {receipt.read ? `${fmt(d.reads, { read: receipt.read })} — ` : ""}{verdictText}
+            </p>
+            {(details || receipt.ocr_reference) && (
+              <p className="mt-0.5 truncate opacity-80">
+                {[details, receipt.ocr_reference ? fmt(d.reference, { reference: receipt.ocr_reference }) : null]
+                  .filter(Boolean).join(" · ")}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+      <Button size="xs" variant="ghost" disabled={scanning} onClick={onScan}>
+        {scanning ? <Loader2 className="animate-spin" /> : <ScanLine />}
+        {scanning ? d.scanning : verdict ? d.rescan : d.scan}
+      </Button>
+    </div>
   );
 }

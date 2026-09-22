@@ -22,6 +22,8 @@ export interface IOrderDetailDialogProps {
   receiptsLoading: boolean;
   onConfirmReceipt: (receiptId: string) => Promise<boolean>;
   onRejectReceipt: (receiptId: string) => Promise<boolean>;
+  onScanReceipt: (receiptId: string) => Promise<boolean>;
+  scanningReceiptId?: string | null;
   error: string | null;
   onDismissError: () => void;
 }
