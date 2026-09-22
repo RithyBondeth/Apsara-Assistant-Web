@@ -30,6 +30,8 @@ export interface IConversation {
   handling_mode: "auto" | "manual";
   assigned_user_id: string | null;
   unread_count: number;
+  // Set while a customer is waiting on a human; cleared by the seller's reply.
+  needs_attention_at?: string | null;
   last_read_at: string | null;
   first_customer_message_at: string | null;
   first_response_at: string | null;
@@ -67,6 +69,7 @@ export interface IInboxMetrics {
   pending: number;
   closed: number;
   unread: number;
+  needs_attention?: number;
   manual: number;
   unassigned: number;
   average_first_response_seconds: number | null;
@@ -77,6 +80,7 @@ export interface IInboxFilters {
   platform?: "messenger" | "telegram";
   status?: "open" | "pending" | "closed";
   unread_only?: boolean;
+  needs_attention?: boolean;
   handling_mode?: "auto" | "manual";
   assignment?: "me" | "unassigned";
   tag?: string;

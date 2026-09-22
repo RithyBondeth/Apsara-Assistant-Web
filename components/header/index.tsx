@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useRouter } from "next/navigation";
+import { useAppT } from "@/hooks/utils/use-app-translations";
+import { LanguageSwitch } from "./language-switch";
 import { IHeaderProps } from "./props";
 
 export default function AppHeader({ title, description }: IHeaderProps) {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const t = useAppT("header");
 
   async function handleLogout() {
     await logout();
@@ -39,11 +42,14 @@ export default function AppHeader({ title, description }: IHeaderProps) {
         )}
       </div>
 
+      {/* ── Language */}
+      <LanguageSwitch />
+
       {/* ── User menu */}
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label="Open account menu"
+            aria-label={t.accountMenu}
             className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Avatar className="h-8 w-8">
@@ -59,14 +65,14 @@ export default function AppHeader({ title, description }: IHeaderProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/settings")}>
-              Settings
+              {t.settings}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
               className="text-destructive focus:text-destructive"
             >
-              Log out
+              {t.logout}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

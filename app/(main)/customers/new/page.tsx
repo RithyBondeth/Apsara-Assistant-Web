@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/card";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
+import { useAppT } from "@/hooks/utils/use-app-translations";
 
 export default function NewCustomerPage() {
   // ── Utils
   const router = useRouter();
+  const t = useAppT("customers").newPage;
 
   // ── API Integration
   const { createCustomer, loading } = useCustomersStore();
@@ -32,7 +34,7 @@ export default function NewCustomerPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Add customer" description="Create a customer record for orders and rehearsals" />
+      <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link
@@ -40,22 +42,19 @@ export default function NewCustomerPage() {
           className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to customers
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>New customer</CardTitle>
-            <CardDescription>
-              Add a customer manually. Customers from Messenger or Telegram are
-              created automatically when they message you.
-            </CardDescription>
+            <CardTitle>{t.cardTitle}</CardTitle>
+            <CardDescription>{t.cardDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <CustomerForm
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Add customer"
+              submitLabel={t.submit}
             />
           </CardContent>
         </Card>

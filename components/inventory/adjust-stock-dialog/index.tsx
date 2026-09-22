@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IProduct, IProductVariant } from "@/utils/interfaces/product/product.interface";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 interface AdjustStockDialogProps {
   product: IProduct | null;
@@ -43,6 +44,7 @@ export default function AdjustStockDialog({
   const [direction, setDirection] = useState("add");
   const [quantity, setQuantity] = useState(1);
   const [reason, setReason] = useState("");
+  const t = useAppT("inventory").dialog;
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
@@ -64,30 +66,30 @@ export default function AdjustStockDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adjust stock</DialogTitle>
+          <DialogTitle>{t.title}</DialogTitle>
           <DialogDescription>
             {product && variant
-              ? `${product.name} — ${variant.name} currently has ${variant.stock} available and ${variant.reserved_stock} reserved.`
-              : "Record a received, damaged, returned, or corrected quantity."}
+              ? fmt(t.current, { product: product.name, variant: variant.name, stock: variant.stock, reserved: variant.reserved_stock })
+              : t.generic}
           </DialogDescription>
         </DialogHeader>
 
         <form id="stock-adjustment-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="adjustment-direction">Adjustment</Label>
+            <Label htmlFor="adjustment-direction">{t.adjustment}</Label>
             <Select value={direction} onValueChange={(value) => value && setDirection(value)}>
               <SelectTrigger id="adjustment-direction" className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="add">Add stock</SelectItem>
-                <SelectItem value="remove">Remove stock</SelectItem>
+                <SelectItem value="add">{t.addStock}</SelectItem>
+                <SelectItem value="remove">{t.removeStock}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="adjustment-quantity">Quantity</Label>
+            <Label htmlFor="adjustment-quantity">{t.quantity}</Label>
             <Input
               id="adjustment-quantity"
               type="number"
@@ -100,13 +102,13 @@ export default function AdjustStockDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="adjustment-reason">Reason</Label>
+            <Label htmlFor="adjustment-reason">{t.reason}</Label>
             <Input
               id="adjustment-reason"
               value={reason}
               minLength={3}
               maxLength={500}
-              placeholder="e.g. Supplier delivery"
+              placeholder={t.reasonPlaceholder}
               onChange={(event) => setReason(event.target.value)}
               required
             />
@@ -121,7 +123,7 @@ export default function AdjustStockDialog({
             type="submit"
             disabled={loading || !product || !variant || quantity < 1 || reason.trim().length < 3}
           >
-            {loading ? "Saving…" : "Save adjustment"}
+            {loading ? t.saving : t.save}
           </Button>
         </DialogFooter>
       </DialogContent>

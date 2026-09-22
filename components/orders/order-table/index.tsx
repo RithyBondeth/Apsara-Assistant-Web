@@ -13,6 +13,8 @@ import { ORDER_STATUS_STYLES } from "@/utils/constants/order.constant";
 import { timeAgo } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
+import { useAppT, fmt, plural } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { IOrderTableProps } from "./props";
 
 export default function OrderTable({
@@ -20,29 +22,30 @@ export default function OrderTable({
   customers,
   onSelect,
 }: IOrderTableProps) {
+  const t = useAppT("orders");
+  const language = useLanguage();
+
   if (orders.length === 0) {
     return (
       <div className="rounded-lg border">
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          No orders yet.
-        </p>
+        <p className="py-12 text-center text-sm text-muted-foreground">{t.table.empty}</p>
       </div>
     );
   }
 
   const customerName = (id: string) =>
-    customers.find((c) => c.id === id)?.name ?? `Customer ${id.slice(0, 8)}`;
+    customers.find((c) => c.id === id)?.name ?? fmt(t.table.customerFallback, { id: id.slice(0, 8) });
 
   return (
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Customer</TableHead>
-            <TableHead className="hidden sm:table-cell">Items</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead className="hidden md:table-cell">Status</TableHead>
-            <TableHead className="hidden lg:table-cell text-right">Placed</TableHead>
+            <TableHead>{t.table.customer}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.table.items}</TableHead>
+            <TableHead>{t.table.total}</TableHead>
+            <TableHead className="hidden md:table-cell">{t.table.status}</TableHead>
+            <TableHead className="hidden lg:table-cell text-right">{t.table.placed}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -55,7 +58,7 @@ export default function OrderTable({
                 // and unannounced to a screen reader.
                 role="button"
                 tabIndex={0}
-                aria-label={`Order for ${customerName(order.customer_id)}, ${order.status}`}
+                aria-label={fmt(t.table.rowAria, { customer: customerName(order.customer_id), status: t.status[order.status] })}
                 onClick={() => onSelect(order)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -74,19 +77,19 @@ export default function OrderTable({
                   )}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground">
-                  {order.items.length} line{order.items.length !== 1 ? "s" : ""}
-                  <span className="text-xs"> · {units} unit{units !== 1 ? "s" : ""}</span>
+                  {plural(t.table.lines, order.items.length)}
+                  <span className="text-xs"> · {plural(t.table.units, units)}</span>
                 </TableCell>
                 <TableCell className="font-medium">
                   {formatMoney(order.total_amount, order.currency)}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  <Badge className={cn("capitalize", ORDER_STATUS_STYLES[order.status])}>
-                    {order.status}
+                  <Badge className={cn(ORDER_STATUS_STYLES[order.status])}>
+                    {t.status[order.status]}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden lg:table-cell text-right text-xs text-muted-foreground">
-                  {timeAgo(order.created_at)}
+                  {timeAgo(order.created_at, language)}
                 </TableCell>
               </TableRow>
             );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Bot, Send, ChevronDown, PanelRight, ShoppingCart, Sparkles, UserRound } from "lucide-react";
+import { AlertCircle, ArrowLeft, Bot, Send, ChevronDown, PanelRight, ShoppingCart, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import MessageBubble from "@/components/chat/message-bubble";
 import { cn } from "@/lib/utils";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { IChatWindowProps } from "./props";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -21,16 +22,21 @@ const STATUS_STYLES: Record<string, string> = {
   closed: "bg-muted text-muted-foreground",
 };
 
-const NEXT_STATUSES: Record<string, { label: string; value: "open" | "closed" | "pending" }[]> = {
+type TStatus = "open" | "closed" | "pending";
+type TAction = "markPending" | "closeConversation" | "reopen";
+
+// Which moves are offered from each status; the labels live in the
+// translations under `inbox.window`.
+const NEXT_STATUSES: Record<string, { label: TAction; value: TStatus }[]> = {
   open: [
-    { label: "Mark as pending", value: "pending" },
-    { label: "Close conversation", value: "closed" },
+    { label: "markPending", value: "pending" },
+    { label: "closeConversation", value: "closed" },
   ],
   pending: [
-    { label: "Reopen", value: "open" },
-    { label: "Close conversation", value: "closed" },
+    { label: "reopen", value: "open" },
+    { label: "closeConversation", value: "closed" },
   ],
-  closed: [{ label: "Reopen", value: "open" }],
+  closed: [{ label: "reopen", value: "open" }],
 };
 
 export default function ChatWindow({
@@ -50,9 +56,12 @@ export default function ChatWindow({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const t = useAppT("inbox");
+  const w = t.window;
 
   const isClosed = conversation.status === "closed";
-  const displayName = customer?.name ?? `Customer ${conversation.customer_id.slice(0, 8)}`;
+  const displayName =
+    customer?.name ?? fmt(t.list.customerFallback, { id: conversation.customer_id.slice(0, 8) });
 
   // ── Effects
   useEffect(() => {
@@ -88,7 +97,7 @@ export default function ChatWindow({
               variant="ghost"
               size="icon-sm"
               onClick={onBack}
-              aria-label="Back to conversations"
+              aria-label={w.back}
               className="md:hidden"
             >
               <ArrowLeft className="size-4" />
@@ -104,7 +113,7 @@ export default function ChatWindow({
               <span>·</span>
               <span className="flex items-center gap-1">
                 {conversation.handling_mode === "auto" ? <Bot className="size-3" /> : <UserRound className="size-3" />}
-                {conversation.handling_mode === "auto" ? "AI replying" : "You replying"}
+                {conversation.handling_mode === "auto" ? w.aiReplying : w.youReplying}
               </span>
             </div>
           </div>
@@ -116,7 +125,7 @@ export default function ChatWindow({
               variant="ghost"
               size="icon-sm"
               onClick={onToggleDetails}
-              aria-label="Open customer details"
+              aria-label={w.openDetails}
               className="xl:hidden"
             >
               <PanelRight className="size-4" />
@@ -127,12 +136,12 @@ export default function ChatWindow({
             size="sm"
             onClick={onDraftOrder}
             disabled={draftingOrder || conversation.messages.length === 0}
-            aria-label={draftingOrder ? "Drafting order" : "Draft order with AI"}
+            aria-label={draftingOrder ? w.drafting : w.draftOrderAria}
             className="size-8 px-0 lg:w-auto lg:px-2.5"
           >
             <Sparkles className="h-4 w-4" />
             <span className="hidden lg:inline">
-              {draftingOrder ? "Drafting…" : "Draft order"}
+              {draftingOrder ? w.drafting : w.draftOrder}
             </span>
           </Button>
           {/* ── The assistant collects order details but cannot confirm a
@@ -141,18 +150,18 @@ export default function ChatWindow({
             variant="outline"
             size="sm"
             onClick={onCreateOrder}
-            aria-label="Create order"
+            aria-label={w.createOrder}
             className="size-8 px-0 lg:w-auto lg:px-2.5"
           >
             <ShoppingCart className="h-4 w-4" />
-            <span className="hidden lg:inline">Create order</span>
+            <span className="hidden lg:inline">{w.createOrder}</span>
           </Button>
 
           {/* ── Status control */}
           <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-1 rounded-lg px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Badge className={cn("capitalize", STATUS_STYLES[conversation.status])}>
-              {conversation.status}
+            <Badge className={cn(STATUS_STYLES[conversation.status])}>
+              {t.status[conversation.status as TStatus] ?? conversation.status}
             </Badge>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </DropdownMenuTrigger>
@@ -162,13 +171,21 @@ export default function ChatWindow({
                   key={action.value}
                   onClick={() => onStatusChange(action.value)}
                 >
-                  {action.label}
+                  {w[action.label]}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+
+      {/* ── Why the seller was called here */}
+      {conversation.needs_attention_at && (
+        <div className="flex items-center gap-2 border-b bg-amber-50 px-4 py-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+          <AlertCircle className="size-3.5 shrink-0" />
+          {w.needsYouNotice}
+        </div>
+      )}
 
       {/* ── Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -182,9 +199,7 @@ export default function ChatWindow({
             ))}
           </div>
         ) : conversation.messages.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            No messages yet. Start the conversation.
-          </p>
+          <p className="py-12 text-center text-sm text-muted-foreground">{w.noMessages}</p>
         ) : (
           <div className="space-y-3">
             {conversation.messages.map((msg) => (
@@ -199,21 +214,21 @@ export default function ChatWindow({
       <div className="border-t px-4 py-3">
         {isClosed ? (
           <p className="text-center text-sm text-muted-foreground">
-            This conversation is closed.{" "}
+            {w.closedNotice}{" "}
             <button
               className="font-medium underline-offset-4 hover:underline"
               onClick={() => onStatusChange("open")}
             >
-              Reopen it
+              {w.reopenIt}
             </button>{" "}
-            to send messages.
+            {w.toSend}
           </p>
         ) : (
           <>
             <div className="flex items-end gap-2 rounded-xl border bg-background px-3 py-2">
               <textarea
                 className="flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder="Type a message…"
+                placeholder={w.placeholder}
                 rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -229,9 +244,7 @@ export default function ChatWindow({
               </Button>
             </div>
             <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-              Enter to send · Shift+Enter for new line · {isLiveChannel
-                ? "Sends to the customer"
-                : "Rehearsal: Apsara replies automatically"}
+              {w.hint} · {isLiveChannel ? w.sendsToCustomer : w.rehearsal}
             </p>
           </>
         )}

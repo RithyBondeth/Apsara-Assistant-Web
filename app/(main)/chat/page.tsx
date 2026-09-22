@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Bot, Clock3, Inbox, MessageCircle, Plus, Search, UserRound, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AlertCircle, Bot, Clock3, Inbox, MessageCircle, Plus, Search, UserRound, X } from "lucide-react";
 import AppHeader from "@/components/header";
+import DeepLink from "@/components/shared/deep-link";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
 import InboxContext from "@/components/chat/inbox-context";
@@ -18,6 +19,7 @@ import { useProductsStore } from "@/stores/apis/products/products.store";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { IConversation, IInboxFilters } from "@/utils/interfaces/chat/chat.interface";
 import { IOrderCreate, IOrderDraft } from "@/utils/interfaces/order/order.interface";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { cn } from "@/lib/utils";
 
 const SELECT_CLASS = "h-8 min-w-0 rounded-lg border border-input bg-background px-2 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
@@ -36,6 +38,8 @@ export default function ChatPage() {
   const [orderDraft, setOrderDraft] = useState<IOrderDraft | null>(null);
   const [filters, setFilters] = useState<IInboxFilters>({});
   const [search, setSearch] = useState("");
+  const t = useAppT("inbox");
+  const c = useAppT("common");
 
   const chat = useChatStore();
   const { customers, fetchCustomers } = useCustomersStore();
@@ -46,8 +50,12 @@ export default function ChatPage() {
     fetchConversations,
     fetchConversationDetail,
     fetchInboxMetrics,
+    openConversation,
   } = chat;
   const { fetchOrders } = ordersStore;
+
+  // `/chat?conversation=<id>` — where the seller lands from a Telegram alert.
+  const openFromLink = useCallback((id: string) => { void openConversation(id); }, [openConversation]);
 
   useEffect(() => {
     fetchInboxMetrics();
@@ -146,18 +154,27 @@ export default function ChatPage() {
     />
   ) : null;
 
-  const preset = filters.unread_only ? "unread" : filters.assignment === "me" ? "mine" : "all";
+  const preset = filters.needs_attention
+    ? "needsYou"
+    : filters.unread_only
+      ? "unread"
+      : filters.assignment === "me"
+        ? "mine"
+        : "all";
+  const needsYou = chat.metrics?.needs_attention ?? 0;
 
   return (
     <>
-      <AppHeader title="Inbox" description="Messenger and Telegram conversations in one workspace" />
+      <AppHeader title={t.title} description={t.description} />
+      <DeepLink param="conversation" onValue={openFromLink} />
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="hidden grid-cols-4 border-b bg-muted/20 lg:grid">
-          <Metric icon={Inbox} label="Open conversations" value={chat.metrics?.open ?? 0} />
-          <Metric icon={MessageCircle} label="Unread messages" value={chat.metrics?.unread ?? 0} />
-          <Metric icon={UserRound} label="Manual takeover" value={chat.metrics?.manual ?? 0} />
-          <Metric icon={Clock3} label="Avg. first response" value={responseTime(chat.metrics?.average_first_response_seconds)} />
+        <div className="hidden grid-cols-5 border-b bg-muted/20 lg:grid">
+          <Metric icon={Inbox} label={t.metrics.open} value={chat.metrics?.open ?? 0} />
+          <Metric icon={MessageCircle} label={t.metrics.unread} value={chat.metrics?.unread ?? 0} />
+          <Metric icon={AlertCircle} label={t.metrics.needsYou} value={needsYou} highlight={needsYou > 0} />
+          <Metric icon={UserRound} label={t.metrics.manual} value={chat.metrics?.manual ?? 0} />
+          <Metric icon={Clock3} label={t.metrics.response} value={responseTime(chat.metrics?.average_first_response_seconds)} />
         </div>
 
         <main className="flex min-h-0 flex-1 overflow-hidden">
@@ -165,40 +182,48 @@ export default function ChatPage() {
             <div className="space-y-3 border-b p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold">Conversations</p>
-                  <p className="text-[11px] text-muted-foreground">{chat.conversations.length} in this view</p>
+                  <p className="text-sm font-semibold">{t.conversations}</p>
+                  <p className="text-[11px] text-muted-foreground">{fmt(t.inView, { count: chat.conversations.length })}</p>
                 </div>
-                <Button size="icon-sm" variant="outline" onClick={() => setDialogOpen(true)} aria-label="New rehearsal conversation">
+                <Button size="icon-sm" variant="outline" onClick={() => setDialogOpen(true)} aria-label={t.newRehearsal}>
                   <Plus />
                 </Button>
               </div>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-                <Input value={search} onChange={(event) => setSearch(event.target.value)} className="pl-8" placeholder="Search customers…" />
+                <Input value={search} onChange={(event) => setSearch(event.target.value)} className="pl-8" placeholder={t.searchCustomers} />
               </div>
-              <div className="grid grid-cols-3 rounded-lg bg-muted p-0.5">
-                {(["all", "unread", "mine"] as const).map((item) => (
+              <div className="grid grid-cols-4 rounded-lg bg-muted p-0.5">
+                {(["all", "unread", "needsYou", "mine"] as const).map((item) => (
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setFilters((current) => ({ ...current, unread_only: item === "unread" || undefined, assignment: item === "mine" ? "me" : undefined }))}
-                    className={cn("rounded-md px-2 py-1.5 text-xs font-medium capitalize text-muted-foreground transition", preset === item && "bg-background text-foreground shadow-sm")}
+                    onClick={() => setFilters((current) => ({
+                      ...current,
+                      unread_only: item === "unread" || undefined,
+                      needs_attention: item === "needsYou" || undefined,
+                      assignment: item === "mine" ? "me" : undefined,
+                    }))}
+                    className={cn("flex items-center justify-center gap-1 rounded-md px-1.5 py-1.5 text-xs font-medium text-muted-foreground transition", preset === item && "bg-background text-foreground shadow-sm")}
                   >
-                    {item}
+                    {t.presets[item]}
+                    {item === "needsYou" && needsYou > 0 && (
+                      <span className="grid min-w-4 place-items-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">{needsYou}</span>
+                    )}
                   </button>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <select value={filters.platform ?? ""} onChange={(event) => setFilters((current) => ({ ...current, platform: (event.target.value || undefined) as IInboxFilters["platform"] }))} className={SELECT_CLASS} aria-label="Filter by channel">
-                  <option value="">All channels</option>
-                  <option value="messenger">Messenger</option>
-                  <option value="telegram">Telegram</option>
+                <select value={filters.platform ?? ""} onChange={(event) => setFilters((current) => ({ ...current, platform: (event.target.value || undefined) as IInboxFilters["platform"] }))} className={SELECT_CLASS} aria-label={t.filterChannel}>
+                  <option value="">{t.allChannels}</option>
+                  <option value="messenger">{c.messenger}</option>
+                  <option value="telegram">{c.telegram}</option>
                 </select>
-                <select value={filters.status ?? ""} onChange={(event) => setFilters((current) => ({ ...current, status: (event.target.value || undefined) as IInboxFilters["status"] }))} className={SELECT_CLASS} aria-label="Filter by status">
-                  <option value="">Any status</option>
-                  <option value="open">Open</option>
-                  <option value="pending">Pending</option>
-                  <option value="closed">Closed</option>
+                <select value={filters.status ?? ""} onChange={(event) => setFilters((current) => ({ ...current, status: (event.target.value || undefined) as IInboxFilters["status"] }))} className={SELECT_CLASS} aria-label={t.filterStatus}>
+                  <option value="">{t.anyStatus}</option>
+                  <option value="open">{t.status.open}</option>
+                  <option value="pending">{t.status.pending}</option>
+                  <option value="closed">{t.status.closed}</option>
                 </select>
               </div>
             </div>
@@ -214,7 +239,7 @@ export default function ChatPage() {
             {(chat.error || (!orderOpen && ordersStore.error)) && (
               <div className="flex items-start gap-2 border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
                 <p className="flex-1">{chat.error ?? ordersStore.error}</p>
-                <button type="button" onClick={() => { chat.clearError(); ordersStore.clearError(); }} aria-label="Dismiss" className="rounded p-0.5 hover:bg-destructive/10"><X className="size-4" /></button>
+                <button type="button" onClick={() => { chat.clearError(); ordersStore.clearError(); }} aria-label={c.dismiss} className="rounded p-0.5 hover:bg-destructive/10"><X className="size-4" /></button>
               </div>
             )}
             {chat.activeConversation ? (
@@ -234,8 +259,8 @@ export default function ChatPage() {
             ) : (
               <div className="flex h-full flex-col items-center justify-center px-6 text-center text-muted-foreground">
                 <div className="mb-4 rounded-2xl bg-primary/10 p-4 text-primary"><Bot className="size-7" /></div>
-                <p className="font-medium text-foreground">Your unified inbox</p>
-                <p className="mt-1 max-w-sm text-sm leading-6">Select a Messenger or Telegram conversation to reply, review orders, and manage the handoff between you and Apsara.</p>
+                <p className="font-medium text-foreground">{t.emptyTitle}</p>
+                <p className="mt-1 max-w-sm text-sm leading-6">{t.emptyBody}</p>
               </div>
             )}
           </section>
@@ -246,7 +271,7 @@ export default function ChatPage() {
 
       <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
         <SheetContent className="gap-0 p-0 xl:hidden">
-          <SheetHeader className="border-b"><SheetTitle>Customer details</SheetTitle></SheetHeader>
+          <SheetHeader className="border-b"><SheetTitle>{t.customerDetails}</SheetTitle></SheetHeader>
           <div className="min-h-0 flex-1">{context}</div>
         </SheetContent>
       </Sheet>
@@ -271,10 +296,10 @@ export default function ChatPage() {
   );
 }
 
-function Metric({ icon: Icon, label, value }: { icon: typeof Inbox; label: string; value: string | number }) {
+function Metric({ icon: Icon, label, value, highlight }: { icon: typeof Inbox; label: string; value: string | number; highlight?: boolean }) {
   return (
     <div className="flex items-center gap-3 border-r px-4 py-3 last:border-r-0">
-      <div className="rounded-lg bg-background p-2 text-primary ring-1 ring-foreground/10"><Icon className="size-4" /></div>
+      <div className={cn("rounded-lg bg-background p-2 ring-1 ring-foreground/10", highlight ? "text-amber-600" : "text-primary")}><Icon className="size-4" /></div>
       <div><p className="text-base font-semibold tabular-nums">{value}</p><p className="text-[11px] text-muted-foreground">{label}</p></div>
     </div>
   );

@@ -17,6 +17,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { CustomerFormValues } from "@/components/customers/customer-form/props";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 export default function EditCustomerPage({
   params,
@@ -30,6 +31,7 @@ export default function EditCustomerPage({
 function EditCustomerClient({ id }: { id: string }) {
   // ── Utils
   const router = useRouter();
+  const t = useAppT("customers").editPage;
 
   // ── API Integration
   const { selected, loading, fetchCustomer, updateCustomer } = useCustomersStore();
@@ -53,7 +55,7 @@ function EditCustomerClient({ id }: { id: string }) {
   if (loading || !selected) {
     return (
       <>
-        <AppHeader title="Edit customer" description="Keep customer contact details accurate" />
+        <AppHeader title={t.title} description={t.description} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-80 max-w-2xl rounded-xl" />
@@ -65,7 +67,7 @@ function EditCustomerClient({ id }: { id: string }) {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Edit customer" description="Keep customer contact details accurate" />
+      <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link
@@ -73,22 +75,20 @@ function EditCustomerClient({ id }: { id: string }) {
           className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}
         >
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to customers
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Edit customer</CardTitle>
-            <CardDescription>
-              Updating &ldquo;{selected.name}&rdquo;
-            </CardDescription>
+            <CardTitle>{t.cardTitle}</CardTitle>
+            <CardDescription>{fmt(t.updating, { name: selected.name })}</CardDescription>
           </CardHeader>
           <CardContent>
             <CustomerForm
               defaultValues={selected}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Save changes"
+              submitLabel={t.submit}
             />
           </CardContent>
         </Card>

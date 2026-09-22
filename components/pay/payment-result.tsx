@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 export default function PaymentResult({
   outcome,
@@ -11,6 +14,7 @@ export default function PaymentResult({
 }) {
   const success = outcome === "success";
   const Icon = success ? CheckCircle2 : XCircle;
+  const t = useAppT("pay");
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
@@ -22,21 +26,19 @@ export default function PaymentResult({
           />
           <div className="space-y-2">
             <h1 className="text-xl font-semibold">
-              {success ? "Payment submitted" : "Payment cancelled"}
+              {success ? t.successTitle : t.cancelledTitle}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {success
-                ? "The shop will confirm your payment after Stripe notifies it securely."
-                : "You were not charged. Ask the shop for a new payment link when you are ready."}
+              {success ? t.successBody : t.cancelledBody}
             </p>
             {orderId && (
               <p className="text-xs text-muted-foreground">
-                Order reference: {orderId}
+                {fmt(t.reference, { id: orderId })}
               </p>
             )}
           </div>
           <Link className="text-sm font-medium text-primary hover:underline" href="/">
-            Return to Apsara Assistant
+            {t.return}
           </Link>
         </CardContent>
       </Card>

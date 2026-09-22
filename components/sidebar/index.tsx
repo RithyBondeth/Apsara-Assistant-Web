@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BrandLogo } from "@/components/landing/brand-logo";
 import { SIDEBAR_NAV, SIDEBAR_BOTTOM_NAV } from "@/utils/constants/sidebar.constant";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { useAppT } from "@/hooks/utils/use-app-translations";
 import { cn } from "@/lib/utils";
 import { ISidebarProps } from "./props";
 
@@ -28,6 +29,8 @@ export default function AppSidebar({ className }: ISidebarProps) {
   const { user } = useAuthStore();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const nav = useAppT("nav");
+  const header = useAppT("header");
 
   return (
     <Sidebar collapsible="icon" className={cn(className)}>
@@ -37,7 +40,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
           {collapsed ? (
             <Image
               src="/brand/apsara-mark.svg"
-              alt="Apsara Assistant"
+              alt={nav.brand}
               width={128}
               height={128}
               className="size-7 shrink-0"
@@ -64,10 +67,10 @@ export default function AppSidebar({ className }: ISidebarProps) {
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={active}
-                      tooltip={item.title}
+                      tooltip={nav[item.key]}
                     >
                         <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <span>{nav[item.key]}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -89,10 +92,10 @@ export default function AppSidebar({ className }: ISidebarProps) {
                 <SidebarMenuButton
                   render={<Link href={item.href} />}
                   isActive={active}
-                  tooltip={item.title}
+                  tooltip={nav[item.key]}
                 >
                   <item.icon className="h-4 w-4" />
-                  <span>{item.title}</span>
+                  <span>{nav[item.key]}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -102,7 +105,7 @@ export default function AppSidebar({ className }: ISidebarProps) {
         {user && (
           <Link
             href="/settings"
-            aria-label="Open profile settings"
+            aria-label={header.profileSettings}
             className="mt-2 flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
           >
             <Avatar className="h-7 w-7 shrink-0">

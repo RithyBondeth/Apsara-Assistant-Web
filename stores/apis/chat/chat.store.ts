@@ -32,6 +32,7 @@ interface IChatStore {
   fetchInboxMetrics: () => Promise<void>;
   createConversation: (customerId: string, platform: string) => Promise<IConversation | null>;
   setActiveConversation: (conversation: IConversation | null) => void;
+  openConversation: (id: string) => Promise<void>;
   fetchConversationDetail: (id: string, silent?: boolean) => Promise<void>;
   updateConversationStatus: (id: string, status: "open" | "closed" | "pending") => Promise<boolean>;
   setHandlingMode: (id: string, mode: "auto" | "manual") => Promise<boolean>;
@@ -123,6 +124,23 @@ export const useChatStore = create<IChatStore>((set, get) => ({
     set({
       activeConversation: conversation ? { ...conversation, messages: [], notes: [] } : null,
     });
+  },
+
+  // A Telegram alert links straight to a thread that may not be in the list
+  // on screen (a closed one, or one past the filter), so it is fetched by id
+  // and made active whatever the list holds.
+  openConversation: async (id) => {
+    set({ messagesLoading: true, error: null });
+    try {
+      const { data } = await api.get<IConversationDetail>(CONVERSATIONS_API.GET(id));
+      set({
+        activeConversation: { ...data, tags: data.tags ?? [], notes: data.notes ?? [] },
+        messagesLoading: false,
+      });
+      if (data.unread_count > 0) await get().markRead(id);
+    } catch (error) {
+      set({ error: extractErrorMessage(error), messagesLoading: false });
+    }
   },
 
   fetchConversationDetail: async (id, silent = false) => {

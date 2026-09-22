@@ -19,6 +19,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { ProductFormValues } from "@/components/products/product-form/props";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 export default function EditProductPage({
   params,
@@ -32,6 +33,7 @@ export default function EditProductPage({
 function EditProductClient({ id }: { id: string }) {
   // ── Utils
   const router = useRouter();
+  const t = useAppT("products").editPage;
 
   // ── API Integration
   const { selected, loading, fetchProduct, updateProduct } = useProductsStore();
@@ -54,7 +56,7 @@ function EditProductClient({ id }: { id: string }) {
   if (!selected) {
     return (
       <>
-        <AppHeader title="Edit product" description="Update what Apsara knows about this item" />
+        <AppHeader title={t.title} description={t.description} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Skeleton className="mb-4 h-8 w-32" />
           <Skeleton className="h-96 max-w-2xl rounded-xl" />
@@ -66,25 +68,25 @@ function EditProductClient({ id }: { id: string }) {
   // ── Render UI
   return (
     <>
-      <AppHeader title="Edit product" description="Update what Apsara knows about this item" />
+      <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <Link href="/products" className={buttonVariants({ variant: "ghost", size: "sm", className: "mb-4 -ml-1" })}>
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back to products
+          {t.back}
         </Link>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Edit product</CardTitle>
-            <CardDescription>Update &ldquo;{selected.name}&rdquo;</CardDescription>
+            <CardTitle>{t.cardTitle}</CardTitle>
+            <CardDescription>{fmt(t.updating, { name: selected.name })}</CardDescription>
           </CardHeader>
           <CardContent>
             <ProductForm
               defaultValues={selected}
               onSubmit={handleSubmit}
               loading={loading}
-              submitLabel="Save changes"
+              submitLabel={t.submit}
               allowStockEditing={false}
             />
           </CardContent>
@@ -92,8 +94,8 @@ function EditProductClient({ id }: { id: string }) {
 
         <Card className="mt-6 max-w-2xl">
           <CardHeader>
-            <CardTitle>Product variants</CardTitle>
-            <CardDescription>Manage option combinations, prices, SKUs, barcodes, and thresholds.</CardDescription>
+            <CardTitle>{t.variantsTitle}</CardTitle>
+            <CardDescription>{t.variantsDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <ProductVariantManager productId={selected.id} variants={selected.variants} />
@@ -102,8 +104,8 @@ function EditProductClient({ id }: { id: string }) {
 
         <Card className="mt-6 max-w-2xl">
           <CardHeader>
-            <CardTitle>Product images</CardTitle>
-            <CardDescription>Upload, reorder, and choose the cover image.</CardDescription>
+            <CardTitle>{t.imagesTitle}</CardTitle>
+            <CardDescription>{t.imagesDescription}</CardDescription>
           </CardHeader>
           <CardContent>
             <ProductImageManager

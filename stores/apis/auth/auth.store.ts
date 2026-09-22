@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import api from "@/lib/axios";
 import { AUTH_API } from "@/utils/constants/apis/auth.api.constant";
-import { IUser, IToken, IUserUpdate } from "@/utils/interfaces/auth/auth.interface";
+import { IUser, IToken, IUserUpdate, ITelegramLink, TUserLanguage } from "@/utils/interfaces/auth/auth.interface";
 import { extractErrorMessage } from "@/utils/functions/error";
 
 interface IAuthStore {
@@ -14,12 +14,15 @@ interface IAuthStore {
   logout: () => Promise<void>;
   fetchMe: () => Promise<boolean>;
   updateProfile: (data: IUserUpdate) => Promise<boolean>;
+  startTelegramLink: () => Promise<{ link: ITelegramLink } | { error: string }>;
+  unlinkTelegram: () => Promise<boolean>;
+  syncLanguage: (language: TUserLanguage) => Promise<void>;
   clearError: () => void;
 }
 
 export const useAuthStore = create<IAuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       loading: false,
       error: null,
@@ -94,6 +97,46 @@ export const useAuthStore = create<IAuthStore>()(
         } catch (error) {
           set({ error: extractErrorMessage(error), loading: false });
           return false;
+        }
+      },
+
+      // ── Telegram alerts: a link the seller opens, and the bot does the rest
+      // The failure is returned rather than stored: `error` is shared by every
+      // card on the settings page, and "connect a bot first" belongs next to
+      // the button that was pressed, not under the profile form too.
+      startTelegramLink: async () => {
+        try {
+          const { data } = await api.post<ITelegramLink>(AUTH_API.TELEGRAM_LINK);
+          return { link: data };
+        } catch (error) {
+          return { error: extractErrorMessage(error) };
+        }
+      },
+
+      unlinkTelegram: async () => {
+        set({ loading: true, error: null });
+        try {
+          const { data } = await api.delete<IUser>(AUTH_API.TELEGRAM_LINK);
+          set({ user: data, loading: false });
+          return true;
+        } catch (error) {
+          set({ error: extractErrorMessage(error), loading: false });
+          return false;
+        }
+      },
+
+      // ── Keep the server's idea of the seller's language in step with the
+      // UI, so Telegram alerts arrive in the language they read. Quiet on
+      // purpose: no loading flag, no error banner — a failure here changes
+      // nothing the seller can see, and the next switch tries again.
+      syncLanguage: async (language) => {
+        const { user } = get();
+        if (!user || user.language === language) return;
+        try {
+          const { data } = await api.patch<IUser>(AUTH_API.ME, { language });
+          set({ user: data });
+        } catch {
+          // Deliberately swallowed; see above.
         }
       },
 

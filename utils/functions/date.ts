@@ -9,25 +9,37 @@ function parseApiDate(date: string | Date): Date {
   return new Date(hasTimezone ? date : `${date}Z`);
 }
 
-export function formatDate(date: string | Date): string {
-  return parseApiDate(date).toLocaleDateString("en-US", {
+export type TDateLanguage = "en" | "km";
+
+const LOCALES: Record<TDateLanguage, string> = { en: "en-US", km: "km-KH" };
+
+export function formatDate(date: string | Date, language: TDateLanguage = "en"): string {
+  return parseApiDate(date).toLocaleDateString(LOCALES[language], {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
 }
 
-export function timeAgo(date: string | Date): string {
+// Kept here rather than in the translation files so the function stays usable
+// from non-React code; the app translations mirror these under `time`.
+const RELATIVE: Record<TDateLanguage, { justNow: string; m: string; h: string; d: string }> = {
+  en: { justNow: "just now", m: "{n}m ago", h: "{n}h ago", d: "{n}d ago" },
+  km: { justNow: "អម្បាញ់មិញ", m: "{n} នាទីមុន", h: "{n} ម៉ោងមុន", d: "{n} ថ្ងៃមុន" },
+};
+
+export function timeAgo(date: string | Date, language: TDateLanguage = "en"): string {
+  const words = RELATIVE[language] ?? RELATIVE.en;
   const seconds = Math.floor(
     (Date.now() - parseApiDate(date).getTime()) / 1000
   );
   // Clock skew between the server and the browser can put a fresh timestamp a
   // second or two into the future; "in -1m" would be worse than "just now".
-  if (seconds < 60) return "just now";
+  if (seconds < 60) return words.justNow;
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return words.m.replace("{n}", String(minutes));
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return words.h.replace("{n}", String(hours));
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return words.d.replace("{n}", String(days));
 }

@@ -12,56 +12,30 @@ import {
   Undo2,
 } from "lucide-react";
 
-export const SIDEBAR_NAV = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Products",
-    href: "/products",
-    icon: Package,
-  },
-  {
-    title: "Inventory",
-    href: "/inventory",
-    icon: Warehouse,
-  },
-  {
-    title: "Customers",
-    href: "/customers",
-    icon: Users,
-  },
-  {
-    title: "Inbox",
-    href: "/chat",
-    icon: Inbox,
-  },
-  {
-    title: "Orders",
-    href: "/orders",
-    icon: ShoppingCart,
-  },
-  { title: "Purchasing", href: "/purchasing", icon: Truck },
-  { title: "Returns", href: "/returns", icon: Undo2 },
-  {
-    title: "Analytics",
-    href: "/analytics",
-    icon: BarChart3,
-  },
+// `key` names the label in the `nav` section of the app translations.
+export type TNavKey =
+  | "dashboard" | "products" | "inventory" | "customers" | "inbox" | "orders"
+  | "purchasing" | "returns" | "analytics" | "integrations" | "settings";
+
+export interface INavItem {
+  key: TNavKey;
+  href: string;
+  icon: typeof LayoutDashboard;
+}
+
+export const SIDEBAR_NAV: INavItem[] = [
+  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { key: "products", href: "/products", icon: Package },
+  { key: "inventory", href: "/inventory", icon: Warehouse },
+  { key: "customers", href: "/customers", icon: Users },
+  { key: "inbox", href: "/chat", icon: Inbox },
+  { key: "orders", href: "/orders", icon: ShoppingCart },
+  { key: "purchasing", href: "/purchasing", icon: Truck },
+  { key: "returns", href: "/returns", icon: Undo2 },
+  { key: "analytics", href: "/analytics", icon: BarChart3 },
 ];
 
-
-export const SIDEBAR_BOTTOM_NAV = [
-  {
-    title: "Integrations",
-    href: "/integrations",
-    icon: Plug,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+export const SIDEBAR_BOTTOM_NAV: INavItem[] = [
+  { key: "integrations", href: "/integrations", icon: Plug },
+  { key: "settings", href: "/settings", icon: Settings },
 ];

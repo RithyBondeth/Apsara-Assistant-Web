@@ -21,22 +21,12 @@ import { useInventoryStore } from "@/stores/apis/inventory/inventory.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { timeAgo } from "@/utils/functions/date";
 import { IProduct, IProductVariant } from "@/utils/interfaces/product/product.interface";
-
-const MOVEMENT_LABELS: Record<string, string> = {
-  opening_balance: "Opening balance",
-  manual_adjustment: "Manual adjustment",
-  reservation_created: "Reserved for order",
-  reservation_reopened: "Reservation reopened",
-  reservation_restored: "Reservation restored",
-  reservation_fulfilled: "Order fulfilled",
-  reservation_expired: "Reservation expired",
-  order_cancelled: "Order cancelled",
-  order_deleted: "Order deleted",
-  order_reopened: "Order reopened",
-  migration_snapshot: "Opening snapshot",
-};
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 
 export default function InventoryPage() {
+  const t = useAppT("inventory");
+  const language = useLanguage();
   const { products, loading: productsLoading, fetchProducts } = useProductsStore();
   const {
     movements,
@@ -56,15 +46,17 @@ export default function InventoryPage() {
     async function load() {
       const released = await releaseExpired();
       if (active && released?.released_orders) {
-        setReleaseMessage(
-          `Released ${released.released_units} unit${released.released_units === 1 ? "" : "s"} from ${released.released_orders} expired order${released.released_orders === 1 ? "" : "s"}.`,
-        );
+        const [one, many] = t.released.split("|");
+        setReleaseMessage(fmt(released.released_orders === 1 ? one : many, {
+          units: released.released_units,
+          orders: released.released_orders,
+        }));
       }
       await Promise.all([fetchProducts(), fetchMovements()]);
     }
     load();
     return () => { active = false; };
-  }, [fetchMovements, fetchProducts, releaseExpired]);
+  }, [fetchMovements, fetchProducts, releaseExpired, t.released]);
 
   const summary = useMemo(() => {
     const active = products.flatMap((product) =>
@@ -100,7 +92,7 @@ export default function InventoryPage() {
   if (loading && products.length === 0 && movements.length === 0) {
     return (
       <>
-        <AppHeader title="Inventory" description="Track available, reserved, and adjusted stock" />
+        <AppHeader title={t.title} description={t.description} />
         <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
           <div className="grid gap-4 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
@@ -115,7 +107,7 @@ export default function InventoryPage() {
 
   return (
     <>
-      <AppHeader title="Inventory" description="Track available, reserved, and adjusted stock" />
+      <AppHeader title={t.title} description={t.description} />
       <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
         {releaseMessage && (
           <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
@@ -129,32 +121,32 @@ export default function InventoryPage() {
         )}
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <StatCard icon={PackageCheck} label="Available" value={summary.available} sub="Ready to sell" />
-          <StatCard icon={Clock3} label="Reserved" value={summary.reserved} sub="Held by open orders" />
-          <StatCard icon={AlertTriangle} label="Low stock" value={summary.low.length} sub="At or below threshold" />
+          <StatCard icon={PackageCheck} label={t.available} value={summary.available} sub={t.readyToSell} />
+          <StatCard icon={Clock3} label={t.reserved} value={summary.reserved} sub={t.heldByOrders} />
+          <StatCard icon={AlertTriangle} label={t.lowStock} value={summary.low.length} sub={t.atOrBelow} />
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Stock levels</CardTitle>
+            <CardTitle>{t.stockLevels}</CardTitle>
           </CardHeader>
           <CardContent>
             {products.length === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">
                 <Boxes className="mx-auto mb-3 h-8 w-8" />
-                Add products before managing inventory.
+                {t.addProductsFirst}
               </div>
             ) : (
               <div className="overflow-x-auto rounded-lg border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Available</TableHead>
-                      <TableHead>Reserved</TableHead>
-                      <TableHead className="hidden sm:table-cell">Alert at</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
+                      <TableHead>{t.product}</TableHead>
+                      <TableHead>{t.available}</TableHead>
+                      <TableHead>{t.reserved}</TableHead>
+                      <TableHead className="hidden sm:table-cell">{t.alertAt}</TableHead>
+                      <TableHead>{t.status}</TableHead>
+                      <TableHead className="text-right">{t.action}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -170,12 +162,12 @@ export default function InventoryPage() {
                           <TableCell className="hidden sm:table-cell">{variant.low_stock_threshold}</TableCell>
                           <TableCell>
                             <Badge variant={low ? "destructive" : "secondary"}>
-                              {!variant.is_active ? "Inactive" : low ? (variant.stock === 0 ? "Out" : "Low") : "Healthy"}
+                              {!variant.is_active ? t.inactive : low ? (variant.stock === 0 ? t.out : t.low) : t.healthy}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <Button variant="outline" size="sm" onClick={() => openAdjustment(product, variant)}>
-                              Adjust
+                              {t.adjust}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -190,21 +182,21 @@ export default function InventoryPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent movements</CardTitle>
+            <CardTitle>{t.recentMovements}</CardTitle>
           </CardHeader>
           <CardContent>
             {movements.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">No inventory movements yet.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">{t.noMovements}</p>
             ) : (
               <div className="overflow-x-auto rounded-lg border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Movement</TableHead>
-                      <TableHead>Change</TableHead>
-                      <TableHead className="hidden md:table-cell">Reason</TableHead>
-                      <TableHead className="text-right">When</TableHead>
+                      <TableHead>{t.product}</TableHead>
+                      <TableHead>{t.movement}</TableHead>
+                      <TableHead>{t.change}</TableHead>
+                      <TableHead className="hidden md:table-cell">{t.reason}</TableHead>
+                      <TableHead className="text-right">{t.when}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -216,13 +208,13 @@ export default function InventoryPage() {
                             {product?.name ?? movement.product_name}
                             {movement.variant_name && <span className="block text-xs font-normal text-muted-foreground">{movement.variant_name}{movement.variant_sku ? ` · ${movement.variant_sku}` : ""}</span>}
                           </TableCell>
-                          <TableCell>{MOVEMENT_LABELS[movement.kind] ?? movement.kind}</TableCell>
+                          <TableCell>{t.kinds[movement.kind as keyof typeof t.kinds] ?? movement.kind}</TableCell>
                           <TableCell className={movement.quantity_delta < 0 ? "text-destructive" : movement.quantity_delta > 0 ? "text-emerald-600" : "text-muted-foreground"}>
                             {movement.quantity_delta > 0 ? "+" : ""}{movement.quantity_delta}
                             <span className="ml-1 text-xs text-muted-foreground">→ {movement.balance_after}</span>
                           </TableCell>
                           <TableCell className="hidden max-w-64 truncate md:table-cell">{movement.reason ?? "—"}</TableCell>
-                          <TableCell className="text-right text-xs text-muted-foreground">{timeAgo(movement.created_at)}</TableCell>
+                          <TableCell className="text-right text-xs text-muted-foreground">{timeAgo(movement.created_at, language)}</TableCell>
                         </TableRow>
                       );
                     })}

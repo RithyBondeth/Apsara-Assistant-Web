@@ -13,7 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PLATFORM_COPY } from "@/utils/constants/integration.constant";
+import { platformCopy } from "@/utils/constants/integration.constant";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { IConnectDialogProps } from "./props";
 
 export default function ConnectDialog({
@@ -47,8 +48,11 @@ function ConnectForm({
   const [webhookSecret, setWebhookSecret] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [saving, setSaving] = useState(false);
+  const t = useAppT("integrations");
+  const d = t.dialog;
+  const common = useAppT("common");
 
-  const copy = PLATFORM_COPY[platform];
+  const copy = platformCopy(t.platforms)[platform];
   // Stripe is the only platform with a second secret, and it cannot be skipped:
   // without it no payment notification can be told apart from a forged one.
   const needsSecret = platform === "stripe";
@@ -76,11 +80,9 @@ function ConnectForm({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Connect {copy.label}</DialogTitle>
+        <DialogTitle>{fmt(d.title, { platform: copy.label })}</DialogTitle>
         <DialogDescription>
-          {needsSecret
-            ? "Once connected, you can send customers a card payment link for any order, and it will be marked paid automatically."
-            : "Once connected, customer messages arrive here and the assistant can answer them."}
+          {needsSecret ? d.stripeDescription : d.channelDescription}
         </DialogDescription>
       </DialogHeader>
 
@@ -122,12 +124,12 @@ function ConnectForm({
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="display-name">Label (optional)</Label>
+          <Label htmlFor="display-name">{d.label}</Label>
           <Input
             id="display-name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="How you want to recognise this connection"
+            placeholder={d.labelPlaceholder}
           />
         </div>
 
@@ -137,7 +139,7 @@ function ConnectForm({
             <button
               type="button"
               onClick={onDismissError}
-              aria-label="Dismiss"
+              aria-label={common.dismiss}
               className="shrink-0 rounded p-0.5"
             >
               <X className="h-4 w-4" />
@@ -148,10 +150,10 @@ function ConnectForm({
 
       <DialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
+          {common.cancel}
         </Button>
         <Button onClick={handleCreate} disabled={!valid || saving}>
-          {saving ? "Connecting…" : "Connect"}
+          {saving ? d.connecting : d.connect}
         </Button>
       </DialogFooter>
     </>

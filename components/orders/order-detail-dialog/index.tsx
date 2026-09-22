@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
   ORDER_STATUSES,
-  ORDER_STATUS_HINTS,
   ORDER_STATUS_STYLES,
   PAYMENT_STATUS_STYLES,
   SHARED_SELECT_CLASS,
@@ -24,6 +23,8 @@ import { TOrderStatus } from "@/utils/interfaces/order/order.interface";
 import { formatDate } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { IOrderDetailDialogProps } from "./props";
 import { BASE_URL } from "@/utils/constants/apis/base.api.constant";
 
@@ -47,11 +48,16 @@ export default function OrderDetailDialog({
   const [saving, setSaving] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const t = useAppT("orders");
+  const d = t.detail;
+  const c = useAppT("common");
+  const language = useLanguage();
 
   if (!order) return null;
 
   const productName = (id: string) =>
-    products.find((p) => p.id === id)?.name ?? `Product ${id.slice(0, 8)}`;
+    products.find((p) => p.id === id)?.name ?? fmt(d.productFallback, { id: id.slice(0, 8) });
+  const statusHint = order.status === "cancelled" ? t.statusHints.cancelled : null;
 
   // ── Methods
   async function handleStatus(status: TOrderStatus) {
@@ -79,7 +85,7 @@ export default function OrderDetailDialog({
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this order? Its items return to your stock.")) return;
+    if (!confirm(d.confirmDelete)) return;
     setSaving(true);
     const ok = await onDelete();
     setSaving(false);
@@ -98,13 +104,13 @@ export default function OrderDetailDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Order
-            <Badge className={cn("capitalize", ORDER_STATUS_STYLES[order.status])}>
-              {order.status}
+            {d.title}
+            <Badge className={cn(ORDER_STATUS_STYLES[order.status])}>
+              {t.status[order.status]}
             </Badge>
           </DialogTitle>
           <DialogDescription>
-            {customer?.name ?? "Customer"} · placed {formatDate(order.created_at)}
+            {fmt(d.placedBy, { customer: customer?.name ?? d.customerFallback, date: formatDate(order.created_at, language) })}
           </DialogDescription>
         </DialogHeader>
 
@@ -133,7 +139,7 @@ export default function OrderDetailDialog({
               </div>
             ))}
             <div className="flex items-center justify-between px-3 py-2 font-medium">
-              <span className="text-sm">Total</span>
+              <span className="text-sm">{d.total}</span>
               <span>{formatMoney(order.total_amount, order.currency)}</span>
             </div>
           </div>
@@ -143,13 +149,13 @@ export default function OrderDetailDialog({
             <div className="space-y-1.5 text-sm">
               {order.delivery_address && (
                 <p>
-                  <span className="text-muted-foreground">Deliver to: </span>
+                  <span className="text-muted-foreground">{d.deliverTo}</span>
                   {order.delivery_address}
                 </p>
               )}
               {order.notes && (
                 <p>
-                  <span className="text-muted-foreground">Notes: </span>
+                  <span className="text-muted-foreground">{d.notes}</span>
                   {order.notes}
                 </p>
               )}
@@ -158,7 +164,7 @@ export default function OrderDetailDialog({
 
           {/* ── Status */}
           <div className="space-y-1.5">
-            <Label htmlFor="order-status">Status</Label>
+            <Label htmlFor="order-status">{d.status}</Label>
             <select
               id="order-status"
               value={order.status}
@@ -168,29 +174,27 @@ export default function OrderDetailDialog({
             >
               {ORDER_STATUSES.map((status) => (
                 <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {t.status[status]}
                 </option>
               ))}
             </select>
-            {ORDER_STATUS_HINTS[order.status] && (
-              <p className="text-xs text-muted-foreground">
-                {ORDER_STATUS_HINTS[order.status]}
-              </p>
+            {statusHint && (
+              <p className="text-xs text-muted-foreground">{statusHint}</p>
             )}
           </div>
 
           {/* ── Payment */}
           <div className="space-y-1.5">
-            <Label>Payment</Label>
+            <Label>{d.payment}</Label>
             <div className="flex items-center gap-2">
-              <Badge className={cn("capitalize", PAYMENT_STATUS_STYLES[order.payment_status])}>
-                {order.payment_status}
+              <Badge className={cn(PAYMENT_STATUS_STYLES[order.payment_status])}>
+                {t.payment[order.payment_status]}
               </Badge>
               {order.payment_status !== "paid" && order.status !== "cancelled" && (
                 <Button size="sm" variant="outline" disabled={saving}
                         onClick={handleCheckout}>
                   <CreditCard className="mr-1.5 h-4 w-4" />
-                  {checkoutUrl ? "New link" : "Payment link"}
+                  {checkoutUrl ? d.newLink : d.paymentLink}
                 </Button>
               )}
             </div>
@@ -203,7 +207,7 @@ export default function OrderDetailDialog({
                   readOnly
                   value={checkoutUrl}
                   onFocus={(e) => e.currentTarget.select()}
-                  aria-label="Stripe payment link"
+                  aria-label={d.stripeLinkAria}
                   className="w-full truncate rounded bg-transparent px-1 py-0.5 text-xs"
                 />
                 <div className="flex items-center gap-2">
@@ -213,21 +217,18 @@ export default function OrderDetailDialog({
                     ) : (
                       <Copy className="mr-1.5 h-3.5 w-3.5" />
                     )}
-                    {copied ? "Copied" : "Copy link"}
+                    {copied ? d.copied : d.copyLink}
                   </Button>
-                  <p className="text-xs text-muted-foreground">
-                    Send this to the customer. The order is marked paid
-                    automatically.
-                  </p>
+                  <p className="text-xs text-muted-foreground">{d.sendLinkHelp}</p>
                 </div>
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">
                 {order.payment_status === "paid"
                   ? order.payment_method === "qr"
-                    ? "Receipt confirmed manually."
-                    : "Confirmed by Stripe."
-                  : "Creates a Stripe page you can send to the customer."}
+                    ? d.receiptConfirmed
+                    : d.stripeConfirmed
+                  : d.createsStripe}
               </p>
             )}
           </div>
@@ -237,14 +238,12 @@ export default function OrderDetailDialog({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <ReceiptText className="h-4 w-4" />
-                <Label>Customer receipts</Label>
+                <Label>{d.receipts}</Label>
               </div>
               {receiptsLoading ? (
-                <p className="text-xs text-muted-foreground">Loading receipts…</p>
+                <p className="text-xs text-muted-foreground">{d.loadingReceipts}</p>
               ) : receipts.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Images sent by this customer will appear here for review.
-                </p>
+                <p className="text-xs text-muted-foreground">{d.noReceipts}</p>
               ) : (
                 <div className="grid gap-2 sm:grid-cols-2">
                   {receipts.map((receipt) => {
@@ -257,12 +256,13 @@ export default function OrderDetailDialog({
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={imageUrl}
-                          alt={receipt.file_name ?? "Customer payment receipt"}
+                          alt={receipt.file_name ?? d.receiptAlt}
                           className="h-36 w-full rounded bg-muted object-contain"
                         />
                         <div className="flex items-center justify-between gap-2">
-                          <Badge variant="outline" className="capitalize">
-                            {isConfirmed ? "accepted" : receipt.review_status ?? "pending"}
+                          <Badge variant="outline">
+                            {d.review[(isConfirmed ? "accepted" : receipt.review_status ?? "pending") as keyof typeof d.review]
+                              ?? receipt.review_status}
                           </Badge>
                           {!isConfirmed && order.payment_status !== "paid" && (
                             <div className="flex gap-1">
@@ -272,14 +272,14 @@ export default function OrderDetailDialog({
                                 disabled={saving || receipt.review_status === "rejected"}
                                 onClick={() => handleReceipt(receipt.id, "reject")}
                               >
-                                Reject
+                                {d.reject}
                               </Button>
                               <Button
                                 size="sm"
                                 disabled={saving}
                                 onClick={() => handleReceipt(receipt.id, "confirm")}
                               >
-                                Confirm
+                                {d.confirm}
                               </Button>
                             </div>
                           )}
@@ -300,7 +300,7 @@ export default function OrderDetailDialog({
               <button
                 type="button"
                 onClick={onDismissError}
-                aria-label="Dismiss"
+                aria-label={c.dismiss}
                 className="shrink-0 rounded p-0.5"
               >
                 <X className="h-4 w-4" />
@@ -318,10 +318,10 @@ export default function OrderDetailDialog({
             className="text-destructive hover:text-destructive"
           >
             <Trash2 className="mr-1.5 h-4 w-4" />
-            Delete
+            {c.delete}
           </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close
+            {c.close}
           </Button>
         </DialogFooter>
       </DialogContent>

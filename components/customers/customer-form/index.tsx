@@ -7,30 +7,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ICustomerFormProps, CustomerFormValues } from "./props";
+import { AppMessages, useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 const PLATFORMS = ["facebook", "telegram", "tiktok", "website"];
 
-const schema = z.object({
-  name: z.string().min(1, "Customer name is required"),
-  phone: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  platform: z.string().optional(),
-  platform_id: z.string().optional(),
-});
+function buildSchema(t: AppMessages["customers"]["form"]) {
+  return z.object({
+    name: z.string().min(1, t.nameRequired),
+    phone: z.string().optional(),
+    email: z.string().email(t.invalidEmail).optional().or(z.literal("")),
+    platform: z.string().optional(),
+    platform_id: z.string().optional(),
+  });
+}
 
 export default function CustomerForm({
   defaultValues,
   onSubmit,
   loading,
-  submitLabel = "Save customer",
+  submitLabel,
 }: ICustomerFormProps) {
+  const t = useAppT("customers").form;
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<CustomerFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: {
       name: defaultValues?.name ?? "",
       phone: defaultValues?.phone ?? "",
@@ -45,10 +49,10 @@ export default function CustomerForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* ── Name */}
       <div className="space-y-1.5">
-        <Label htmlFor="name">Full name *</Label>
+        <Label htmlFor="name">{t.fullName}</Label>
         <Input
           id="name"
-          placeholder="Sophea Chan"
+          placeholder={t.namePlaceholder}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? "customer-name-error" : undefined}
           {...register("name")}
@@ -61,11 +65,11 @@ export default function CustomerForm({
       {/* ── Phone & Email */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">{t.phone}</Label>
           <Input id="phone" placeholder="+855 12 345 678" {...register("phone")} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t.email}</Label>
           <Input
             id="email"
             type="email"
@@ -83,13 +87,13 @@ export default function CustomerForm({
       {/* ── Platform & Platform ID */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="platform">Platform</Label>
+          <Label htmlFor="platform">{t.platform}</Label>
           <select
             id="platform"
             {...register("platform")}
             className="flex h-8 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            <option value="">— None —</option>
+            <option value="">{t.none}</option>
             {PLATFORMS.map((p) => (
               <option key={p} value={p} className="capitalize">
                 {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -98,10 +102,10 @@ export default function CustomerForm({
           </select>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="platform_id">Platform ID</Label>
+          <Label htmlFor="platform_id">{t.platformId}</Label>
           <Input
             id="platform_id"
-            placeholder={selectedPlatform ? `${selectedPlatform} user ID…` : "Choose a platform first"}
+            placeholder={selectedPlatform ? fmt(t.platformIdPlaceholder, { platform: selectedPlatform }) : t.choosePlatformFirst}
             disabled={!selectedPlatform}
             {...register("platform_id")}
           />
@@ -109,7 +113,7 @@ export default function CustomerForm({
       </div>
 
       <Button type="submit" disabled={loading}>
-        {loading ? "Saving…" : submitLabel}
+        {loading ? t.saving : submitLabel ?? t.saveCustomer}
       </Button>
     </form>
   );

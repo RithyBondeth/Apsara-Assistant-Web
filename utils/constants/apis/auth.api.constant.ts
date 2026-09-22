@@ -9,4 +9,5 @@ export const AUTH_API = {
   RESET_PASSWORD: `${API_V1}/auth/reset-password`,
   OTP_REQUEST: `${API_V1}/auth/otp/request`,
   OTP_VERIFY: `${API_V1}/auth/otp/verify`,
+  TELEGRAM_LINK: `${API_V1}/auth/telegram-link`,
 };

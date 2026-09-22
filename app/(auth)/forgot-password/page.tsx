@@ -19,12 +19,13 @@ import {
   LucideArrowLeft,
   LucideMailCheck,
 } from "lucide-react";
+import { AppMessages, useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
-const schema = z.object({
-  email: z.string().email("Invalid email address"),
-});
+function buildSchema(t: AppMessages["auth"]) {
+  return z.object({ email: z.string().email(t.invalidEmail) });
+}
 
-type ForgotPasswordForm = z.infer<typeof schema>;
+type ForgotPasswordForm = z.infer<ReturnType<typeof buildSchema>>;
 
 export default function ForgotPasswordPage() {
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -42,12 +43,14 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
+  const a = useAppT("auth");
+  const t = a.forgot;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordForm>({ resolver: zodResolver(schema) });
+  } = useForm<ForgotPasswordForm>({ resolver: zodResolver(buildSchema(a)) });
 
   async function onSubmit(values: ForgotPasswordForm) {
     setLoading(true);
@@ -66,22 +69,20 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Forgot password?</h1>
-        <p className="text-sm text-muted-foreground">
-          Enter your email and we&apos;ll send you a reset link
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-sm font-medium">{a.email}</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
               id="email"
               type="email"
-              placeholder="seller@example.com"
+              placeholder={a.emailPlaceholder}
               className="pl-9 transition-shadow focus-visible:shadow-md focus-visible:shadow-blue-500/10"
               {...register("email")}
             />
@@ -106,11 +107,11 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
             {loading ? (
               <>
                 <LucideLoader2 className="size-4 animate-spin" />
-                Sending link…
+                {t.sending}
               </>
             ) : (
               <>
-                Send reset link
+                {t.send}
                 <LucideArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -120,12 +121,12 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
-        Remember your password?{" "}
+        {t.remember}{" "}
         <Link
           href="/login"
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
-          Sign in
+          {a.signIn}
         </Link>
       </p>
     </div>
@@ -134,27 +135,29 @@ function RequestLinkStep({ onSent }: { onSent: (email: string) => void }) {
 
 // Newly mounted [data-auth] elements replay the CSS entrance automatically.
 function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => void }) {
+  const t = useAppT("auth").forgot;
+  const [before, after] = fmt(t.sentTo, { email: "\u0000" }).split("\u0000");
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div data-auth className="flex size-14 items-center justify-center rounded-full bg-blue-500/10 opacity-0">
         <LucideMailCheck className="size-7 text-blue-500" />
       </div>
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Check your email</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t.checkEmail}</h1>
         <p className="text-sm text-muted-foreground">
-          If an account exists for{" "}
-          <span className="font-medium text-foreground">{email}</span>, we sent
-          a link to reset your password.
+          {before}
+          <span className="font-medium text-foreground">{email}</span>
+          {after}
         </p>
       </div>
       <p data-auth className="text-sm text-muted-foreground opacity-0">
-        Didn&apos;t get it?{" "}
+        {t.didntGet}{" "}
         <button
           type="button"
           onClick={onRetry}
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
-          Try again
+          {t.tryAgain}
         </button>
       </p>
       <Link
@@ -163,7 +166,7 @@ function SentConfirmation({ email, onRetry }: { email: string; onRetry: () => vo
         className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors opacity-0"
       >
         <LucideArrowLeft className="size-4" />
-        Back to sign in
+        {t.backToSignIn}
       </Link>
     </div>
   );
