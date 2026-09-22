@@ -6,12 +6,9 @@ import { LucideCheck, LucideMessageCircle, LucideShoppingBag, LucideUsers } from
 import { BrandMark } from "@/components/landing/brand-logo";
 import { useAuthShowcaseAnimation } from "@/hooks/utils/use-gsap-auth";
 import { useMouseParallax, useTiltHover } from "@/hooks/utils/use-gsap-interactions";
+import { useAppT } from "@/hooks/utils/use-app-translations";
 
-const HIGHLIGHTS = [
-  { icon: LucideMessageCircle, text: "Replies in Khmer, English & romanized Khmer" },
-  { icon: LucideShoppingBag, text: "Knows your entire product catalog automatically" },
-  { icon: LucideUsers, text: "Handles customers 24/7 on every platform" },
-];
+const HIGHLIGHT_ICONS = [LucideMessageCircle, LucideShoppingBag, LucideUsers] as const;
 
 /**
  * The animated brand panel on the right side of the auth pages: drifting
@@ -30,6 +27,12 @@ export default function AuthShowcase() {
     [sceneRef, parallaxRef],
   );
   const cardRef = useTiltHover<HTMLDivElement>(5);
+  const t = useAppT("auth").showcase;
+  const HIGHLIGHTS = [
+    { icon: HIGHLIGHT_ICONS[0], text: t.h1 },
+    { icon: HIGHLIGHT_ICONS[1], text: t.h2 },
+    { icon: HIGHLIGHT_ICONS[2], text: t.h3 },
+  ];
 
   return (
     <div
@@ -71,10 +74,10 @@ export default function AuthShowcase() {
             data-auth-scene="heading"
             className="text-3xl font-extrabold tracking-tight leading-tight opacity-0 [perspective:600px]"
           >
-            Your AI sales assistant speaks Khmer
+            {t.heading}
           </h2>
           <p data-auth-scene="sub" className="text-sm text-white/85 max-w-xs mx-auto leading-relaxed opacity-0">
-            Apsara answers customers while you sleep — in whichever language they use.
+            {t.sub}
           </p>
         </div>
 
@@ -106,7 +109,7 @@ export default function AuthShowcase() {
                   data-chat-loop="q"
                   className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white/90 px-3.5 py-2 text-sm text-neutral-900 opacity-0"
                 >
-                  bong thlai ponman?
+                  {t.question}
                 </div>
               </div>
               <div className="relative flex justify-end">
@@ -127,7 +130,7 @@ export default function AuthShowcase() {
                   data-chat-loop="a"
                   className="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-950/60 px-3.5 py-2 text-sm text-white shadow-lg shadow-blue-900/30 opacity-0"
                 >
-                  $12 — free delivery in Phnom Penh 🚚
+                  {t.answer}
                 </div>
               </div>
               <div
@@ -137,7 +140,7 @@ export default function AuthShowcase() {
                 <span className="flex size-5 items-center justify-center rounded-full bg-emerald-400/90 text-blue-950">
                   <LucideCheck className="size-3" strokeWidth={3} />
                 </span>
-                New order confirmed
+                {t.toast}
               </div>
             </div>
           </div>

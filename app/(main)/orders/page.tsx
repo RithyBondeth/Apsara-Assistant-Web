@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Plus, ShoppingCart } from "lucide-react";
 import AppHeader from "@/components/header";
+import DeepLink from "@/components/shared/deep-link";
 import OrderTable from "@/components/orders/order-table";
 import OrderDetailDialog from "@/components/orders/order-detail-dialog";
 import NewOrderDialog from "@/components/orders/new-order-dialog";
@@ -18,12 +19,14 @@ import {
   TOrderStatus,
 } from "@/utils/interfaces/order/order.interface";
 import EmptyState from "@/components/shared/empty-state";
+import { useAppT, fmt, plural } from "@/hooks/utils/use-app-translations";
 
 export default function OrdersPage() {
   // ── All States
   const [statusFilter, setStatusFilter] = useState<TOrderStatus | "all">("all");
   const [detailOpen, setDetailOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const t = useAppT("orders");
 
   // ── API Integration
   const {
@@ -32,6 +35,7 @@ export default function OrdersPage() {
     loading,
     error,
     fetchOrders,
+    fetchOrder,
     createOrder,
     updateOrder,
     deleteOrder,
@@ -56,6 +60,14 @@ export default function OrdersPage() {
   useEffect(() => {
     fetchOrders(statusFilter);
   }, [fetchOrders, statusFilter]);
+
+  // `/orders?order=<id>` — where a payment alert on Telegram lands.
+  const openFromLink = useCallback(async (id: string) => {
+    clearError();
+    await fetchOrder(id);
+    void fetchReceipts(id);
+    setDetailOpen(true);
+  }, [clearError, fetchOrder, fetchReceipts]);
 
   // ── Methods
   function handleSelect(order: IOrder) {
@@ -89,27 +101,25 @@ export default function OrdersPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader
-        title="Orders"
-        description="Track every sale from confirmation through delivery"
-      />
+      <AppHeader title={t.title} description={t.description} />
+      <DeepLink param="order" onValue={openFromLink} />
 
       <main className="flex-1 space-y-4 p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-3">
             <p className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
-              {orders.length} order{orders.length !== 1 ? "s" : ""}
+              {plural(t.count, orders.length)}
             </p>
             <select
-              aria-label="Filter by status"
+              aria-label={t.filterStatus}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as TOrderStatus | "all")}
             className={`${SHARED_SELECT_CLASS} w-40`}
             >
-              <option value="all">All statuses</option>
+              <option value="all">{t.allStatuses}</option>
               {ORDER_STATUSES.map((status) => (
                 <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {t.status[status]}
                 </option>
               ))}
             </select>
@@ -123,7 +133,7 @@ export default function OrdersPage() {
             }}
           >
             <Plus className="mr-1.5 h-4 w-4" />
-            New order
+            {t.newOrder}
           </Button>
         </div>
 
@@ -144,21 +154,19 @@ export default function OrdersPage() {
         ) : orders.length === 0 ? (
           <EmptyState
             icon={ShoppingCart}
-            title={statusFilter === "all" ? "No orders yet" : `No ${statusFilter} orders`}
-            description={
-              statusFilter === "all"
-                ? "Create an order manually, or turn a customer conversation into a sale from Inbox."
-                : "Try another status, or clear the filter to see every order."
-            }
+            title={statusFilter === "all"
+              ? t.noOrders
+              : fmt(t.noOrdersWithStatus, { status: t.status[statusFilter].toLowerCase() })}
+            description={statusFilter === "all" ? t.noOrdersHelp : t.noOrdersFilterHelp}
           >
             {statusFilter === "all" ? (
               <Button size="sm" onClick={() => setCreateOpen(true)}>
                 <Plus className="mr-1.5 size-4" />
-                Create your first order
+                {t.createFirst}
               </Button>
             ) : (
               <Button size="sm" variant="outline" onClick={() => setStatusFilter("all")}>
-                Clear filter
+                {t.clearFilter}
               </Button>
             )}
           </EmptyState>

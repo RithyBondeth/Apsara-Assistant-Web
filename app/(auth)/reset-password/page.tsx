@@ -22,18 +22,21 @@ import {
   LucideArrowLeft,
   LucideShieldAlert,
 } from "lucide-react";
+import { AppMessages, useAppT } from "@/hooks/utils/use-app-translations";
 
-const schema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirm_password: z.string(),
-  })
-  .refine((values) => values.password === values.confirm_password, {
-    message: "Passwords do not match",
-    path: ["confirm_password"],
-  });
+function buildSchema(t: AppMessages["auth"]) {
+  return z
+    .object({
+      password: z.string().min(8, t.passwordMin8),
+      confirm_password: z.string(),
+    })
+    .refine((values) => values.password === values.confirm_password, {
+      message: t.passwordsMismatch,
+      path: ["confirm_password"],
+    });
+}
 
-type ResetPasswordForm = z.infer<typeof schema>;
+type ResetPasswordForm = z.infer<ReturnType<typeof buildSchema>>;
 
 export default function ResetPasswordPage() {
   return (
@@ -59,17 +62,15 @@ const getTrue = () => true;
 const getFalse = () => false;
 
 function InvalidLink() {
+  const t = useAppT("auth").reset;
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <div data-auth className="flex size-14 items-center justify-center rounded-full bg-destructive/10 opacity-0">
         <LucideShieldAlert className="size-7 text-destructive" />
       </div>
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Invalid reset link</h1>
-        <p className="text-sm text-muted-foreground">
-          This link is missing or expired. Request a new one to reset your
-          password.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.invalidTitle}</h1>
+        <p className="text-sm text-muted-foreground">{t.invalidBody}</p>
       </div>
       <Link
         data-auth
@@ -77,7 +78,7 @@ function InvalidLink() {
         className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors opacity-0"
       >
         <LucideArrowLeft className="size-4" />
-        Request a new link
+        {t.requestNew}
       </Link>
     </div>
   );
@@ -89,12 +90,14 @@ function ResetForm({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
+  const a = useAppT("auth");
+  const t = a.reset;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordForm>({ resolver: zodResolver(schema) });
+  } = useForm<ResetPasswordForm>({ resolver: zodResolver(buildSchema(a)) });
 
   async function onSubmit(values: ResetPasswordForm) {
     setLoading(true);
@@ -116,16 +119,14 @@ function ResetForm({ token }: { token: string }) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Reset password</h1>
-        <p className="text-sm text-muted-foreground">
-          Choose a new password for your account
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="password" className="text-sm font-medium">New password</Label>
+          <Label htmlFor="password" className="text-sm font-medium">{t.newPassword}</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -138,7 +139,7 @@ function ResetForm({ token }: { token: string }) {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? a.hidePassword : a.showPassword}
               className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
             >
               {showPassword ? <LucideEyeOff className="size-4" /> : <LucideEye className="size-4" />}
@@ -150,7 +151,7 @@ function ResetForm({ token }: { token: string }) {
         </div>
 
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="confirm_password" className="text-sm font-medium">Confirm password</Label>
+          <Label htmlFor="confirm_password" className="text-sm font-medium">{t.confirmPassword}</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -181,11 +182,11 @@ function ResetForm({ token }: { token: string }) {
             {loading ? (
               <>
                 <LucideLoader2 className="size-4 animate-spin" />
-                Resetting…
+                {t.resetting}
               </>
             ) : (
               <>
-                Reset password
+                {t.reset}
                 <LucideArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -195,12 +196,12 @@ function ResetForm({ token }: { token: string }) {
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
-        Remember your password?{" "}
+        {t.remember}{" "}
         <Link
           href="/login"
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
-          Sign in
+          {a.signIn}
         </Link>
       </p>
     </div>

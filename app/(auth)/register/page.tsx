@@ -23,15 +23,18 @@ import {
   LucideLoader2,
   LucideArrowRight,
 } from "lucide-react";
+import { AppMessages, useAppT } from "@/hooks/utils/use-app-translations";
 
-const schema = z.object({
-  full_name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  business_name: z.string().optional(),
-});
+function buildSchema(t: AppMessages["auth"]) {
+  return z.object({
+    full_name: z.string().min(2, t.nameMin2),
+    email: z.string().email(t.invalidEmail),
+    password: z.string().min(6, t.passwordMin6),
+    business_name: z.string().optional(),
+  });
+}
 
-type RegisterForm = z.infer<typeof schema>;
+type RegisterForm = z.infer<ReturnType<typeof buildSchema>>;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -39,12 +42,14 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
+  const a = useAppT("auth");
+  const t = a.register;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterForm>({ resolver: zodResolver(schema) });
+  } = useForm<RegisterForm>({ resolver: zodResolver(buildSchema(a)) });
 
   async function onSubmit(values: RegisterForm) {
     setLoading(true);
@@ -63,21 +68,19 @@ export default function RegisterPage() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-        <p className="text-sm text-muted-foreground">
-          Start selling smarter with Apsara AI
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="full_name" className="text-sm font-medium">Full name</Label>
+          <Label htmlFor="full_name" className="text-sm font-medium">{t.fullName}</Label>
           <div className="group relative">
             <LucideUser className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
               id="full_name"
-              placeholder="Sophea Chan"
+              placeholder={t.namePlaceholder}
               className="pl-9 transition-shadow focus-visible:shadow-md focus-visible:shadow-blue-500/10"
               {...register("full_name")}
             />
@@ -89,14 +92,14 @@ export default function RegisterPage() {
 
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
           <Label htmlFor="business_name" className="text-sm font-medium">
-            Business name{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
+            {t.businessName}{" "}
+            <span className="text-muted-foreground font-normal">{t.optional}</span>
           </Label>
           <div className="group relative">
             <LucideStore className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
               id="business_name"
-              placeholder="Sophea Shop"
+              placeholder={t.businessPlaceholder}
               className="pl-9 transition-shadow focus-visible:shadow-md focus-visible:shadow-blue-500/10"
               {...register("business_name")}
             />
@@ -104,13 +107,13 @@ export default function RegisterPage() {
         </div>
 
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-sm font-medium">{a.email}</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
               id="email"
               type="email"
-              placeholder="seller@example.com"
+              placeholder={a.emailPlaceholder}
               className="pl-9 transition-shadow focus-visible:shadow-md focus-visible:shadow-blue-500/10"
               {...register("email")}
             />
@@ -121,7 +124,7 @@ export default function RegisterPage() {
         </div>
 
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+          <Label htmlFor="password" className="text-sm font-medium">{a.password}</Label>
           <div className="group relative">
             <LucideLock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -134,7 +137,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? a.hidePassword : a.showPassword}
               className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground"
             >
               {showPassword ? <LucideEyeOff className="size-4" /> : <LucideEye className="size-4" />}
@@ -160,11 +163,11 @@ export default function RegisterPage() {
             {loading ? (
               <>
                 <LucideLoader2 className="size-4 animate-spin" />
-                Creating account…
+                {t.creating}
               </>
             ) : (
               <>
-                Create account
+                {t.create}
                 <LucideArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -174,12 +177,12 @@ export default function RegisterPage() {
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
-        Already have an account?{" "}
+        {t.haveAccount}{" "}
         <Link
           href="/login"
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
-          Sign in
+          {a.signIn}
         </Link>
       </p>
     </div>

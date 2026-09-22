@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatMoney } from "@/utils/functions/money";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { IProductTableProps } from "./props";
 
 export default function ProductTable({
@@ -23,14 +24,16 @@ export default function ProductTable({
 }: IProductTableProps) {
   // Products are priced in whatever the shop currently trades in.
   const currency = useAuthStore((s) => s.user?.currency);
+  const t = useAppT("products").table;
+  const c = useAppT("common");
 
   if (products.length === 0) {
     return (
       <div className="rounded-lg border">
         <p className="py-12 text-center text-sm text-muted-foreground">
-          No products yet.{" "}
+          {t.empty}{" "}
           <Link href="/products/new" className="font-medium underline-offset-4 hover:underline">
-            Add your first product
+            {t.addFirst}
           </Link>
         </p>
       </div>
@@ -42,11 +45,11 @@ export default function ProductTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead className="hidden sm:table-cell">Price</TableHead>
-            <TableHead className="hidden md:table-cell">Stock</TableHead>
-            <TableHead className="hidden lg:table-cell">Status</TableHead>
-            <TableHead className="w-24 text-right">Actions</TableHead>
+            <TableHead>{t.name}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.price}</TableHead>
+            <TableHead className="hidden md:table-cell">{t.stock}</TableHead>
+            <TableHead className="hidden lg:table-cell">{t.status}</TableHead>
+            <TableHead className="w-24 text-right">{t.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,7 +71,7 @@ export default function ProductTable({
                   <div className="min-w-0">
                     <p className="font-medium">{product.name}</p>
                     {product.variants.length > 1 && (
-                      <p className="text-xs text-muted-foreground">{product.variants.length} variants</p>
+                      <p className="text-xs text-muted-foreground">{fmt(t.variants, { count: product.variants.length })}</p>
                     )}
                     {product.description && (
                       <p className="line-clamp-1 text-xs text-muted-foreground">
@@ -76,7 +79,7 @@ export default function ProductTable({
                       </p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground sm:hidden">
-                      {formatMoney(product.price, currency)} · {product.stock} in stock
+                      {formatMoney(product.price, currency)} · {fmt(t.inStock, { count: product.stock })}
                     </p>
                   </div>
                 </div>
@@ -94,14 +97,14 @@ export default function ProductTable({
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 <Badge variant={product.is_active ? "default" : "secondary"}>
-                  {product.is_active ? "Active" : "Inactive"}
+                  {product.is_active ? c.active : c.inactive}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/products/${product.id}/edit`}
-                    aria-label={`Edit ${product.name}`}
+                    aria-label={fmt(t.edit, { name: product.name })}
                     className={buttonVariants({ variant: "ghost", size: "icon" })}
                   >
                     <Pencil className="h-4 w-4" />
@@ -111,7 +114,7 @@ export default function ProductTable({
                     size="icon"
                     disabled={deleting}
                     onClick={() => onDelete(product.id)}
-                    aria-label={`Delete ${product.name}`}
+                    aria-label={fmt(t.delete, { name: product.name })}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />

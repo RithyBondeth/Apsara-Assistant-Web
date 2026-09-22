@@ -1,9 +1,11 @@
 "use client";
 
-import { Bot, MessageCircle, Send, UserRound } from "lucide-react";
+import { AlertCircle, Bot, MessageCircle, Send, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { IConversationListProps } from "./props";
 
 const STATUS_DOT: Record<string, string> = {
@@ -19,6 +21,8 @@ export default function ConversationList({
   onSelect,
 }: IConversationListProps) {
   const customerMap = Object.fromEntries(customers.map((customer) => [customer.id, customer]));
+  const t = useAppT("inbox");
+  const language = useLanguage();
 
   if (conversations.length === 0) {
     return (
@@ -26,10 +30,8 @@ export default function ConversationList({
         <div className="mb-3 rounded-xl bg-muted p-3">
           <MessageCircle className="size-5 text-muted-foreground" />
         </div>
-        <p className="text-sm font-medium">No conversations found</p>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Try another filter or wait for a new customer message.
-        </p>
+        <p className="text-sm font-medium">{t.list.noneTitle}</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{t.list.noneBody}</p>
       </div>
     );
   }
@@ -38,8 +40,10 @@ export default function ConversationList({
     <div className="overflow-y-auto p-2">
       {conversations.map((conversation) => {
         const customer = customerMap[conversation.customer_id];
-        const displayName = customer?.name ?? `Customer ${conversation.customer_id.slice(0, 8)}`;
+        const displayName =
+          customer?.name ?? fmt(t.list.customerFallback, { id: conversation.customer_id.slice(0, 8) });
         const unread = conversation.unread_count > 0;
+        const needsYou = Boolean(conversation.needs_attention_at);
 
         return (
           <button
@@ -68,15 +72,15 @@ export default function ConversationList({
                   {displayName}
                 </p>
                 <span className="shrink-0 text-[11px] text-muted-foreground">
-                  {timeAgo(conversation.updated_at)}
+                  {timeAgo(conversation.updated_at, language)}
                 </span>
               </div>
               <div className="mt-1 flex items-center gap-1.5">
                 <span className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT[conversation.status])} />
                 <p className={cn("min-w-0 flex-1 truncate text-xs text-muted-foreground", unread && "font-medium text-foreground/75")}>
-                  {conversation.last_message_sender === "seller" ? "You: " : ""}
-                  {conversation.last_message_sender === "assistant" ? "Apsara: " : ""}
-                  {conversation.last_message_preview ?? "No messages yet"}
+                  {conversation.last_message_sender === "seller" ? t.list.you : ""}
+                  {conversation.last_message_sender === "assistant" ? t.list.apsara : ""}
+                  {conversation.last_message_preview ?? t.list.noMessages}
                 </p>
                 {unread && (
                   <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
@@ -85,9 +89,17 @@ export default function ConversationList({
                 )}
               </div>
               <div className="mt-2 flex min-w-0 items-center gap-1.5">
-                <Badge variant="outline" className="h-4 gap-1 px-1.5 text-[10px] capitalize">
+                {/* The seller's own Telegram alert points here; the badge is
+                    what they look for when they arrive. */}
+                {needsYou && (
+                  <Badge className="h-4 gap-1 bg-amber-500 px-1.5 text-[10px] text-white hover:bg-amber-500">
+                    <AlertCircle className="size-2.5" />
+                    {t.needsYouBadge}
+                  </Badge>
+                )}
+                <Badge variant="outline" className="h-4 gap-1 px-1.5 text-[10px]">
                   {conversation.handling_mode !== "manual" ? <Bot className="size-2.5" /> : <UserRound className="size-2.5" />}
-                  {conversation.handling_mode !== "manual" ? "AI" : "You"}
+                  {conversation.handling_mode !== "manual" ? t.list.ai : t.list.handledByYou}
                 </Badge>
                 {(conversation.tags ?? []).slice(0, 2).map((tag) => (
                   <span key={tag.id} className="max-w-20 truncate rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">

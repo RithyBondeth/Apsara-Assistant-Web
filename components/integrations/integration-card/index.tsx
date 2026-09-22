@@ -6,12 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { PLATFORM_COPY } from "@/utils/constants/integration.constant";
+import { platformCopy } from "@/utils/constants/integration.constant";
 import { formatDate } from "@/utils/functions/date";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { IIntegrationCardProps } from "./props";
 
 function CopyableField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
+  const t = useAppT("integrations").card;
 
   async function copy() {
     try {
@@ -36,7 +39,7 @@ function CopyableField({ label, value }: { label: string; value: string }) {
           variant="ghost"
           size="icon-sm"
           onClick={copy}
-          aria-label={`Copy ${label}`}
+          aria-label={fmt(t.copy, { label })}
           className="shrink-0"
         >
           {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
@@ -58,8 +61,11 @@ export default function IntegrationCard({
   // ── All States
   const [checking, setChecking] = useState<null | "check" | "register">(null);
   const [result, setResult] = useState<{ ok: boolean; detail: string } | null>(null);
+  const t = useAppT("integrations");
+  const c = t.card;
+  const language = useLanguage();
 
-  const copy = PLATFORM_COPY[integration.platform];
+  const copy = platformCopy(t.platforms)[integration.platform];
   const isTelegram = integration.platform === "telegram";
 
   // ── Methods
@@ -83,12 +89,11 @@ export default function IntegrationCard({
                   : "bg-muted text-muted-foreground"
               }
             >
-              {integration.is_active ? "Connected" : "Paused"}
+              {integration.is_active ? c.connectedBadge : c.paused}
             </Badge>
           </CardTitle>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {copy.label} · {integration.external_id} · added{" "}
-            {formatDate(integration.created_at)}
+            {fmt(c.added, { platform: copy.label, id: integration.external_id, date: formatDate(integration.created_at, language) })}
           </p>
         </div>
 
@@ -97,7 +102,7 @@ export default function IntegrationCard({
           size="icon-sm"
           disabled={busy}
           onClick={onDisconnect}
-          aria-label="Disconnect"
+          aria-label={c.disconnect}
           className="shrink-0 text-destructive hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
@@ -106,9 +111,9 @@ export default function IntegrationCard({
 
       <CardContent className="space-y-4">
         {/* ── What to paste into the platform */}
-        <CopyableField label="Callback URL" value={integration.webhook_url} />
+        <CopyableField label={c.callbackUrl} value={integration.webhook_url} />
         {integration.webhook_secret && (
-          <CopyableField label="Secret token" value={integration.webhook_secret} />
+          <CopyableField label={c.secretToken} value={integration.webhook_secret} />
         )}
 
         <ol className="list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
@@ -123,7 +128,7 @@ export default function IntegrationCard({
           <Button variant="outline" size="sm" disabled={busy || checking !== null}
                   onClick={() => run("check")}>
             {checking === "check" && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-            Test connection
+            {c.test}
           </Button>
           {isTelegram && (
             <Button variant="outline" size="sm" disabled={busy || checking !== null}
@@ -131,7 +136,7 @@ export default function IntegrationCard({
               {checking === "register" && (
                 <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
               )}
-              Register webhook
+              {c.registerWebhook}
             </Button>
           )}
         </div>
@@ -165,11 +170,9 @@ export default function IntegrationCard({
               disabled={busy}
               onChange={(e) => onToggleAutoReply(e.target.checked)}
             />
-            Let the assistant reply automatically
+            {c.autoReply}
           </label>
-          <p className="pl-6 text-xs text-muted-foreground">
-            Off, messages still arrive in Inbox — you answer them yourself.
-          </p>
+          <p className="pl-6 text-xs text-muted-foreground">{c.autoReplyHelp}</p>
 
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -179,11 +182,9 @@ export default function IntegrationCard({
               disabled={busy}
               onChange={(e) => onToggleActive(e.target.checked)}
             />
-            Receive messages from this {copy.label} connection
+            {fmt(c.receive, { platform: copy.label })}
           </label>
-          <p className="pl-6 text-xs text-muted-foreground">
-            Off, incoming messages are ignored entirely.
-          </p>
+          <p className="pl-6 text-xs text-muted-foreground">{c.receiveHelp}</p>
         </div>
       </CardContent>
     </Card>

@@ -13,6 +13,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { formatDate } from "@/utils/functions/date";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { ICustomerTableProps } from "./props";
 
 const PLATFORM_COLORS: Record<string, string> = {
@@ -27,16 +29,19 @@ export default function CustomerTable({
   onDelete,
   deleting,
 }: ICustomerTableProps) {
+  const t = useAppT("customers").table;
+  const language = useLanguage();
+
   if (customers.length === 0) {
     return (
       <div className="rounded-lg border">
         <p className="py-12 text-center text-sm text-muted-foreground">
-          No customers yet.{" "}
+          {t.empty}{" "}
           <Link
             href="/customers/new"
             className="font-medium underline-offset-4 hover:underline"
           >
-            Add your first customer
+            {t.addFirst}
           </Link>
         </p>
       </div>
@@ -48,11 +53,11 @@ export default function CustomerTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead className="hidden sm:table-cell">Contact</TableHead>
-            <TableHead className="hidden md:table-cell">Platform</TableHead>
-            <TableHead className="hidden lg:table-cell">Added</TableHead>
-            <TableHead className="w-24 text-right">Actions</TableHead>
+            <TableHead>{t.name}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t.contact}</TableHead>
+            <TableHead className="hidden md:table-cell">{t.platform}</TableHead>
+            <TableHead className="hidden lg:table-cell">{t.added}</TableHead>
+            <TableHead className="w-24 text-right">{t.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,13 +68,13 @@ export default function CustomerTable({
                 <p className="font-medium">{customer.name}</p>
                 {customer.platform_id && (
                   <p className="text-xs text-muted-foreground">
-                    ID: {customer.platform_id}
+                    {fmt(t.id, { id: customer.platform_id })}
                   </p>
                 )}
                 <p className="mt-1 text-xs text-muted-foreground sm:hidden">
                   {[customer.phone, customer.email, customer.platform]
                     .filter(Boolean)
-                    .join(" · ") || "No contact details"}
+                    .join(" · ") || t.noContact}
                 </p>
               </TableCell>
 
@@ -105,7 +110,7 @@ export default function CustomerTable({
 
               {/* ── Date */}
               <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                {formatDate(customer.created_at)}
+                {formatDate(customer.created_at, language)}
               </TableCell>
 
               {/* ── Actions */}
@@ -113,7 +118,7 @@ export default function CustomerTable({
                 <div className="flex items-center justify-end gap-1">
                   <Link
                     href={`/customers/${customer.id}/edit`}
-                    aria-label={`Edit ${customer.name}`}
+                    aria-label={fmt(t.edit, { name: customer.name })}
                     className={buttonVariants({ variant: "ghost", size: "icon" })}
                   >
                     <Pencil className="h-4 w-4" />
@@ -123,7 +128,7 @@ export default function CustomerTable({
                     size="icon"
                     disabled={deleting}
                     onClick={() => onDelete(customer.id)}
-                    aria-label={`Delete ${customer.name}`}
+                    aria-label={fmt(t.delete, { name: customer.name })}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />

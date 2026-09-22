@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { IProductVariant, IProductVariantUpdate } from "@/utils/interfaces/product/product.interface";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 interface Props {
   productId: string;
@@ -45,11 +46,14 @@ export default function ProductVariantManager({ productId, variants }: Props) {
   const [stock, setStock] = useState(0);
   const [threshold, setThreshold] = useState(5);
   const [localError, setLocalError] = useState<string | null>(null);
+  const t = useAppT("products").variants;
+  const f = useAppT("products").form;
+  const c = useAppT("common");
 
   async function add() {
     const optionValues = parseOptions(options);
     if (!optionValues) {
-      setLocalError("Use options like Color=Red, Size=M.");
+      setLocalError(t.optionsFormat);
       return;
     }
     const ok = await createVariant(productId, {
@@ -73,7 +77,7 @@ export default function ProductVariantManager({ productId, variants }: Props) {
   }
 
   async function remove(variant: IProductVariant) {
-    if (!confirm(`Delete ${variant.name}? Existing order history will be protected.`)) return;
+    if (!confirm(fmt(t.confirmDelete, { name: variant.name }))) return;
     await deleteVariant(productId, variant.id);
   }
 
@@ -81,11 +85,11 @@ export default function ProductVariantManager({ productId, variants }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium">Sellable variants</p>
-          <p className="text-xs text-muted-foreground">Stock, price, SKU, and alerts are tracked separately.</p>
+          <p className="text-sm font-medium">{t.title}</p>
+          <p className="text-xs text-muted-foreground">{t.help}</p>
         </div>
         <Button type="button" size="sm" variant="outline" disabled={loading || variants.length >= 100} onClick={() => { clearError(); setAdding(true); }}>
-          <Plus /> Add variant
+          <Plus /> {t.add}
         </Button>
       </div>
 
@@ -105,18 +109,18 @@ export default function ProductVariantManager({ productId, variants }: Props) {
 
       {adding && (
         <div className="space-y-3 rounded-lg border border-dashed p-4">
-          <Label htmlFor="new-variant-options">Options *</Label>
+          <Label htmlFor="new-variant-options">{t.options}</Label>
           <Input id="new-variant-options" placeholder="Color=Red, Size=M" value={options} onChange={(event) => setOptions(event.target.value)} />
           <div className="grid gap-3 sm:grid-cols-2">
-            <Input aria-label="New variant SKU" placeholder="SKU (optional)" value={sku} onChange={(event) => setSku(event.target.value)} />
-            <Input aria-label="New variant barcode" placeholder="Barcode (optional)" value={barcode} onChange={(event) => setBarcode(event.target.value)} />
-            <Input aria-label="New variant price" type="number" min="0" step="0.01" placeholder="Price" value={price} onChange={(event) => setPrice(Number(event.target.value))} />
-            <Input aria-label="New variant opening stock" type="number" min="0" placeholder="Opening stock" value={stock} onChange={(event) => setStock(Number(event.target.value))} />
-            <Input aria-label="New variant threshold" type="number" min="0" placeholder="Low-stock threshold" value={threshold} onChange={(event) => setThreshold(Number(event.target.value))} />
+            <Input aria-label={t.newSku} placeholder={`${t.sku} (${c.optional.toLowerCase()})`} value={sku} onChange={(event) => setSku(event.target.value)} />
+            <Input aria-label={t.newBarcode} placeholder={`${t.barcode} (${c.optional.toLowerCase()})`} value={barcode} onChange={(event) => setBarcode(event.target.value)} />
+            <Input aria-label={t.newPrice} type="number" min="0" step="0.01" placeholder={t.price} value={price} onChange={(event) => setPrice(Number(event.target.value))} />
+            <Input aria-label={t.newStock} type="number" min="0" placeholder={f.openingStock} value={stock} onChange={(event) => setStock(Number(event.target.value))} />
+            <Input aria-label={t.newThreshold} type="number" min="0" placeholder={f.lowStockThreshold} value={threshold} onChange={(event) => setThreshold(Number(event.target.value))} />
           </div>
           <div className="flex gap-2">
-            <Button type="button" size="sm" disabled={loading} onClick={add}><Plus /> Create variant</Button>
-            <Button type="button" size="sm" variant="ghost" onClick={() => setAdding(false)}>Cancel</Button>
+            <Button type="button" size="sm" disabled={loading} onClick={add}><Plus /> {t.create}</Button>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setAdding(false)}>{c.cancel}</Button>
           </div>
         </div>
       )}
@@ -146,11 +150,12 @@ function VariantRow({
   const [price, setPrice] = useState(Number(variant.price));
   const [threshold, setThreshold] = useState(variant.low_stock_threshold);
   const [localError, setLocalError] = useState<string | null>(null);
+  const t = useAppT("products").variants;
 
   async function save() {
     const optionValues = variant.is_default && !options.trim() ? {} : parseOptions(options);
     if (!optionValues) {
-      setLocalError("Use options like Color=Red, Size=M.");
+      setLocalError(t.optionsFormat);
       return;
     }
     const ok = await onSave(productId, variant.id, {
@@ -168,23 +173,23 @@ function VariantRow({
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="font-medium">{variant.name}</p>
-          <p className="text-xs text-muted-foreground">{variant.stock} available · {variant.reserved_stock} reserved</p>
+          <p className="text-xs text-muted-foreground">{fmt(t.availableReserved, { available: variant.stock, reserved: variant.reserved_stock })}</p>
         </div>
         <div className="flex gap-1">
           <Button type="button" size="xs" variant="outline" disabled={loading} onClick={() => onSave(productId, variant.id, { is_active: !variant.is_active })}>
-            {variant.is_active ? "Deactivate" : "Activate"}
+            {variant.is_active ? t.deactivate : t.activate}
           </Button>
-          <Button type="button" size="icon-xs" variant="destructive" aria-label={`Delete ${variant.name}`} disabled={loading || !canDelete} onClick={onDelete}><Trash2 /></Button>
+          <Button type="button" size="icon-xs" variant="destructive" aria-label={fmt(t.delete, { name: variant.name })} disabled={loading || !canDelete} onClick={onDelete}><Trash2 /></Button>
         </div>
       </div>
-      <Input aria-label={`Options for ${variant.name}`} placeholder="Color=Red, Size=M" value={options} onChange={(event) => setOptions(event.target.value)} />
+      <Input aria-label={fmt(t.optionsFor, { name: variant.name })} placeholder="Color=Red, Size=M" value={options} onChange={(event) => setOptions(event.target.value)} />
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Input aria-label={`SKU for ${variant.name}`} placeholder="SKU" value={sku} onChange={(event) => setSku(event.target.value)} />
-        <Input aria-label={`Barcode for ${variant.name}`} placeholder="Barcode" value={barcode} onChange={(event) => setBarcode(event.target.value)} />
-        <Input aria-label={`Price for ${variant.name}`} type="number" min="0" step="0.01" value={price} onChange={(event) => setPrice(Number(event.target.value))} />
-        <Input aria-label={`Threshold for ${variant.name}`} type="number" min="0" value={threshold} onChange={(event) => setThreshold(Number(event.target.value))} />
+        <Input aria-label={fmt(t.skuFor, { name: variant.name })} placeholder={t.sku} value={sku} onChange={(event) => setSku(event.target.value)} />
+        <Input aria-label={fmt(t.barcodeFor, { name: variant.name })} placeholder={t.barcode} value={barcode} onChange={(event) => setBarcode(event.target.value)} />
+        <Input aria-label={fmt(t.priceFor, { name: variant.name })} type="number" min="0" step="0.01" value={price} onChange={(event) => setPrice(Number(event.target.value))} />
+        <Input aria-label={fmt(t.thresholdFor, { name: variant.name })} type="number" min="0" value={threshold} onChange={(event) => setThreshold(Number(event.target.value))} />
       </div>
-      <Button type="button" size="sm" variant="outline" disabled={loading} onClick={save}><Save /> Save variant</Button>
+      <Button type="button" size="sm" variant="outline" disabled={loading} onClick={save}><Save /> {t.save}</Button>
       {localError && <p role="alert" className="text-xs text-destructive">{localError}</p>}
     </div>
   );

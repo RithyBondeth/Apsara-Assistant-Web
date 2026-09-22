@@ -8,18 +8,21 @@ import ConnectDialog from "@/components/integrations/connect-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIntegrationsStore } from "@/stores/apis/integrations/integrations.store";
-import { PLATFORM_COPY } from "@/utils/constants/integration.constant";
+import { platformCopy } from "@/utils/constants/integration.constant";
 import {
   IIntegrationCreate,
   TIntegrationPlatform,
 } from "@/utils/interfaces/integration/integration.interface";
 import EmptyState from "@/components/shared/empty-state";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
 const PLATFORMS: TIntegrationPlatform[] = ["messenger", "telegram", "stripe"];
 
 export default function IntegrationsPage() {
   // ── All States
   const [connecting, setConnecting] = useState<TIntegrationPlatform | null>(null);
+  const t = useAppT("integrations");
+  const PLATFORM_COPY = platformCopy(t.platforms);
 
   // ── API Integration
   const {
@@ -52,11 +55,8 @@ export default function IntegrationsPage() {
   ) {
     // Keyed on the platform, not the label — a seller who renamed their Stripe
     // connection would otherwise be warned about messages that never existed.
-    const consequence =
-      platform === "stripe"
-        ? "You will not be able to send card payment links."
-        : "Messages from it will stop arriving.";
-    if (!confirm(`Disconnect ${label}? ${consequence}`)) return;
+    const consequence = platform === "stripe" ? t.disconnectStripe : t.disconnectChannel;
+    if (!confirm(fmt(t.confirmDisconnect, { label, consequence }))) return;
     await deleteIntegration(id);
   }
 
@@ -68,17 +68,14 @@ export default function IntegrationsPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader
-        title="Integrations"
-        description="Connect the channels and payments that power your sales workflow"
-      />
+      <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 space-y-5 p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium">Available connections</p>
+            <p className="text-sm font-medium">{t.available}</p>
             <p className="text-xs text-muted-foreground">
-              {integrations.length} connected
+              {fmt(t.connected, { count: integrations.length })}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -107,12 +104,12 @@ export default function IntegrationsPage() {
         ) : integrations.length === 0 ? (
           <EmptyState
             icon={Plug}
-            title="Connect your first sales channel"
-            description="Messenger and Telegram bring real customer messages into Inbox. Stripe lets you send secure card payment links from an order."
+            title={t.emptyTitle}
+            description={t.emptyBody}
           >
             <Button size="sm" onClick={() => openConnect("messenger")}>
               <Plus className="mr-1.5 size-4" />
-              Connect Messenger
+              {t.connectMessenger}
             </Button>
           </EmptyState>
         ) : (

@@ -21,20 +21,20 @@ import {
   LucideArrowRight,
   LucideArrowLeft,
 } from "lucide-react";
+import { AppMessages, useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
-const emailSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
+function buildEmailSchema(t: AppMessages["auth"]) {
+  return z.object({ email: z.string().email(t.invalidEmail) });
+}
 
-const codeSchema = z.object({
-  code: z
-    .string()
-    .length(6, "Code must be 6 digits")
-    .regex(/^\d+$/, "Code must contain only digits"),
-});
+function buildCodeSchema(t: AppMessages["auth"]) {
+  return z.object({
+    code: z.string().length(6, t.codeLength).regex(/^\d+$/, t.codeDigits),
+  });
+}
 
-type EmailForm = z.infer<typeof emailSchema>;
-type CodeForm = z.infer<typeof codeSchema>;
+type EmailForm = z.infer<ReturnType<typeof buildEmailSchema>>;
+type CodeForm = z.infer<ReturnType<typeof buildCodeSchema>>;
 
 const RESEND_SECONDS = 30;
 
@@ -54,12 +54,14 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
+  const a = useAppT("auth");
+  const t = a.otp;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<EmailForm>({ resolver: zodResolver(emailSchema) });
+  } = useForm<EmailForm>({ resolver: zodResolver(buildEmailSchema(a)) });
 
   async function onSubmit(values: EmailForm) {
     setLoading(true);
@@ -78,22 +80,20 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Sign in with a code</h1>
-        <p className="text-sm text-muted-foreground">
-          We&apos;ll email you a one-time code — no password needed
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.subtitle}</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+          <Label htmlFor="email" className="text-sm font-medium">{a.email}</Label>
           <div className="group relative">
             <LucideMail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
               id="email"
               type="email"
-              placeholder="seller@example.com"
+              placeholder={a.emailPlaceholder}
               className="pl-9 transition-shadow focus-visible:shadow-md focus-visible:shadow-blue-500/10"
               {...register("email")}
             />
@@ -118,11 +118,11 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
             {loading ? (
               <>
                 <LucideLoader2 className="size-4 animate-spin" />
-                Sending code…
+                {t.sending}
               </>
             ) : (
               <>
-                Send code
+                {t.send}
                 <LucideArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -132,12 +132,12 @@ function RequestCodeStep({ onSent }: { onSent: (email: string) => void }) {
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
-        Prefer your password?{" "}
+        {t.preferPassword}{" "}
         <Link
           href="/login"
           className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
-          Sign in
+          {a.signIn}
         </Link>
       </p>
     </div>
@@ -151,12 +151,14 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
   const [resendIn, setResendIn] = useState(RESEND_SECONDS);
   const [resending, setResending] = useState(false);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
+  const a = useAppT("auth");
+  const t = a.otp;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CodeForm>({ resolver: zodResolver(codeSchema) });
+  } = useForm<CodeForm>({ resolver: zodResolver(buildCodeSchema(a)) });
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -184,9 +186,9 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div data-auth className="flex flex-col gap-1 opacity-0">
-        <h1 className="text-2xl font-bold tracking-tight">Enter your code</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t.enterTitle}</h1>
         <p className="text-sm text-muted-foreground">
-          We sent a 6-digit code to{" "}
+          {t.sentTo}{" "}
           <span className="font-medium text-foreground">{email}</span>
         </p>
       </div>
@@ -194,7 +196,7 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div data-auth className="flex flex-col gap-1.5 opacity-0">
-          <Label htmlFor="code" className="text-sm font-medium">One-time code</Label>
+          <Label htmlFor="code" className="text-sm font-medium">{t.code}</Label>
           <div className="group relative">
             <LucideKeyRound className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 transition-colors group-focus-within:text-blue-500" />
             <Input
@@ -227,11 +229,11 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
             {loading ? (
               <>
                 <LucideLoader2 className="size-4 animate-spin" />
-                Verifying…
+                {t.verifying}
               </>
             ) : (
               <>
-                Verify &amp; sign in
+                {t.verify}
                 <LucideArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
               </>
             )}
@@ -242,9 +244,9 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
       {/* Footer */}
       <div data-auth className="flex flex-col items-center gap-2 text-sm text-muted-foreground opacity-0">
         <p>
-          Didn&apos;t get it?{" "}
+          {t.didntGet}{" "}
           {resendIn > 0 ? (
-            <span>Resend in {resendIn}s</span>
+            <span>{fmt(t.resendIn, { seconds: resendIn })}</span>
           ) : (
             <button
               type="button"
@@ -252,7 +254,7 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
               disabled={resending}
               className="font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors disabled:opacity-60"
             >
-              {resending ? "Resending…" : "Resend code"}
+              {resending ? t.resending : t.resend}
             </button>
           )}
         </p>
@@ -262,7 +264,7 @@ function VerifyCodeStep({ email, onBack }: { email: string; onBack: () => void }
           className="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline transition-colors"
         >
           <LucideArrowLeft className="size-4" />
-          Use a different email
+          {t.differentEmail}
         </button>
       </div>
     </div>

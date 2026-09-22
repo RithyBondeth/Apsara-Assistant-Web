@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import EmptyState from "@/components/shared/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { useOperationsStore } from "@/stores/apis/operations/operations.store";
+import { useAppT, fmt, plural } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 
 const STATUS_STYLES: Record<string, string> = {
   open: "bg-green-100 text-green-700",
@@ -32,6 +34,9 @@ export default function DashboardPage() {
   const { customers, loading: customersLoading, fetchCustomers } = useCustomersStore();
   const { orders, loading: ordersLoading, fetchOrders } = useOrdersStore();
   const { alerts, fetchAlerts } = useOperationsStore();
+  const t = useAppT("dashboard");
+  const inbox = useAppT("inbox");
+  const language = useLanguage();
 
   // ── Effects
   useEffect(() => {
@@ -67,10 +72,7 @@ export default function DashboardPage() {
   // ── Render UI
   return (
     <>
-      <AppHeader
-        title="Dashboard"
-        description="A quick pulse check on your shop and customer activity"
-      />
+      <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 space-y-6 p-4 text-left sm:p-6 lg:p-8">
         {/* ── Stat cards */}
@@ -84,27 +86,27 @@ export default function DashboardPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               icon={Package}
-              label="Total Products"
+              label={t.totalProducts}
               value={products.length}
-              sub="In your catalogue"
+              sub={t.inCatalogue}
             />
             <StatCard
               icon={Users}
-              label="Customers"
+              label={t.customers}
               value={customers.length}
-              sub="All platforms"
+              sub={t.allPlatforms}
             />
             <StatCard
               icon={MessageCircle}
-              label="Conversations"
+              label={t.conversations}
               value={conversations.length}
-              sub={`${openConversations} open`}
+              sub={fmt(t.open, { count: openConversations })}
             />
             <StatCard
               icon={ShoppingCart}
-              label="Orders"
+              label={t.orders}
               value={orders.length}
-              sub={revenue ? `${revenue} excl. cancelled` : "No revenue yet"}
+              sub={revenue ? fmt(t.revenue, { revenue }) : t.noRevenue}
             />
           </div>
         )}
@@ -116,20 +118,18 @@ export default function DashboardPage() {
             <Card className="border-primary/20 bg-primary/[0.03]">
               <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
-                  <p className="font-semibold">Get your shop ready for its first conversation</p>
-                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Add what you sell, connect a channel, then test how Apsara answers a customer.
-                  </p>
+                  <p className="font-semibold">{t.onboardTitle}</p>
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t.onboardBody}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Link href="/products/new" className={buttonVariants({ size: "sm" })}>
-                    Add a product
+                    {t.addProduct}
                   </Link>
                   <Link
                     href="/integrations"
                     className={buttonVariants({ variant: "outline", size: "sm" })}
                   >
-                    Connect a channel
+                    {t.connectChannel}
                   </Link>
                 </div>
               </CardContent>
@@ -139,12 +139,12 @@ export default function DashboardPage() {
         {alerts.length > 0 && (
           <Card className="border-amber-300/70 bg-amber-50/60 text-left dark:bg-amber-950/20">
             <CardHeader className="border-b border-amber-200/70 sm:grid-cols-[1fr_auto]">
-              <CardTitle className="flex items-center gap-2"><span className="rounded-md bg-amber-100 p-1.5 dark:bg-amber-950"><AlertTriangle className="size-4 text-amber-700 dark:text-amber-400"/></span>Stock needs attention</CardTitle>
-              <p className="text-sm text-muted-foreground">{alerts.length} variant{alerts.length === 1 ? "" : "s"} at or below threshold</p>
-              <Link href="/purchasing" className="text-sm font-medium text-primary hover:underline sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-center">Create purchase order</Link>
+              <CardTitle className="flex items-center gap-2"><span className="rounded-md bg-amber-100 p-1.5 dark:bg-amber-950"><AlertTriangle className="size-4 text-amber-700 dark:text-amber-400"/></span>{t.stockAttention}</CardTitle>
+              <p className="text-sm text-muted-foreground">{plural(t.variantsBelow, alerts.length)}</p>
+              <Link href="/purchasing" className="text-sm font-medium text-primary hover:underline sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-center">{t.createPurchaseOrder}</Link>
             </CardHeader>
             <CardContent className="divide-y">
-              {alerts.slice(0,5).map(alert=><div key={alert.id} className="flex flex-col items-start justify-between gap-1 py-3 text-sm sm:flex-row sm:items-center"><span className="font-medium">{alert.product_name} — {alert.variant_name}</span><span className="text-amber-800 dark:text-amber-300"><strong>{alert.stock}</strong> left · alert at {alert.threshold}</span></div>)}
+              {alerts.slice(0,5).map(alert=><div key={alert.id} className="flex flex-col items-start justify-between gap-1 py-3 text-sm sm:flex-row sm:items-center"><span className="font-medium">{alert.product_name} — {alert.variant_name}</span><span className="text-amber-800 dark:text-amber-300"><strong>{alert.stock}</strong> {fmt(t.leftAlertAt, { threshold: alert.threshold })}</span></div>)}
             </CardContent>
           </Card>
         )}
@@ -152,13 +152,13 @@ export default function DashboardPage() {
         {/* ── Recent conversations */}
         <Card>
           <CardHeader className="flex-row items-center justify-between pb-3">
-            <CardTitle className="text-base">Recent conversations</CardTitle>
+            <CardTitle className="text-base">{t.recentConversations}</CardTitle>
             {recentConversations.length > 0 && (
               <Link
                 href="/chat"
                 className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
               >
-                View all
+                {t.viewAll}
                 <ArrowRight className="size-3" />
               </Link>
             )}
@@ -173,9 +173,9 @@ export default function DashboardPage() {
             ) : recentConversations.length === 0 ? (
               <EmptyState
                 icon={MessageCircle}
-                title="No conversations yet"
-                description="Add a customer to rehearse a sales conversation, or connect a channel to receive real messages."
-                action={{ label: "Add a customer", href: "/customers/new" }}
+                title={t.noConversations}
+                description={t.noConversationsHelp}
+                action={{ label: t.addCustomer, href: "/customers/new" }}
                 className="min-h-48 border-0 bg-transparent py-6"
               />
             ) : (
@@ -186,18 +186,18 @@ export default function DashboardPage() {
                     <div key={conv.id} className="flex items-center justify-between py-3">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">
-                          {customer?.name ?? `Customer ${conv.customer_id.slice(0, 8)}`}
+                          {customer?.name ?? fmt(t.customerFallback, { id: conv.customer_id.slice(0, 8) })}
                         </p>
                         <p className="text-xs capitalize text-muted-foreground">
                           {conv.platform}
                         </p>
                       </div>
                       <div className="ml-4 flex shrink-0 items-center gap-2">
-                        <Badge className={cn("capitalize text-[10px]", STATUS_STYLES[conv.status])}>
-                          {conv.status}
+                        <Badge className={cn("text-[10px]", STATUS_STYLES[conv.status])}>
+                          {inbox.status[conv.status as keyof typeof inbox.status] ?? conv.status}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {timeAgo(conv.updated_at)}
+                          {timeAgo(conv.updated_at, language)}
                         </span>
                       </div>
                     </div>

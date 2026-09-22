@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
 import { formatMoney } from "@/utils/functions/money";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { INewOrderDialogProps } from "./props";
 
 interface ILine {
@@ -61,6 +62,8 @@ function OrderForm({
   // A new order is priced in what the shop trades in today; the server records
   // the same value as the order's own currency.
   const currency = useAuthStore((s) => s.user?.currency);
+  const t = useAppT("orders").form;
+  const c = useAppT("common");
 
   // ── All States
   const [customerId, setCustomerId] = useState(lockedCustomerId ?? "");
@@ -131,23 +134,18 @@ function OrderForm({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>New order</DialogTitle>
-        <DialogDescription>
-          Prices come from your catalogue, and placing the order takes the items
-          out of stock.
-        </DialogDescription>
+        <DialogTitle>{t.title}</DialogTitle>
+        <DialogDescription>{t.description}</DialogDescription>
       </DialogHeader>
 
       <div className="max-h-[60vh] space-y-4 overflow-y-auto py-2">
         {initialDraft && (
           <div className="space-y-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
             <p className="flex items-center gap-1.5 font-medium">
-              <Sparkles className="h-4 w-4" /> AI-generated draft
+              <Sparkles className="h-4 w-4" /> {t.aiDraft}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Review every detail. Nothing is reserved until you place the order.
-            </p>
-            {[...initialDraft.missing_fields.map((field) => `Missing: ${field}`),
+            <p className="text-xs text-muted-foreground">{t.aiDraftHelp}</p>
+            {[...initialDraft.missing_fields.map((field) => fmt(t.missing, { field })),
               ...initialDraft.warnings].map((warning, index) => (
               <p key={`${warning}-${index}`} className="text-xs text-amber-700">{warning}</p>
             ))}
@@ -155,11 +153,10 @@ function OrderForm({
         )}
         {/* ── Customer */}
         <div className="space-y-1.5">
-          <Label htmlFor="order-customer">Customer</Label>
+          <Label htmlFor="order-customer">{t.customer}</Label>
           {lockedCustomerId ? (
             <p className="text-sm">
-              {customers.find((c) => c.id === lockedCustomerId)?.name ??
-                "This conversation's customer"}
+              {customers.find((item) => item.id === lockedCustomerId)?.name ?? t.conversationCustomer}
             </p>
           ) : (
             <select
@@ -168,11 +165,11 @@ function OrderForm({
               onChange={(e) => setCustomerId(e.target.value)}
               className={SHARED_SELECT_CLASS}
             >
-              <option value="">— Select a customer —</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                  {c.platform ? ` (${c.platform})` : ""}
+              <option value="">{t.selectCustomer}</option>
+              {customers.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                  {item.platform ? ` (${item.platform})` : ""}
                 </option>
               ))}
             </select>
@@ -181,16 +178,14 @@ function OrderForm({
 
         {/* ── Line items */}
         <div className="space-y-2">
-          <Label>Items</Label>
+          <Label>{t.items}</Label>
           {sellable.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nothing in stock to sell. Add a product or restock one first.
-            </p>
+            <p className="text-sm text-muted-foreground">{t.nothingInStock}</p>
           ) : (
             lines.map((line, index) => (
               <div key={index} className="flex items-start gap-2">
                 <select
-                  aria-label={`Product for line ${index + 1}`}
+                  aria-label={fmt(t.productForLine, { n: index + 1 })}
                   value={line.variant_id}
                   onChange={(e) => {
                     const selected = sellable.find((item) => item.variant.id === e.target.value);
@@ -202,11 +197,10 @@ function OrderForm({
                   }}
                   className={SHARED_SELECT_CLASS}
                 >
-                  <option value="">— Select a product —</option>
+                  <option value="">{t.selectProduct}</option>
                   {sellable.map(({ product, variant }) => (
                     <option key={variant.id} value={variant.id}>
-                      {product.name} — {variant.name} — {formatMoney(variant.price, currency)} ({variant.stock}{" "}
-                      left)
+                      {product.name} — {variant.name} — {formatMoney(variant.price, currency)} ({fmt(t.left, { count: variant.stock })})
                     </option>
                   ))}
                 </select>
@@ -214,7 +208,7 @@ function OrderForm({
                   type="number"
                   min={1}
                   max={stockFor(line.variant_id) || undefined}
-                  aria-label={`Quantity for line ${index + 1}`}
+                  aria-label={fmt(t.quantityForLine, { n: index + 1 })}
                   value={line.quantity}
                   onChange={(e) =>
                     updateLine(index, { quantity: Number(e.target.value) })
@@ -224,7 +218,7 @@ function OrderForm({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Remove line ${index + 1}`}
+                  aria-label={fmt(t.removeLine, { n: index + 1 })}
                   disabled={lines.length === 1}
                   onClick={() =>
                     setLines((current) => current.filter((_, i) => i !== index))
@@ -246,38 +240,38 @@ function OrderForm({
               }
             >
               <Plus className="mr-1.5 h-4 w-4" />
-              Add item
+              {t.addItem}
             </Button>
           )}
         </div>
 
         {/* ── Delivery */}
         <div className="space-y-1.5">
-          <Label htmlFor="order-address">Delivery address</Label>
+          <Label htmlFor="order-address">{t.address}</Label>
           <Textarea
             id="order-address"
             rows={2}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="Street, commune, city"
+            placeholder={t.addressPlaceholder}
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="order-notes">Notes</Label>
+          <Label htmlFor="order-notes">{t.notes}</Label>
           <Textarea
             id="order-notes"
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Anything the customer asked for"
+            placeholder={t.notesPlaceholder}
           />
         </div>
 
         {/* ── Running total, priced from the catalogue like the server will */}
         {chosen.length > 0 && (
           <div className="flex items-center justify-between rounded-lg bg-muted px-3 py-2 text-sm font-medium">
-            <span>Total</span>
+            <span>{t.total}</span>
             <span>{formatMoney(total, currency)}</span>
           </div>
         )}
@@ -288,7 +282,7 @@ function OrderForm({
             <button
               type="button"
               onClick={onDismissError}
-              aria-label="Dismiss"
+              aria-label={c.dismiss}
               className="shrink-0 rounded p-0.5"
             >
               <X className="h-4 w-4" />
@@ -299,10 +293,10 @@ function OrderForm({
 
       <DialogFooter>
         <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
+          {c.cancel}
         </Button>
         <Button onClick={handleCreate} disabled={!valid || saving}>
-          {saving ? "Placing…" : "Place order"}
+          {saving ? t.placing : t.place}
         </Button>
       </DialogFooter>
     </>

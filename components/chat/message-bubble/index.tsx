@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
+import { useAppT } from "@/hooks/utils/use-app-translations";
+import { useLanguage } from "@/components/utils/languages/language-context";
 import { IMessageBubbleProps } from "./props";
 import { BASE_URL } from "@/utils/constants/apis/base.api.constant";
 
@@ -8,9 +12,11 @@ function attachmentUrl(id: string, publicUrl: string | null) {
 }
 
 export default function MessageBubble({ message }: IMessageBubbleProps) {
+  const t = useAppT("inbox").bubble;
+  const language = useLanguage();
   const isOutgoing = message.sender_type !== "customer";
   const senderLabel =
-    message.sender_type === "seller" ? "You" : isOutgoing ? "Apsara AI" : "Customer";
+    message.sender_type === "seller" ? t.you : isOutgoing ? t.apsara : t.customer;
   // An image message — today only the shop's payment QR — carries its picture
   // on an attachment and no text, so a bubble showing `content` alone would
   // read as an empty message the customer never got.
@@ -45,18 +51,18 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
               <img
                 key={image.id}
                 src={attachmentUrl(image.id, image.file_url)}
-                alt={image.file_name ?? "Attachment"}
+                alt={image.file_name ?? t.attachment}
                 className="max-h-56 w-full rounded-lg bg-white object-contain"
               />
             ))}
             {message.content && <p>{message.content}</p>}
           </div>
         ) : (
-          message.content ?? <em className="opacity-60">Empty message</em>
+          message.content ?? <em className="opacity-60">{t.empty}</em>
         )}
       </div>
       <span className="px-1 text-[10px] text-muted-foreground">
-        {timeAgo(message.created_at)}
+        {timeAgo(message.created_at, language)}
       </span>
     </div>
   );

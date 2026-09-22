@@ -11,31 +11,36 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IProductFormProps, ProductFormValues } from "./props";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { AppMessages, useAppT, fmt } from "@/hooks/utils/use-app-translations";
 
-const schema = z.object({
-  name: z.string().min(1, "Product name is required"),
-  description: z.string().optional().default(""),
-  price: z.number().min(0, "Price must be 0 or more"),
-  stock: z.number().int().min(0, "Stock must be 0 or more"),
-  low_stock_threshold: z.number().int().min(0, "Threshold must be 0 or more"),
-});
+// Built per render so the messages follow the seller's language.
+function buildSchema(t: AppMessages["products"]["form"]) {
+  return z.object({
+    name: z.string().min(1, t.nameRequired),
+    description: z.string().optional().default(""),
+    price: z.number().min(0, t.priceMin),
+    stock: z.number().int().min(0, t.stockMin),
+    low_stock_threshold: z.number().int().min(0, t.thresholdMin),
+  });
+}
 
 export default function ProductForm({
   defaultValues,
   onSubmit,
   loading,
-  submitLabel = "Save product",
+  submitLabel,
   allowStockEditing = true,
   allowImageSelection = false,
   allowVariantSelection = false,
 }: IProductFormProps) {
   const currency = useAuthStore((state) => state.user?.currency ?? "USD");
+  const t = useAppT("products").form;
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(buildSchema(t)),
     defaultValues: {
       name: defaultValues?.name ?? "",
       description: defaultValues?.description ?? "",
@@ -59,14 +64,14 @@ export default function ProductForm({
     if (!files) return;
     const incoming = Array.from(files);
     if (selectedImages.length + incoming.length > 8) {
-      setImageError("A product can have at most 8 images.");
+      setImageError(t.maxImages);
       return;
     }
     const invalid = incoming.find(
       (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 5_000_000,
     );
     if (invalid) {
-      setImageError("Use PNG, JPEG, or WebP images up to 5 MB each.");
+      setImageError(t.imageTypes);
       return;
     }
     const added = incoming.map((file) => {
@@ -109,12 +114,12 @@ export default function ProductForm({
     if (parsed.some(({ variant, options }) =>
       !options || variant.price < 0 || variant.stock < 0 || variant.threshold < 0
     )) {
-      setVariantError("Use options like Color=Red, Size=M and enter non-negative price and stock values.");
+      setVariantError(t.variantFormat);
       return;
     }
     const signatures = parsed.map(({ options }) => JSON.stringify(options));
     if (new Set(signatures).size !== signatures.length) {
-      setVariantError("Each variant must have a unique option combination.");
+      setVariantError(t.variantUnique);
       return;
     }
     setVariantError(null);
@@ -138,10 +143,10 @@ export default function ProductForm({
     >
       {/* ── Name */}
       <div className="space-y-1.5">
-        <Label htmlFor="name">Product name *</Label>
+        <Label htmlFor="name">{t.name}</Label>
         <Input
           id="name"
-          placeholder="Khmer silk scarf"
+          placeholder={t.namePlaceholder}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? "product-name-error" : undefined}
           {...register("name")}
@@ -159,45 +164,43 @@ export default function ProductForm({
               checked={variantMode}
               onChange={(event) => setVariantMode(event.target.checked)}
             />
-            This product has options such as size or color
+            {t.hasOptions}
           </label>
           {variantMode && (
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Add one row for every sellable combination. Separate options with commas.
-              </p>
+              <p className="text-xs text-muted-foreground">{t.optionsHelp}</p>
               {variants.map((variant, index) => (
                 <div key={variant.id} className="space-y-2 rounded-md bg-muted/40 p-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Variant {index + 1}</p>
+                    <p className="text-sm font-medium">{fmt(t.variantN, { n: index + 1 })}</p>
                     <Button
                       type="button"
                       size="icon-xs"
                       variant="ghost"
-                      aria-label={`Remove variant ${index + 1}`}
+                      aria-label={fmt(t.removeVariantN, { n: index + 1 })}
                       disabled={variants.length === 1}
                       onClick={() => setVariants((current) => current.filter((item) => item.id !== variant.id))}
                     ><X /></Button>
                   </div>
                   <Input
-                    aria-label={`Options for variant ${index + 1}`}
-                    placeholder="Color=Red, Size=M"
+                    aria-label={fmt(t.optionsForN, { n: index + 1 })}
+                    placeholder={t.optionsPlaceholder}
                     value={variant.options}
                     onChange={(event) => setVariants((current) => current.map((item) =>
                       item.id === variant.id ? { ...item, options: event.target.value } : item
                     ))}
                   />
                   <div className="grid gap-2 sm:grid-cols-2">
-                    <Input aria-label={`SKU for variant ${index + 1}`} placeholder="SKU (optional)" value={variant.sku} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, sku: event.target.value } : item))} />
-                    <Input aria-label={`Barcode for variant ${index + 1}`} placeholder="Barcode (optional)" value={variant.barcode} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, barcode: event.target.value } : item))} />
-                    <Input aria-label={`Price for variant ${index + 1}`} type="number" min="0" step="0.01" placeholder={`Price (${currency})`} value={variant.price} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, price: Number(event.target.value) } : item))} />
-                    <Input aria-label={`Stock for variant ${index + 1}`} type="number" min="0" placeholder="Opening stock" value={variant.stock} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, stock: Number(event.target.value) } : item))} />
-                    <Input aria-label={`Threshold for variant ${index + 1}`} type="number" min="0" placeholder="Low-stock threshold" value={variant.threshold} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, threshold: Number(event.target.value) } : item))} />
+                    <Input aria-label={fmt(t.skuForN, { n: index + 1 })} placeholder={t.skuOptional} value={variant.sku} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, sku: event.target.value } : item))} />
+                    <Input aria-label={fmt(t.barcodeForN, { n: index + 1 })} placeholder={t.barcodeOptional} value={variant.barcode} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, barcode: event.target.value } : item))} />
+                    <Input aria-label={fmt(t.priceForN, { n: index + 1 })} type="number" min="0" step="0.01" placeholder={fmt(t.pricePlaceholder, { currency })} value={variant.price} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, price: Number(event.target.value) } : item))} />
+                    <Input aria-label={fmt(t.stockForN, { n: index + 1 })} type="number" min="0" placeholder={t.openingStock} value={variant.stock} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, stock: Number(event.target.value) } : item))} />
+                    <Input aria-label={fmt(t.thresholdForN, { n: index + 1 })} type="number" min="0" placeholder={t.lowStockThreshold} value={variant.threshold} onChange={(event) => setVariants((current) => current.map((item) => item.id === variant.id ? { ...item, threshold: Number(event.target.value) } : item))} />
                   </div>
                 </div>
               ))}
               <Button type="button" size="sm" variant="outline" disabled={variants.length >= 100} onClick={() => setVariants((current) => [...current, { id: `variant-${Date.now()}-${current.length}`, options: "", sku: "", barcode: "", price: 0, stock: 0, threshold: 5 }])}>
-                <Plus /> Add variant
+                <Plus /> {t.addVariant}
               </Button>
               {variantError && <p role="alert" className="text-xs text-destructive">{variantError}</p>}
             </div>
@@ -206,7 +209,7 @@ export default function ProductForm({
       )}
 
       {!variantMode && <div className="space-y-1.5">
-        <Label htmlFor="low_stock_threshold">Low-stock alert at *</Label>
+        <Label htmlFor="low_stock_threshold">{t.lowStockAt}</Label>
         <Input
           id="low_stock_threshold"
           type="number"
@@ -214,9 +217,7 @@ export default function ProductForm({
           placeholder="5"
           {...register("low_stock_threshold", { valueAsNumber: true })}
         />
-        <p className="text-xs text-muted-foreground">
-          Inventory is flagged when available stock reaches this level.
-        </p>
+        <p className="text-xs text-muted-foreground">{t.lowStockHelp}</p>
         {errors.low_stock_threshold && (
           <p className="text-xs text-destructive">
             {errors.low_stock_threshold.message}
@@ -226,10 +227,10 @@ export default function ProductForm({
 
       {/* ── Description */}
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t.description}</Label>
         <Textarea
           id="description"
-          placeholder="Describe your product…"
+          placeholder={t.descriptionPlaceholder}
           rows={3}
           {...register("description")}
         />
@@ -238,7 +239,7 @@ export default function ProductForm({
       {/* ── Price & Stock */}
       {!variantMode && <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="price">Price ({currency}) *</Label>
+          <Label htmlFor="price">{fmt(t.price, { currency })}</Label>
           <Input
             id="price"
             type="number"
@@ -256,7 +257,7 @@ export default function ProductForm({
 
         {allowStockEditing ? (
           <div className="space-y-1.5">
-            <Label htmlFor="stock">Opening stock *</Label>
+            <Label htmlFor="stock">{t.openingStockRequired}</Label>
             <Input
               id="stock"
               type="number"
@@ -277,13 +278,13 @@ export default function ProductForm({
 
       {allowImageSelection && (
         <div className="space-y-2">
-          <Label htmlFor="product-images">Product images</Label>
+          <Label htmlFor="product-images">{t.images}</Label>
           <label
             htmlFor="product-images"
             className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed p-5 text-sm text-muted-foreground hover:bg-muted/50"
           >
             <ImagePlus className="h-4 w-4" />
-            Choose up to 8 images
+            {t.chooseImages}
           </label>
           <Input
             id="product-images"
@@ -299,12 +300,12 @@ export default function ProductForm({
                 <div key={image.url} className="relative aspect-square overflow-hidden rounded-lg border">
                   {/* Local object URLs do not benefit from Next image optimization. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image.url} alt={`Selected product ${index + 1}`} className="h-full w-full object-cover" />
+                  <img src={image.url} alt={fmt(t.selectedN, { n: index + 1 })} className="h-full w-full object-cover" />
                   <Button
                     type="button"
                     size="icon-xs"
                     variant="destructive"
-                    aria-label={`Remove image ${index + 1}`}
+                    aria-label={fmt(t.removeImageN, { n: index + 1 })}
                     className="absolute right-1 top-1"
                     onClick={() => removeImage(index)}
                   >
@@ -312,7 +313,7 @@ export default function ProductForm({
                   </Button>
                   {index === 0 && (
                     <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white">
-                      Cover
+                      {t.cover}
                     </span>
                   )}
                 </div>
@@ -320,12 +321,12 @@ export default function ProductForm({
             </div>
           )}
           {imageError && <p role="alert" className="text-xs text-destructive">{imageError}</p>}
-          <p className="text-xs text-muted-foreground">PNG, JPEG, or WebP. Maximum 5 MB each.</p>
+          <p className="text-xs text-muted-foreground">{t.imageHelp}</p>
         </div>
       )}
 
       <Button type="submit" disabled={loading}>
-        {loading ? "Saving…" : submitLabel}
+        {loading ? t.saving : submitLabel ?? t.saveProduct}
       </Button>
     </form>
   );
