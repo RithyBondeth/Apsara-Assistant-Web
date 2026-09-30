@@ -28,6 +28,9 @@ export interface IConversation {
   source: "channel" | "rehearsal";
   status: "open" | "closed" | "pending";
   handling_mode: "auto" | "manual";
+  // Why it is manual: "reply" expires after the seller's timeout,
+  // "explicit" (they pressed Take over) stays until handed back.
+  manual_mode_source?: "reply" | "explicit" | null;
   assigned_user_id: string | null;
   unread_count: number;
   // Set while a customer is waiting on a human; cleared by the seller's reply.
