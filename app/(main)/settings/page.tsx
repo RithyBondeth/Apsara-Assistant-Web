@@ -306,6 +306,7 @@ function TelegramAlerts({ user }: { user: IUser }) {
   const [payment, setPayment] = useState(user.payment_telegram_enabled ?? true);
   const [lowStock, setLowStock] = useState(user.low_stock_telegram_enabled ?? false);
   const [lowStockEmail, setLowStockEmail] = useState(user.low_stock_email_enabled ?? true);
+  const [handoffHours, setHandoffHours] = useState(String(user.manual_timeout_hours ?? 12));
   const [pendingLink, setLink] = useState<ITelegramLink | null>(null);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -318,7 +319,12 @@ function TelegramAlerts({ user }: { user: IUser }) {
     attention !== (user.attention_telegram_enabled ?? true) ||
     payment !== (user.payment_telegram_enabled ?? true) ||
     lowStock !== (user.low_stock_telegram_enabled ?? false) ||
-    lowStockEmail !== (user.low_stock_email_enabled ?? true);
+    lowStockEmail !== (user.low_stock_email_enabled ?? true) ||
+    handoffHours !== String(user.manual_timeout_hours ?? 12);
+  // Whole hours, 0 (never resume) to a month — the API's own bounds.
+  const handoffValue = Number(handoffHours);
+  const handoffInvalid =
+    !Number.isInteger(handoffValue) || handoffValue < 0 || handoffValue > 720;
 
   // While a link is on screen, watch for the bot to record the chat. Stops on
   // its own once linked (the link is cleared) or when the link would have
@@ -362,6 +368,7 @@ function TelegramAlerts({ user }: { user: IUser }) {
       payment_telegram_enabled: payment,
       low_stock_telegram_enabled: lowStock,
       low_stock_email_enabled: lowStockEmail,
+      manual_timeout_hours: handoffValue,
     });
     if (ok) flash();
   }
@@ -493,6 +500,39 @@ function TelegramAlerts({ user }: { user: IUser }) {
           />
         </div>
 
+        {/* Replying to a customer pauses the assistant on that thread; this
+            is how long that lasts. Pressing Take over is the other case and
+            does not expire. */}
+        <div className="space-y-2 border-t pt-4">
+          <p className="text-sm font-medium">{t.handoffTitle}</p>
+          <p className="text-xs text-muted-foreground">{t.handoffHelp}</p>
+          <div className="space-y-1.5">
+            <Label htmlFor="handoff-hours">{t.handoffHours}</Label>
+            <Input
+              id="handoff-hours"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={720}
+              step={1}
+              className="max-w-32"
+              value={handoffHours}
+              onChange={(e) => setHandoffHours(e.target.value)}
+              aria-invalid={handoffInvalid}
+              aria-describedby={handoffInvalid ? "handoff-hours-error" : undefined}
+            />
+            {handoffInvalid ? (
+              <p id="handoff-hours-error" className="text-xs text-destructive">
+                {t.handoffInvalid}
+              </p>
+            ) : (
+              handoffValue === 0 && (
+                <p className="text-xs text-muted-foreground">{t.handoffNever}</p>
+              )
+            )}
+          </div>
+        </div>
+
         {error && !linkError && (
           <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -500,7 +540,7 @@ function TelegramAlerts({ user }: { user: IUser }) {
         )}
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave} disabled={!dirty || loading}>
+          <Button onClick={handleSave} disabled={!dirty || loading || handoffInvalid}>
             {loading ? c.saving : t.save}
           </Button>
           <SavedMark show={saved} />

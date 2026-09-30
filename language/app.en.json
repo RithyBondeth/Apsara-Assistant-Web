@@ -119,7 +119,12 @@
       "lowStock": "A product runs low",
       "lowStockHelp": "Stock reaches the threshold you set on the product.",
       "lowStockEmail": "Also email me about low stock",
-      "save": "Save alerts"
+      "save": "Save alerts",
+      "handoffTitle": "When you answer a customer yourself",
+      "handoffHelp": "Replying pauses the assistant on that conversation. It picks the conversation back up after this many hours with no further word from you — pressing Take over instead keeps it paused until you hand the thread back.",
+      "handoffHours": "Hours before the assistant resumes",
+      "handoffNever": "Set to 0 to keep the assistant paused until you return the conversation yourself.",
+      "handoffInvalid": "Enter a whole number of hours, 0 to 720."
     },
     "qr": {
       "title": "Bank payment QR codes",
@@ -240,7 +245,9 @@
       "noteBy": "You · {when}",
       "deleteNote": "Delete note",
       "notePlaceholder": "Add a private note for your team…",
-      "addNote": "Add internal note"
+      "addNote": "Add internal note",
+      "manualHelpResumes": "Automatic replies are paused. The assistant resumes {hours}h after your last message.",
+      "manualHelpExplicit": "Automatic replies are paused until you return this conversation to Apsara."
     },
     "newDialog": {
       "title": "New conversation",
