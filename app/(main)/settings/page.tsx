@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
 import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
-import { CURRENCIES, formatMoney, sampleAmount } from "@/utils/functions/money";
+import { CURRENCIES, DEFAULT_KHR_RATE, formatDual, formatMoney, sampleAmount } from "@/utils/functions/money";
 import { ITelegramLink, IUser } from "@/utils/interfaces/auth/auth.interface";
 import PaymentQrManager from "@/components/settings/payment-qr-manager";
 
@@ -81,14 +81,20 @@ function ProfileForm({ user }: { user: IUser }) {
   const [fullName, setFullName] = useState(user.full_name);
   const [businessName, setBusinessName] = useState(user.business_name ?? "");
   const [currency, setCurrency] = useState(user.currency);
+  const [khrRate, setKhrRate] = useState(user.khr_rate ?? String(DEFAULT_KHR_RATE));
   const { saved, flash } = useSavedFlash();
 
   const dirty =
     fullName !== user.full_name ||
     businessName !== (user.business_name ?? "") ||
-    currency !== user.currency;
+    currency !== user.currency ||
+    khrRate !== (user.khr_rate ?? String(DEFAULT_KHR_RATE));
   const switchingCurrency = currency !== user.currency;
   const nameInvalid = fullName.trim().length === 0;
+  // The API bounds this too; catching it here saves a round trip and says
+  // why, next to the field.
+  const rateValue = parseFloat(khrRate);
+  const rateInvalid = !Number.isFinite(rateValue) || rateValue <= 1000 || rateValue >= 20000;
 
   async function handleSave() {
     clearError();
@@ -96,6 +102,7 @@ function ProfileForm({ user }: { user: IUser }) {
       full_name: fullName.trim(),
       business_name: businessName.trim(),
       currency,
+      khr_rate: khrRate,
     });
     if (ok) flash();
   }
@@ -151,6 +158,34 @@ function ProfileForm({ user }: { user: IUser }) {
           </p>
         </div>
 
+        {/* Cambodia is bimonetary: the catalogue is priced in one currency
+            and customers pay in either, so the shop's own rate is what the
+            assistant quotes with and what riel receipts are checked against. */}
+        <div className="space-y-1.5">
+          <Label htmlFor="khr-rate">{t.khrRate}</Label>
+          <Input
+            id="khr-rate"
+            type="number"
+            inputMode="numeric"
+            min={1001}
+            max={19999}
+            step={10}
+            value={khrRate}
+            onChange={(e) => setKhrRate(e.target.value)}
+            aria-invalid={rateInvalid}
+            aria-describedby={rateInvalid ? "khr-rate-error" : undefined}
+          />
+          {rateInvalid ? (
+            <p id="khr-rate-error" className="text-xs text-destructive">{t.khrRateInvalid}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {fmt(t.khrRateHelp, {
+                example: formatDual(sampleAmount(currency), currency, khrRate),
+              })}
+            </p>
+          )}
+        </div>
+
         {/* Switching reinterprets existing prices rather than converting them,
             which is a decision the seller should make knowingly. */}
         {switchingCurrency && (
@@ -169,7 +204,7 @@ function ProfileForm({ user }: { user: IUser }) {
         )}
 
         <div className="flex items-center gap-3">
-          <Button onClick={handleSave} disabled={!dirty || loading || nameInvalid}>
+          <Button onClick={handleSave} disabled={!dirty || loading || nameInvalid || rateInvalid}>
             {loading ? c.saving : t.saveChanges}
           </Button>
           <SavedMark show={saved} />

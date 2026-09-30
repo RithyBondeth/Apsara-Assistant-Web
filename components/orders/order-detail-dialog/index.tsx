@@ -192,6 +192,17 @@ export default function OrderDetailDialog({
               <Badge className={cn(PAYMENT_STATUS_STYLES[order.payment_status])}>
                 {t.payment[order.payment_status]}
               </Badge>
+              {/* A riel payment on a dollar order is normal here; show what
+                  actually arrived next to what was priced. */}
+              {order.paid_amount && order.paid_currency
+                && order.paid_currency !== order.currency && (
+                <span className="text-xs text-muted-foreground">
+                  {fmt(d.paidInOther, {
+                    paid: formatMoney(order.paid_amount, order.paid_currency),
+                    priced: formatMoney(order.total_amount, order.currency),
+                  })}
+                </span>
+              )}
               {order.payment_status !== "paid" && order.status !== "cancelled" && (
                 <Button size="sm" variant="outline" disabled={saving}
                         onClick={handleCheckout}>
