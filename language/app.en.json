@@ -75,7 +75,10 @@
       "currency": "Currency",
       "currencyHelp": "Your catalogue prices are read as this currency — for example {example}. The assistant quotes customers in it too.",
       "switchWarning": "Changing currency does not convert your prices. A product priced {before} stays the number 12.50 and is simply read as {after}. Orders you have already taken keep the currency they were placed in.",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "khrRate": "Riel per dollar",
+      "khrRateHelp": "Your shop's own rate. The assistant quotes both currencies with it — {example} — and it is what a riel receipt is checked against.",
+      "khrRateInvalid": "Enter a rate between 1,001 and 19,999."
     },
     "shop": {
       "title": "Shop information",
@@ -349,7 +352,8 @@
         "duplicateUsedFor": "Already used for order {order}",
         "not_a_receipt": "Not a payment receipt",
         "unreadable": "Could not read it — check it yourself"
-      }
+      },
+      "paidInOther": "Paid {paid} ({priced} priced)"
     },
     "form": {
       "title": "New order",

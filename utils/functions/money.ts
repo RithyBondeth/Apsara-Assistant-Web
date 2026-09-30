@@ -37,3 +37,40 @@ export function formatMoney(
 export function sampleAmount(currency: string): number {
   return currency === "KHR" ? 50000 : 12.5;
 }
+
+/** The default riel-per-dollar rate, matching the API's own default. */
+export const DEFAULT_KHR_RATE = 4100;
+
+export function otherCurrency(currency: string): TCurrency {
+  return currency === "USD" ? "KHR" : "USD";
+}
+
+/** Move an amount between the two currencies at the shop's rate. */
+export function convertMoney(
+  amount: string | number,
+  from: string,
+  to: string,
+  khrRate: string | number = DEFAULT_KHR_RATE,
+): number {
+  const value = typeof amount === "string" ? parseFloat(amount) : amount;
+  const rate = typeof khrRate === "string" ? parseFloat(khrRate) : khrRate;
+  if (!Number.isFinite(value) || !Number.isFinite(rate) || rate <= 0) return NaN;
+  if (from === to) return value;
+  if (from === "USD" && to === "KHR") return Math.round(value * rate);
+  if (from === "KHR" && to === "USD") return Math.round((value / rate) * 100) / 100;
+  return NaN;
+}
+
+/** Both currencies the way a Cambodian shop quotes: "$8.00 (32,800៛)". */
+export function formatDual(
+  amount: string | number,
+  currency: string = "USD",
+  khrRate: string | number = DEFAULT_KHR_RATE,
+): string {
+  const other = otherCurrency(currency);
+  const converted = convertMoney(amount, currency, other, khrRate);
+  const primary = formatMoney(amount, currency);
+  return Number.isFinite(converted)
+    ? `${primary} (${formatMoney(converted, other)})`
+    : primary;
+}

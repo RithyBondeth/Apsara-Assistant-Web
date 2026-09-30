@@ -6,6 +6,9 @@ export interface IUser {
   full_name: string;
   business_name: string | null;
   currency: string;
+  // Riel per dollar, as this shop takes it. Cambodia is bimonetary: the
+  // assistant quotes both, and riel receipts are checked at this rate.
+  khr_rate?: string;
   // Absent, not null, on an API that predates the feature — this ships ahead
   // of the backend that returns it.
   payment_qr_url?: string | null;
@@ -37,6 +40,7 @@ export interface IUserUpdate {
   full_name?: string;
   business_name?: string;
   currency?: string;
+  khr_rate?: string;
   // null clears it; the assistant then stops offering a QR at all.
   payment_qr_url?: string | null;
   shop_address?: string | null;

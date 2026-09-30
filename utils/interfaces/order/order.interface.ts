@@ -77,6 +77,10 @@ export interface IOrder {
   payment_receipt_attachment_id: string | null;
   payment_confirmed_by_user_id: string | null;
   paid_at: string | null;
+  // What was actually paid, in what — a riel payment on a dollar order is
+  // recorded as it happened, next to what the order was priced in.
+  paid_amount?: string | null;
+  paid_currency?: string | null;
   created_at: string;
   updated_at: string;
   items: IOrderItem[];
