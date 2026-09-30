@@ -12,17 +12,23 @@ function attachmentUrl(id: string, publicUrl: string | null) {
 }
 
 export default function MessageBubble({ message }: IMessageBubbleProps) {
-  const t = useAppT("inbox").bubble;
+  const inbox = useAppT("inbox");
+  const t = inbox.bubble;
   const language = useLanguage();
   const isOutgoing = message.sender_type !== "customer";
   const senderLabel =
     message.sender_type === "seller" ? t.you : isOutgoing ? t.apsara : t.customer;
-  // An image message — today only the shop's payment QR — carries its picture
-  // on an attachment and no text, so a bubble showing `content` alone would
-  // read as an empty message the customer never got.
+  // An image message — a receipt, or the shop's payment QR — carries its
+  // picture on an attachment and no text, so a bubble showing `content` alone
+  // would read as an empty message the customer never got. Voice notes are
+  // audio attachments the seller can play; a video, sticker or file is only
+  // recorded by type.
+  const audio = message.attachments.filter((a) => (a.file_type ?? "").startsWith("audio/"));
   const images = message.attachments.filter(
-    (a) => a.file_type === "image" || message.message_type === "image"
+    (a) => !audio.includes(a) && (a.file_type === "image" || message.message_type === "image")
   );
+  const kind = message.message_type;
+  const unreadable = ["voice", "video", "sticker", "file", "other"].includes(kind);
 
   return (
     <div
@@ -56,6 +62,26 @@ export default function MessageBubble({ message }: IMessageBubbleProps) {
               />
             ))}
             {message.content && <p>{message.content}</p>}
+          </div>
+        ) : audio.length > 0 ? (
+          <div className="space-y-1.5">
+            {audio.map((clip) => (
+              // The bytes come from the authenticated API, like receipt images.
+              <audio key={clip.id} controls preload="none" className="max-w-full"
+                     src={attachmentUrl(clip.id, clip.file_url)}>
+                {t.audioUnsupported}
+              </audio>
+            ))}
+            {message.content && <p>{message.content}</p>}
+            <p className="text-[11px] opacity-70">{t.cannotRead}</p>
+          </div>
+        ) : unreadable ? (
+          <div className="space-y-1">
+            <p>{inbox.kinds[kind as keyof typeof inbox.kinds] ?? inbox.kinds.other}</p>
+            {message.content && <p>{message.content}</p>}
+            <p className="text-[11px] opacity-70">
+              {kind === "voice" ? t.voiceUnavailable : t.cannotRead}
+            </p>
           </div>
         ) : (
           message.content ?? <em className="opacity-60">{t.empty}</em>

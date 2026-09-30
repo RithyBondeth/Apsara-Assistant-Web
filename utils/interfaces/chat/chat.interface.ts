@@ -39,6 +39,9 @@ export interface IConversation {
   last_seller_message_at: string | null;
   last_message_preview: string | null;
   last_message_sender: "customer" | "assistant" | "seller" | null;
+  // text | image | voice | video | sticker | file | other — what the newest
+  // message was, so a preview without text can still say something.
+  last_message_type?: string | null;
   tags: IConversationTag[];
   created_at: string;
   updated_at: string;

@@ -80,7 +80,10 @@ export default function ConversationList({
                 <p className={cn("min-w-0 flex-1 truncate text-xs text-muted-foreground", unread && "font-medium text-foreground/75")}>
                   {conversation.last_message_sender === "seller" ? t.list.you : ""}
                   {conversation.last_message_sender === "assistant" ? t.list.apsara : ""}
-                  {conversation.last_message_preview ?? t.list.noMessages}
+                  {conversation.last_message_preview
+                    ?? (conversation.last_message_type && conversation.last_message_type !== "text"
+                      ? t.kinds[conversation.last_message_type as keyof typeof t.kinds] ?? t.kinds.other
+                      : t.list.noMessages)}
                 </p>
                 {unread && (
                   <span className="grid min-w-5 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
