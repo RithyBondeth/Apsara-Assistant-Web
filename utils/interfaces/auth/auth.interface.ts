@@ -19,6 +19,9 @@ export interface IUser {
   shop_policies?: string | null;
   // Alerts go out in this language; kept in step with the UI language.
   language?: TUserLanguage;
+  // Hours of seller silence before the assistant resumes a thread they
+  // replied to. 0 keeps it paused until they hand the thread back.
+  manual_timeout_hours?: number;
   low_stock_email_enabled?: boolean;
   low_stock_telegram_enabled?: boolean;
   attention_telegram_enabled?: boolean;
@@ -48,6 +51,7 @@ export interface IUserUpdate {
   delivery_info?: string | null;
   shop_policies?: string | null;
   language?: TUserLanguage;
+  manual_timeout_hours?: number;
   low_stock_email_enabled?: boolean;
   low_stock_telegram_enabled?: boolean;
   attention_telegram_enabled?: boolean;
