@@ -13,7 +13,12 @@ export interface IOrderDetailDialogProps {
   products: IProduct[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStatusChange: (status: TOrderStatus) => Promise<boolean>;
+  /** `notify` false changes the status without messaging the customer. */
+  onStatusChange: (status: TOrderStatus, notify: boolean) => Promise<boolean>;
+  /** Whether the shop has KHQR set up; without it there is no code to make. */
+  khqrEnabled?: boolean;
+  onIssueKhqr?: () => Promise<boolean>;
+  onCheckKhqr?: () => Promise<boolean>;
   onDelete: () => Promise<boolean>;
   /** Opens a Stripe payment page for this order. Resolves to its link, or null
    *  if the server refused — most often because Stripe is not connected. */

@@ -17,6 +17,8 @@ import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
 import { CURRENCIES, DEFAULT_KHR_RATE, formatDual, formatMoney, sampleAmount } from "@/utils/functions/money";
 import { ITelegramLink, IUser } from "@/utils/interfaces/auth/auth.interface";
 import PaymentQrManager from "@/components/settings/payment-qr-manager";
+import KhqrSettings from "@/components/settings/khqr-settings";
+import SettingsSwitch from "@/components/settings/settings-switch";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -34,7 +36,9 @@ export default function SettingsPage() {
             <ProfileForm key={user.id} user={user} />
             <ShopInformation key={`shop-${user.id}`} user={user} />
             <TelegramAlerts key={`alerts-${user.id}`} user={user} />
+            <CustomerUpdates key={`updates-${user.id}`} user={user} />
             <PaymentQrManager />
+            <KhqrSettings key={`khqr-${user.id}`} user={user} />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
@@ -289,6 +293,46 @@ function ShopInformation({ user }: { user: IUser }) {
   );
 }
 
+// ── Order updates to customers ───────────────────────────────────────────────
+
+function CustomerUpdates({ user }: { user: IUser }) {
+  const t = useAppT("settings").customerUpdates;
+  const c = useAppT("common");
+  const { loading, updateProfile, clearError } = useAuthStore();
+  const { saved, flash } = useSavedFlash();
+  const [enabled, setEnabled] = useState(user.customer_updates_enabled ?? true);
+  const dirty = enabled !== (user.customer_updates_enabled ?? true);
+
+  async function handleSave() {
+    clearError();
+    if (await updateProfile({ customer_updates_enabled: enabled })) flash();
+  }
+
+  return (
+    <Card className="max-w-xl">
+      <CardHeader>
+        <CardTitle className="text-base">{t.title}</CardTitle>
+        <CardDescription>{t.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Switch
+          id="customer-updates"
+          checked={enabled}
+          onChange={setEnabled}
+          label={t.enabled}
+          help={t.enabledHelp}
+        />
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={!dirty || loading}>
+            {loading ? c.saving : t.save}
+          </Button>
+          <SavedMark show={saved} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ── Telegram alerts ──────────────────────────────────────────────────────────
 
 // How often to ask whether the seller has pressed Start yet. The bot writes
@@ -510,35 +554,5 @@ function TelegramAlerts({ user }: { user: IUser }) {
   );
 }
 
-function Switch({
-  id,
-  checked,
-  onChange,
-  label,
-  help,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  label: string;
-  help?: string;
-}) {
-  return (
-    <label
-      htmlFor={id}
-      className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"
-    >
-      <input
-        id={id}
-        className="mt-0.5 size-4 accent-primary"
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span>
-        <span className="block font-medium">{label}</span>
-        {help && <span className="mt-0.5 block text-xs text-muted-foreground">{help}</span>}
-      </span>
-    </label>
-  );
-}
+// One look for every on/off in Settings.
+const Switch = SettingsSwitch;
