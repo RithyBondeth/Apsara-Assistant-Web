@@ -17,6 +17,11 @@ import { SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
 import { CURRENCIES, DEFAULT_KHR_RATE, formatDual, formatMoney, sampleAmount } from "@/utils/functions/money";
 import { ITelegramLink, IUser } from "@/utils/interfaces/auth/auth.interface";
 import PaymentQrManager from "@/components/settings/payment-qr-manager";
+import KhqrSettings from "@/components/settings/khqr-settings";
+import TeamManager from "@/components/settings/team-manager";
+import DeleteAccount from "@/components/settings/delete-account";
+import { isOwner } from "@/utils/functions/team";
+import SettingsSwitch from "@/components/settings/settings-switch";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -29,12 +34,21 @@ export default function SettingsPage() {
         {/* The forms seed their fields from the user, so they are mounted only
             once there is one — seeding through an effect instead would mean a
             second render pass and a state write from inside the effect. */}
-        {user ? (
+        {user && !isOwner(user) ? (
+          // Staff work the shop; its settings are the owner's.
+          <div className="space-y-6">
+            <StaffProfile key={user.member_id ?? user.id} user={user} />
+          </div>
+        ) : user ? (
           <div className="space-y-6">
             <ProfileForm key={user.id} user={user} />
             <ShopInformation key={`shop-${user.id}`} user={user} />
             <TelegramAlerts key={`alerts-${user.id}`} user={user} />
+            <CustomerUpdates key={`updates-${user.id}`} user={user} />
             <PaymentQrManager />
+            <KhqrSettings key={`khqr-${user.id}`} user={user} />
+            <TeamManager />
+            <DeleteAccount shopName={user.business_name ?? user.full_name} />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
@@ -214,6 +228,52 @@ function ProfileForm({ user }: { user: IUser }) {
   );
 }
 
+// ── A staff member's own profile ─────────────────────────────────────────────
+
+function StaffProfile({ user }: { user: IUser }) {
+  const t = useAppT("settings").staffProfile;
+  const c = useAppT("common");
+  const { loading, error, updateProfile, clearError } = useAuthStore();
+  const { saved, flash } = useSavedFlash();
+  const [name, setName] = useState(user.member_name ?? "");
+  const dirty = name.trim() !== (user.member_name ?? "") && name.trim().length > 0;
+
+  async function handleSave() {
+    clearError();
+    if (await updateProfile({ full_name: name.trim() })) flash();
+  }
+
+  return (
+    <Card className="max-w-xl">
+      <CardHeader>
+        <CardTitle className="text-base">{t.title}</CardTitle>
+        <CardDescription>
+          {fmt(t.signedInAs, { shop: user.business_name ?? user.full_name })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="staff-own-name">{t.yourName}</Label>
+          <Input id="staff-own-name" value={name} onChange={(e) => setName(e.target.value)} />
+          <p className="text-xs text-muted-foreground">{user.member_email}</p>
+        </div>
+        <p className="text-xs text-muted-foreground">{t.ownerManages}</p>
+        {error && (
+          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={!dirty || loading}>
+            {loading ? c.saving : t.save}
+          </Button>
+          <SavedMark show={saved} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ── Shop information ─────────────────────────────────────────────────────────
 
 const SHOP_FIELDS = ["delivery_info", "shop_address", "shop_hours", "shop_policies"] as const;
@@ -278,6 +338,46 @@ function ShopInformation({ user }: { user: IUser }) {
           </p>
         )}
 
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={!dirty || loading}>
+            {loading ? c.saving : t.save}
+          </Button>
+          <SavedMark show={saved} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Order updates to customers ───────────────────────────────────────────────
+
+function CustomerUpdates({ user }: { user: IUser }) {
+  const t = useAppT("settings").customerUpdates;
+  const c = useAppT("common");
+  const { loading, updateProfile, clearError } = useAuthStore();
+  const { saved, flash } = useSavedFlash();
+  const [enabled, setEnabled] = useState(user.customer_updates_enabled ?? true);
+  const dirty = enabled !== (user.customer_updates_enabled ?? true);
+
+  async function handleSave() {
+    clearError();
+    if (await updateProfile({ customer_updates_enabled: enabled })) flash();
+  }
+
+  return (
+    <Card className="max-w-xl">
+      <CardHeader>
+        <CardTitle className="text-base">{t.title}</CardTitle>
+        <CardDescription>{t.description}</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Switch
+          id="customer-updates"
+          checked={enabled}
+          onChange={setEnabled}
+          label={t.enabled}
+          help={t.enabledHelp}
+        />
         <div className="flex items-center gap-3">
           <Button onClick={handleSave} disabled={!dirty || loading}>
             {loading ? c.saving : t.save}
@@ -550,35 +650,5 @@ function TelegramAlerts({ user }: { user: IUser }) {
   );
 }
 
-function Switch({
-  id,
-  checked,
-  onChange,
-  label,
-  help,
-}: {
-  id: string;
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  label: string;
-  help?: string;
-}) {
-  return (
-    <label
-      htmlFor={id}
-      className="flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm"
-    >
-      <input
-        id={id}
-        className="mt-0.5 size-4 accent-primary"
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-      <span>
-        <span className="block font-medium">{label}</span>
-        {help && <span className="mt-0.5 block text-xs text-muted-foreground">{help}</span>}
-      </span>
-    </label>
-  );
-}
+// One look for every on/off in Settings.
+const Switch = SettingsSwitch;

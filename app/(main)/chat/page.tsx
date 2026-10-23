@@ -20,6 +20,7 @@ import { useOrdersStore } from "@/stores/apis/orders/orders.store";
 import { IConversation, IInboxFilters } from "@/utils/interfaces/chat/chat.interface";
 import { IOrderCreate, IOrderDraft } from "@/utils/interfaces/order/order.interface";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { IInboxEvent, useInboxEvents } from "@/hooks/utils/use-inbox-events";
 import { cn } from "@/lib/utils";
 
 const SELECT_CLASS = "h-8 min-w-0 rounded-lg border border-input bg-background px-2 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/30";
@@ -72,15 +73,36 @@ export default function ChatPage() {
     return () => window.clearTimeout(timeout);
   }, [filters, search, fetchConversations]);
 
+  // Changes are pushed as they commit. Each batch refetches only what it
+  // names: the list and counts always, the open thread when it is the one
+  // that changed, orders when an order did.
+  const live = useInboxEvents(
+    useCallback((events: IInboxEvent[]) => {
+      const everything = events.some((e) => e.type === "ready" || e.type === "resync");
+      const currentFilters = { ...filters, search: search.trim() || undefined };
+      if (everything || events.some((e) => e.type !== "order")) {
+        fetchConversations(true, currentFilters);
+        fetchInboxMetrics();
+      }
+      const openId = activeConversation?.id;
+      if (openId && (everything || events.some((e) => e.conversation_id === openId && e.type !== "order"))) {
+        fetchConversationDetail(openId, true);
+      }
+      if (everything || events.some((e) => e.type === "order")) fetchOrders();
+    }, [activeConversation?.id, fetchConversationDetail, fetchConversations, fetchInboxMetrics, fetchOrders, filters, search]),
+  );
+
+  // Polling is now only the safety net: quick while the stream is down, rare
+  // while it is up, in case a proxy silently swallowed an event.
   useEffect(() => {
     const id = window.setInterval(() => {
       const currentFilters = { ...filters, search: search.trim() || undefined };
       fetchConversations(true, currentFilters);
       fetchInboxMetrics();
       if (activeConversation) fetchConversationDetail(activeConversation.id, true);
-    }, 5000);
+    }, live ? 60_000 : 5000);
     return () => window.clearInterval(id);
-  }, [activeConversation, fetchConversationDetail, fetchConversations, fetchInboxMetrics, filters, search]);
+  }, [activeConversation, fetchConversationDetail, fetchConversations, fetchInboxMetrics, filters, search, live]);
 
   const activeCustomer = customers.find((customer) => customer.id === chat.activeConversation?.customer_id);
   const customerOrders = useMemo(

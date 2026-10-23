@@ -1,4 +1,5 @@
 export type TUserLanguage = "en" | "km";
+export type TUserRole = "owner" | "staff";
 
 export interface IUser {
   id: string;
@@ -30,6 +31,24 @@ export interface IUser {
   telegram_chat_id?: string | null;
   telegram_chat_name?: string | null;
   telegram_linked_at?: string | null;
+  // Message the customer when their order is confirmed, shipped, delivered,
+  // cancelled or paid.
+  customer_updates_enabled?: boolean;
+  // Dynamic KHQR. The Bakong token is write-only: the API only says whether
+  // one is stored.
+  khqr_enabled?: boolean;
+  bakong_account_id?: string | null;
+  khqr_merchant_name?: string | null;
+  khqr_merchant_city?: string | null;
+  khqr_merchant_id?: string | null;
+  khqr_acquiring_bank?: string | null;
+  bakong_token_set?: boolean;
+  // Who is signed in: the owner, or a staff member working this shop. The
+  // rest of this object is always the shop's.
+  role?: TUserRole;
+  member_id?: string | null;
+  member_name?: string | null;
+  member_email?: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -56,6 +75,15 @@ export interface IUserUpdate {
   low_stock_telegram_enabled?: boolean;
   attention_telegram_enabled?: boolean;
   payment_telegram_enabled?: boolean;
+  customer_updates_enabled?: boolean;
+  khqr_enabled?: boolean;
+  bakong_account_id?: string | null;
+  khqr_merchant_name?: string | null;
+  khqr_merchant_city?: string | null;
+  khqr_merchant_id?: string | null;
+  khqr_acquiring_bank?: string | null;
+  // An empty string clears the stored token.
+  bakong_api_token?: string;
 }
 
 export interface ITelegramLink {

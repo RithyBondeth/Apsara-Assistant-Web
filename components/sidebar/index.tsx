@@ -21,6 +21,7 @@ import { BrandLogo } from "@/components/landing/brand-logo";
 import { SIDEBAR_NAV, SIDEBAR_BOTTOM_NAV } from "@/utils/constants/sidebar.constant";
 import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useAppT } from "@/hooks/utils/use-app-translations";
+import { isOwner } from "@/utils/functions/team";
 import { cn } from "@/lib/utils";
 import { ISidebarProps } from "./props";
 
@@ -84,7 +85,8 @@ export default function AppSidebar({ className }: ISidebarProps) {
       <SidebarFooter className="pb-4">
         <Separator className="mb-2" />
         <SidebarMenu>
-          {SIDEBAR_BOTTOM_NAV.map((item) => {
+          {/* Channels and payments are the owner's to connect. */}
+          {SIDEBAR_BOTTOM_NAV.filter((item) => item.key !== "integrations" || isOwner(user)).map((item) => {
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -110,16 +112,16 @@ export default function AppSidebar({ className }: ISidebarProps) {
           >
             <Avatar className="h-7 w-7 shrink-0">
               <AvatarFallback className="text-xs">
-                {user.full_name?.charAt(0).toUpperCase()}
+                {(user.member_name ?? user.full_name)?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium leading-none">
-                  {user.full_name}
+                  {user.member_name ?? user.full_name}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  {user.email}
+                  {user.member_email ?? user.email}
                 </p>
               </div>
             )}
