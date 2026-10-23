@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatMoney } from "@/utils/functions/money";
 import { timeAgo } from "@/utils/functions/date";
 import { useAppT, fmt, plural } from "@/hooks/utils/use-app-translations";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { handlerName } from "@/utils/functions/team";
 import { useLanguage } from "@/components/utils/languages/language-context";
 import { IConversationDetail } from "@/utils/interfaces/chat/chat.interface";
 import { ICustomer } from "@/utils/interfaces/customer/customer.interface";
@@ -40,6 +42,14 @@ export default function InboxContext({
   const [saving, setSaving] = useState(false);
   const t = useAppT("inbox").context;
   const language = useLanguage();
+  // The pause the seller is looking at either expires or does not; saying
+  // which, and when, is the difference between a feature and a mystery.
+  const user = useAuthStore((s) => s.user);
+  const handoffHours = user?.manual_timeout_hours ?? 12;
+  const manualHelp =
+    conversation.manual_mode_source === "explicit" || handoffHours <= 0
+      ? t.manualHelpExplicit
+      : fmt(t.manualHelpResumes, { hours: handoffHours });
 
   async function saveNote() {
     const content = note.trim();
@@ -68,10 +78,16 @@ export default function InboxContext({
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium">
-                {conversation.handling_mode === "auto" ? t.apsaraReplying : t.youHandling}
+                {conversation.handling_mode === "auto"
+                  ? t.apsaraReplying
+                  : (() => {
+                      const other = handlerName(conversation.assigned_user_id,
+                                                conversation.assigned_user_name, user);
+                      return other ? fmt(t.personHandling, { name: other }) : t.youHandling;
+                    })()}
               </p>
               <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                {conversation.handling_mode === "auto" ? t.autoHelp : t.manualHelp}
+                {conversation.handling_mode === "auto" ? t.autoHelp : manualHelp}
               </p>
             </div>
           </div>
