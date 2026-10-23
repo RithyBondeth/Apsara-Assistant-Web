@@ -10,6 +10,7 @@ import NewOrderDialog from "@/components/orders/new-order-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrdersStore } from "@/stores/apis/orders/orders.store";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useCustomersStore } from "@/stores/apis/customers/customers.store";
 import { useProductsStore } from "@/stores/apis/products/products.store";
 import { ORDER_STATUSES, SHARED_SELECT_CLASS } from "@/utils/constants/order.constant";
@@ -28,6 +29,7 @@ export default function OrdersPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const t = useAppT("orders");
+  const user = useAuthStore((s) => s.user);
 
   // ── API Integration
   const {
@@ -39,6 +41,8 @@ export default function OrdersPage() {
     fetchOrder,
     createOrder,
     updateOrder,
+    issueKhqr,
+    checkKhqr,
     deleteOrder,
     createCheckout,
     receipts,
@@ -94,9 +98,9 @@ export default function OrdersPage() {
     }, [fetchOrders, fetchOrder, selected, statusFilter]),
   );
 
-  async function handleStatusChange(status: TOrderStatus) {
+  async function handleStatusChange(status: TOrderStatus, notify: boolean) {
     if (!selected) return false;
-    const ok = await updateOrder(selected.id, { status });
+    const ok = await updateOrder(selected.id, { status, notify_customer: notify });
     // A status change moves stock, so the catalogue on screen is now stale.
     if (ok) fetchProducts();
     return ok;
@@ -207,6 +211,9 @@ export default function OrdersPage() {
         onCreateCheckout={() =>
           selected ? createCheckout(selected.id) : Promise.resolve(null)
         }
+        khqrEnabled={Boolean(user?.khqr_enabled && user?.bakong_account_id)}
+        onIssueKhqr={() => (selected ? issueKhqr(selected.id) : Promise.resolve(false))}
+        onCheckKhqr={() => (selected ? checkKhqr(selected.id) : Promise.resolve(false))}
         receipts={receipts}
         receiptsLoading={receiptsLoading}
         onConfirmReceipt={(receiptId) =>

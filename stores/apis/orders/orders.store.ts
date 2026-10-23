@@ -31,6 +31,10 @@ interface IOrdersStore {
   deleteOrder: (id: string) => Promise<boolean>;
   /** Opens a Stripe payment page for the order and returns its link. */
   createCheckout: (id: string) => Promise<ICheckout | null>;
+  /** Gives the order a dynamic KHQR for its total, or returns the payable one. */
+  issueKhqr: (id: string) => Promise<boolean>;
+  /** Asks Bakong now whether the order's KHQR was paid. */
+  checkKhqr: (id: string) => Promise<boolean>;
   fetchReceipts: (id: string) => Promise<void>;
   confirmReceipt: (id: string, receiptId: string) => Promise<boolean>;
   rejectReceipt: (id: string, receiptId: string) => Promise<boolean>;
@@ -123,6 +127,30 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
         selected: s.selected?.id === id ? null : s.selected,
         loading: false,
       }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  issueKhqr: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await api.post<IOrder>(ORDERS_API.KHQR(id));
+      set((s) => replaceOrder(s, data, { loading: false }));
+      return true;
+    } catch (error) {
+      set({ error: extractErrorMessage(error), loading: false });
+      return false;
+    }
+  },
+
+  checkKhqr: async (id) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await api.post<IOrder>(ORDERS_API.KHQR_CHECK(id));
+      set((s) => replaceOrder(s, data, { loading: false }));
       return true;
     } catch (error) {
       set({ error: extractErrorMessage(error), loading: false });
@@ -227,3 +255,17 @@ export const useOrdersStore = create<IOrdersStore>((set, get) => ({
 
   clearError: () => set({ error: null }),
 }));
+
+/** The store with one order replaced by the server's copy, in the list and
+ *  in the open dialog. */
+function replaceOrder(
+  s: IOrdersStore,
+  order: IOrder,
+  extra: Partial<IOrdersStore> = {},
+): Partial<IOrdersStore> {
+  return {
+    orders: s.orders.map((o) => (o.id === order.id ? order : o)),
+    selected: s.selected?.id === order.id ? order : s.selected,
+    ...extra,
+  };
+}
