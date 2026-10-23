@@ -25,6 +25,7 @@ export default function IntegrationsPage() {
   const [connecting, setConnecting] = useState<TIntegrationPlatform | null>(null);
   const t = useAppT("integrations");
   const user = useAuthStore((s) => s.user);
+  const owner = isOwner(user);
   const PLATFORM_COPY = platformCopy(t.platforms);
 
   // ── API Integration
@@ -43,8 +44,9 @@ export default function IntegrationsPage() {
 
   // ── Effects
   useEffect(() => {
-    fetchIntegrations();
-  }, [fetchIntegrations]);
+    // Staff are refused the list; asking only puts an error on screen.
+    if (owner) fetchIntegrations();
+  }, [fetchIntegrations, owner]);
 
   // ── Methods
   async function handleCreate(data: IIntegrationCreate) {
@@ -69,16 +71,24 @@ export default function IntegrationsPage() {
   }
 
   // ── Render UI
+  if (!owner) {
+    return (
+      <>
+        <AppHeader title={t.title} description={t.description} />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+            {t.ownerOnly}
+          </p>
+        </main>
+      </>
+    );
+  }
+
   return (
     <>
       <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 space-y-5 p-4 sm:p-6 lg:p-8">
-        {!isOwner(user) && (
-          <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-            {t.ownerOnly}
-          </p>
-        )}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">{t.available}</p>

@@ -54,14 +54,14 @@ export default function AppHeader({ title, description }: IHeaderProps) {
           >
             <Avatar className="h-8 w-8">
               <AvatarFallback className="text-xs">
-                {user.full_name?.charAt(0).toUpperCase()}
+                {(user.member_name ?? user.full_name)?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">{user.full_name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-sm font-medium">{user.member_name ?? user.full_name}</p>
+              <p className="text-xs text-muted-foreground">{user.member_email ?? user.email}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push("/settings")}>
