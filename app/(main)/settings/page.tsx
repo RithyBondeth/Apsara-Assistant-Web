@@ -19,6 +19,7 @@ import { ITelegramLink, IUser } from "@/utils/interfaces/auth/auth.interface";
 import PaymentQrManager from "@/components/settings/payment-qr-manager";
 import KhqrSettings from "@/components/settings/khqr-settings";
 import TeamManager from "@/components/settings/team-manager";
+import DeleteAccount from "@/components/settings/delete-account";
 import { isOwner } from "@/utils/functions/team";
 import SettingsSwitch from "@/components/settings/settings-switch";
 
@@ -47,6 +48,7 @@ export default function SettingsPage() {
             <PaymentQrManager />
             <KhqrSettings key={`khqr-${user.id}`} user={user} />
             <TeamManager />
+            <DeleteAccount shopName={user.business_name ?? user.full_name} />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />

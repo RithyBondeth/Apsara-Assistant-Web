@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/apis/auth/auth.store";
 import { useMagneticHover } from "@/hooks/utils/use-gsap-interactions";
 import { LucideMail, LucideLock, LucideEye, LucideEyeOff, LucideLoader2, LucideArrowRight } from "lucide-react";
 import { AppMessages, useAppT } from "@/hooks/utils/use-app-translations";
+import ResendVerification from "@/components/auth/resend-verification";
 
 function buildSchema(t: AppMessages["auth"]) {
   return z.object({
@@ -52,8 +53,12 @@ function LoginContent() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<LoginForm>({ resolver: zodResolver(buildSchema(a)) });
+
+  // The API's wording for a correct password on an unconfirmed address.
+  const unverified = Boolean(error?.startsWith("Verify your email"));
 
   async function onSubmit(values: LoginForm) {
     const ok = await login(values.email, values.password);
@@ -121,7 +126,13 @@ function LoginContent() {
           )}
         </div>
 
-        {error && (
+        {error && unverified ? (
+          // The password was right; the address is not confirmed yet.
+          <div className="flex flex-col gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-center text-sm">
+            <p className="text-amber-800 dark:text-amber-300">{t.unverified}</p>
+            <ResendVerification email={getValues("email")} label={t.resendLink} sentText={t.resent} />
+          </div>
+        ) : error && (
           <p className="animate-shake rounded-lg bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
             {error}
           </p>

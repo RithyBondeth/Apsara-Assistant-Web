@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,8 @@ import {
   LucideLoader2,
   LucideArrowRight,
 } from "lucide-react";
-import { AppMessages, useAppT } from "@/hooks/utils/use-app-translations";
+import { AppMessages, fmt, useAppT } from "@/hooks/utils/use-app-translations";
+import ResendVerification from "@/components/auth/resend-verification";
 
 function buildSchema(t: AppMessages["auth"]) {
   return z.object({
@@ -37,10 +37,11 @@ function buildSchema(t: AppMessages["auth"]) {
 type RegisterForm = z.infer<ReturnType<typeof buildSchema>>;
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  // The address the confirmation link went to, once the account exists.
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const submitRef = useMagneticHover<HTMLDivElement>(0.25);
   const a = useAppT("auth");
   const t = a.register;
@@ -56,12 +57,34 @@ export default function RegisterPage() {
     setError(null);
     try {
       await api.post(AUTH_API.REGISTER, values);
-      router.push("/login");
+      // Signing in waits for the emailed link, so say where it went rather
+      // than sending them to a sign-in that would refuse them.
+      setSentTo(values.email);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sentTo) {
+    return (
+      <div className="flex flex-col items-center gap-6 text-center">
+        <div data-auth className="flex size-14 items-center justify-center rounded-full bg-blue-500/10 opacity-0">
+          <LucideMail className="size-7 text-blue-600" />
+        </div>
+        <div data-auth className="flex flex-col gap-1 opacity-0">
+          <h1 className="text-2xl font-bold tracking-tight">{t.checkTitle}</h1>
+          <p className="text-sm text-muted-foreground">{fmt(t.checkBody, { email: sentTo })}</p>
+        </div>
+        <div data-auth className="flex w-full flex-col gap-3 opacity-0">
+          <ResendVerification email={sentTo} label={t.resend} sentText={t.resent} />
+          <Link href="/login" className="text-sm font-medium text-blue-600 underline-offset-4 hover:underline">
+            {t.goToSignIn}
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -174,6 +197,14 @@ export default function RegisterPage() {
           </Button>
         </div>
       </form>
+
+      <p data-auth className="text-center text-xs text-muted-foreground opacity-0">
+        {t.consentBefore}
+        <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">{t.terms}</Link>
+        {t.and}
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">{t.privacy}</Link>
+        .
+      </p>
 
       {/* Footer */}
       <p data-auth className="text-center text-sm text-muted-foreground opacity-0">
