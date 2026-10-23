@@ -29,6 +29,8 @@ export interface IConversation {
   status: "open" | "closed" | "pending";
   handling_mode: "auto" | "manual";
   assigned_user_id: string | null;
+  // The teammate handling it, for a team with staff.
+  assigned_user_name?: string | null;
   unread_count: number;
   // Set while a customer is waiting on a human; cleared by the seller's reply.
   needs_attention_at?: string | null;

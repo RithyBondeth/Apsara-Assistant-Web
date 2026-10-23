@@ -167,6 +167,30 @@
       "tokenClear": "Remove token",
       "invalidAccount": "A Bakong account ID looks like yourname@bank",
       "save": "Save"
+    },
+    "team": {
+      "title": "Team",
+      "description": "Add the people who answer your customers. They work the same inbox, orders and catalogue under their own name; only you can change channels, payment details and settings.",
+      "owner": "Owner",
+      "staff": "Staff",
+      "removed": "Removed",
+      "resend": "Resend invite",
+      "remove": "Remove",
+      "restore": "Restore",
+      "confirmRemove": "Remove {name} from the team? They are signed out straight away; their notes and confirmations keep their name.",
+      "addTitle": "Add someone",
+      "name": "Name",
+      "email": "Email",
+      "add": "Send invite",
+      "addHelp": "They get an email with a link to choose their password. It works once, for 72 hours.",
+      "invited": "Invite sent to {email}."
+    },
+    "staffProfile": {
+      "title": "Your profile",
+      "yourName": "Your name",
+      "signedInAs": "You work {shop}'s inbox as staff.",
+      "ownerManages": "Shop details, channels, payments and alerts are managed by the shop owner.",
+      "save": "Save changes"
     }
   },
   "inbox": {
@@ -210,7 +234,8 @@
       "apsara": "Apsara: ",
       "noMessages": "No messages yet",
       "ai": "AI",
-      "handledByYou": "You"
+      "handledByYou": "You",
+      "handledBy": "{name}"
     },
     "window": {
       "back": "Back to conversations",
@@ -232,7 +257,8 @@
       "hint": "Enter to send · Shift+Enter for new line",
       "sendsToCustomer": "Sends to the customer",
       "rehearsal": "Rehearsal: Apsara replies automatically",
-      "needsYouNotice": "This customer is waiting for you. The assistant could not answer."
+      "needsYouNotice": "This customer is waiting for you. The assistant could not answer.",
+      "personReplying": "{name} replying"
     },
     "bubble": {
       "you": "You",
@@ -900,7 +926,8 @@
         "step2": "Subscribe it to the checkout.session.completed event.",
         "step3": "Copy the signing secret Stripe shows you into the field above."
       }
-    }
+    },
+    "ownerOnly": "Only the shop owner can connect or change channels and payments."
   },
   "auth": {
     "invalidEmail": "Invalid email address",

@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { timeAgo } from "@/utils/functions/date";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { handlerName } from "@/utils/functions/team";
 import { useLanguage } from "@/components/utils/languages/language-context";
 import { IConversationListProps } from "./props";
 
@@ -22,6 +24,7 @@ export default function ConversationList({
 }: IConversationListProps) {
   const customerMap = Object.fromEntries(customers.map((customer) => [customer.id, customer]));
   const t = useAppT("inbox");
+  const user = useAuthStore((s) => s.user);
   const language = useLanguage();
 
   if (conversations.length === 0) {
@@ -102,7 +105,12 @@ export default function ConversationList({
                 )}
                 <Badge variant="outline" className="h-4 gap-1 px-1.5 text-[10px]">
                   {conversation.handling_mode !== "manual" ? <Bot className="size-2.5" /> : <UserRound className="size-2.5" />}
-                  {conversation.handling_mode !== "manual" ? t.list.ai : t.list.handledByYou}
+                  {conversation.handling_mode !== "manual"
+                    ? t.list.ai
+                    : fmt(t.list.handledBy, {
+                        name: handlerName(conversation.assigned_user_id,
+                                          conversation.assigned_user_name, user) ?? t.list.handledByYou,
+                      })}
                 </Badge>
                 {(conversation.tags ?? []).slice(0, 2).map((tag) => (
                   <span key={tag.id} className="max-w-20 truncate rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">

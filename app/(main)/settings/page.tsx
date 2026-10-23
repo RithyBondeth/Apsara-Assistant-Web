@@ -18,6 +18,8 @@ import { CURRENCIES, DEFAULT_KHR_RATE, formatDual, formatMoney, sampleAmount } f
 import { ITelegramLink, IUser } from "@/utils/interfaces/auth/auth.interface";
 import PaymentQrManager from "@/components/settings/payment-qr-manager";
 import KhqrSettings from "@/components/settings/khqr-settings";
+import TeamManager from "@/components/settings/team-manager";
+import { isOwner } from "@/utils/functions/team";
 import SettingsSwitch from "@/components/settings/settings-switch";
 
 export default function SettingsPage() {
@@ -31,7 +33,12 @@ export default function SettingsPage() {
         {/* The forms seed their fields from the user, so they are mounted only
             once there is one — seeding through an effect instead would mean a
             second render pass and a state write from inside the effect. */}
-        {user ? (
+        {user && !isOwner(user) ? (
+          // Staff work the shop; its settings are the owner's.
+          <div className="space-y-6">
+            <StaffProfile key={user.member_id ?? user.id} user={user} />
+          </div>
+        ) : user ? (
           <div className="space-y-6">
             <ProfileForm key={user.id} user={user} />
             <ShopInformation key={`shop-${user.id}`} user={user} />
@@ -39,6 +46,7 @@ export default function SettingsPage() {
             <CustomerUpdates key={`updates-${user.id}`} user={user} />
             <PaymentQrManager />
             <KhqrSettings key={`khqr-${user.id}`} user={user} />
+            <TeamManager />
           </div>
         ) : (
           <Skeleton className="h-80 max-w-xl rounded-xl" />
@@ -210,6 +218,52 @@ function ProfileForm({ user }: { user: IUser }) {
         <div className="flex items-center gap-3">
           <Button onClick={handleSave} disabled={!dirty || loading || nameInvalid || rateInvalid}>
             {loading ? c.saving : t.saveChanges}
+          </Button>
+          <SavedMark show={saved} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── A staff member's own profile ─────────────────────────────────────────────
+
+function StaffProfile({ user }: { user: IUser }) {
+  const t = useAppT("settings").staffProfile;
+  const c = useAppT("common");
+  const { loading, error, updateProfile, clearError } = useAuthStore();
+  const { saved, flash } = useSavedFlash();
+  const [name, setName] = useState(user.member_name ?? "");
+  const dirty = name.trim() !== (user.member_name ?? "") && name.trim().length > 0;
+
+  async function handleSave() {
+    clearError();
+    if (await updateProfile({ full_name: name.trim() })) flash();
+  }
+
+  return (
+    <Card className="max-w-xl">
+      <CardHeader>
+        <CardTitle className="text-base">{t.title}</CardTitle>
+        <CardDescription>
+          {fmt(t.signedInAs, { shop: user.business_name ?? user.full_name })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="staff-own-name">{t.yourName}</Label>
+          <Input id="staff-own-name" value={name} onChange={(e) => setName(e.target.value)} />
+          <p className="text-xs text-muted-foreground">{user.member_email}</p>
+        </div>
+        <p className="text-xs text-muted-foreground">{t.ownerManages}</p>
+        {error && (
+          <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <div className="flex items-center gap-3">
+          <Button onClick={handleSave} disabled={!dirty || loading}>
+            {loading ? c.saving : t.save}
           </Button>
           <SavedMark show={saved} />
         </div>

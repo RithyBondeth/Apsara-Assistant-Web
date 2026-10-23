@@ -15,6 +15,8 @@ import {
 } from "@/utils/interfaces/integration/integration.interface";
 import EmptyState from "@/components/shared/empty-state";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { isOwner } from "@/utils/functions/team";
 
 const PLATFORMS: TIntegrationPlatform[] = ["messenger", "telegram", "stripe"];
 
@@ -22,6 +24,7 @@ export default function IntegrationsPage() {
   // ── All States
   const [connecting, setConnecting] = useState<TIntegrationPlatform | null>(null);
   const t = useAppT("integrations");
+  const user = useAuthStore((s) => s.user);
   const PLATFORM_COPY = platformCopy(t.platforms);
 
   // ── API Integration
@@ -71,6 +74,11 @@ export default function IntegrationsPage() {
       <AppHeader title={t.title} description={t.description} />
 
       <main className="flex-1 space-y-5 p-4 sm:p-6 lg:p-8">
+        {!isOwner(user) && (
+          <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+            {t.ownerOnly}
+          </p>
+        )}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">{t.available}</p>
