@@ -310,7 +310,8 @@
       "notePlaceholder": "Add a private note for your team…",
       "addNote": "Add internal note",
       "manualHelpResumes": "Automatic replies are paused. The assistant resumes {hours}h after your last message.",
-      "manualHelpExplicit": "Automatic replies are paused until you return this conversation to Apsara."
+      "manualHelpExplicit": "Automatic replies are paused until you return this conversation to Apsara.",
+      "personHandling": "{name} is handling this"
     },
     "newDialog": {
       "title": "New conversation",
