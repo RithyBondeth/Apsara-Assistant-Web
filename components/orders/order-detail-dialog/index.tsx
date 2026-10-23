@@ -20,7 +20,7 @@ import {
   SHARED_SELECT_CLASS,
 } from "@/utils/constants/order.constant";
 import { IReceipt, TOrderStatus, TReceiptVerdict } from "@/utils/interfaces/order/order.interface";
-import { formatDate } from "@/utils/functions/date";
+import { formatDate, formatTime } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
@@ -462,7 +462,7 @@ function KhqrPanel({
             <p>{fmt(d.khqrHelp, { amount: formatMoney(order.total_amount, order.currency) })}</p>
             {order.khqr_expires_at && (
               <p aria-live="polite">
-                {fmt(d.khqrWaiting, { time: formatDate(order.khqr_expires_at, language) })}
+                {fmt(d.khqrWaiting, { time: formatTime(order.khqr_expires_at, language) })}
               </p>
             )}
             <a href={order.khqr_image_url!} target="_blank" rel="noopener noreferrer"
