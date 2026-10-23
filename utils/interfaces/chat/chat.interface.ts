@@ -99,4 +99,6 @@ export interface IChatResponse {
   // Optional, not just nullable: an API that predates the feature omits the
   // field entirely, and this ships ahead of the backend that returns it.
   qr_message?: IMessage | null;
+  // Product photos the assistant chose to send, in the order they arrive.
+  photo_messages?: IMessage[];
 }
