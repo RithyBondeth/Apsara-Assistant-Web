@@ -21,6 +21,14 @@ export function formatDate(date: string | Date, language: TDateLanguage = "en"):
   });
 }
 
+/** Clock time, for things that happen within the hour — a KHQR's expiry. */
+export function formatTime(date: string | Date, language: TDateLanguage = "en"): string {
+  return parseApiDate(date).toLocaleTimeString(LOCALES[language], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 // Kept here rather than in the translation files so the function stays usable
 // from non-React code; the app translations mirror these under `time`.
 const RELATIVE: Record<TDateLanguage, { justNow: string; m: string; h: string; d: string }> = {

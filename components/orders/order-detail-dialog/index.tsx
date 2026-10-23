@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, CreditCard, Copy, Check, ReceiptText, ScanLine, Loader2, AlertTriangle, Ban, CircleCheck, CircleHelp } from "lucide-react";
+import { X, Trash2, CreditCard, Copy, Check, ReceiptText, ScanLine, Loader2, AlertTriangle, Ban, CircleCheck, CircleHelp, QrCode, RefreshCw, ExternalLink } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
   SHARED_SELECT_CLASS,
 } from "@/utils/constants/order.constant";
 import { IReceipt, TOrderStatus, TReceiptVerdict } from "@/utils/interfaces/order/order.interface";
-import { formatDate } from "@/utils/functions/date";
+import { formatDate, formatTime } from "@/utils/functions/date";
 import { formatMoney } from "@/utils/functions/money";
 import { cn } from "@/lib/utils";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
@@ -37,6 +37,9 @@ export default function OrderDetailDialog({
   onStatusChange,
   onDelete,
   onCreateCheckout,
+  khqrEnabled = false,
+  onIssueKhqr,
+  onCheckKhqr,
   receipts,
   receiptsLoading,
   onConfirmReceipt,
@@ -50,6 +53,7 @@ export default function OrderDetailDialog({
   const [saving, setSaving] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [notify, setNotify] = useState(true);
   const t = useAppT("orders");
   const d = t.detail;
   const c = useAppT("common");
@@ -65,7 +69,7 @@ export default function OrderDetailDialog({
   async function handleStatus(status: TOrderStatus) {
     if (!order || status === order.status) return;
     setSaving(true);
-    await onStatusChange(status);
+    await onStatusChange(status, notify);
     setSaving(false);
   }
 
@@ -183,6 +187,33 @@ export default function OrderDetailDialog({
             {statusHint && (
               <p className="text-xs text-muted-foreground">{statusHint}</p>
             )}
+            {/* Only an order from a chat has someone to tell. */}
+            {order.conversation_id && (
+              <label className="flex items-start gap-2 pt-1 text-xs">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 size-3.5 accent-primary"
+                  checked={notify}
+                  onChange={(e) => setNotify(e.target.checked)}
+                />
+                <span>
+                  <span className="block font-medium">{d.notifyCustomer}</span>
+                  <span className="text-muted-foreground">{d.notifyCustomerHelp}</span>
+                </span>
+              </label>
+            )}
+            {(order.customer_notified_events?.length ?? 0) > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {fmt(d.notified, {
+                  events: (order.customer_notified_events ?? [])
+                    .map((event) =>
+                      event === "paid"
+                        ? t.payment.paid
+                        : t.status[event as TOrderStatus] ?? event)
+                    .join(", "),
+                })}
+              </p>
+            )}
           </div>
 
           {/* ── Payment */}
@@ -240,11 +271,34 @@ export default function OrderDetailDialog({
                 {order.payment_status === "paid"
                   ? order.payment_method === "qr"
                     ? d.receiptConfirmed
-                    : d.stripeConfirmed
+                    : order.payment_method === "khqr"
+                      ? d.khqrConfirmed
+                      : d.stripeConfirmed
                   : d.createsStripe}
               </p>
             )}
           </div>
+
+          {/* ── KHQR: a code for exactly this order, confirmed by Bakong */}
+          {order.status !== "cancelled" && (order.payment_status !== "paid" || order.khqr_status === "paid") && (
+            <KhqrPanel
+              order={order}
+              enabled={khqrEnabled}
+              saving={saving}
+              onIssue={async () => {
+                if (!onIssueKhqr) return;
+                setSaving(true);
+                await onIssueKhqr();
+                setSaving(false);
+              }}
+              onCheck={async () => {
+                if (!onCheckKhqr) return;
+                setSaving(true);
+                await onCheckKhqr();
+                setSaving(false);
+              }}
+            />
+          )}
 
           {/* ── Customer payment evidence */}
           {order.conversation_id && (
@@ -349,6 +403,84 @@ export default function OrderDetailDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ── KHQR ─────────────────────────────────────────────────────────────────────
+
+function KhqrPanel({
+  order,
+  enabled,
+  saving,
+  onIssue,
+  onCheck,
+}: {
+  order: NonNullable<IOrderDetailDialogProps["order"]>;
+  enabled: boolean;
+  saving: boolean;
+  onIssue: () => void;
+  onCheck: () => void;
+}) {
+  const d = useAppT("orders").detail;
+  const language = useLanguage();
+  const status = order.khqr_status ?? null;
+  const live = status === "issued" && order.khqr_image_url;
+
+  if (status === "paid") {
+    return <p className="text-xs text-emerald-700 dark:text-emerald-400">{d.khqrPaid}</p>;
+  }
+  if (!enabled) {
+    return <p className="text-xs text-muted-foreground">{d.khqrSetup}</p>;
+  }
+
+  return (
+    <div className="space-y-2 rounded-lg border p-3">
+      <div className="flex items-center justify-between gap-2">
+        <Label className="flex items-center gap-1.5">
+          <QrCode className="size-4" /> {d.khqr}
+        </Label>
+        <div className="flex gap-1">
+          {live && (
+            <Button size="sm" variant="outline" disabled={saving} onClick={onCheck}>
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {d.khqrCheck}
+            </Button>
+          )}
+          {!live && (
+            <Button size="sm" disabled={saving} onClick={onIssue}>
+              <QrCode className="mr-1.5 h-3.5 w-3.5" /> {status ? d.khqrRemake : d.khqrMake}
+            </Button>
+          )}
+        </div>
+      </div>
+      {live ? (
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-start">
+          {/* Served publicly at an unguessable URL for the chat platforms. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={order.khqr_image_url!} alt={d.khqrAlt}
+               className="size-40 rounded bg-white object-contain p-1" />
+          <div className="space-y-1.5 text-xs text-muted-foreground">
+            <p>{fmt(d.khqrHelp, { amount: formatMoney(order.total_amount, order.currency) })}</p>
+            {order.khqr_expires_at && (
+              <p aria-live="polite">
+                {fmt(d.khqrWaiting, { time: formatTime(order.khqr_expires_at, language) })}
+              </p>
+            )}
+            <a href={order.khqr_image_url!} target="_blank" rel="noopener noreferrer"
+               className="inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline">
+              <ExternalLink className="size-3" /> {d.khqrOpen}
+            </a>
+          </div>
+        </div>
+      ) : status === "expired" ? (
+        <p className="text-xs text-muted-foreground">{d.khqrExpired}</p>
+      ) : status === "mismatch" ? (
+        <p className="text-xs text-amber-700 dark:text-amber-400">{d.khqrMismatch}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          {fmt(d.khqrHelp, { amount: formatMoney(order.total_amount, order.currency) })}
+        </p>
+      )}
+    </div>
   );
 }
 

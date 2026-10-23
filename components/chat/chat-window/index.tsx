@@ -14,6 +14,8 @@ import {
 import MessageBubble from "@/components/chat/message-bubble";
 import { cn } from "@/lib/utils";
 import { useAppT, fmt } from "@/hooks/utils/use-app-translations";
+import { useAuthStore } from "@/stores/apis/auth/auth.store";
+import { handlerName } from "@/utils/functions/team";
 import { IChatWindowProps } from "./props";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -57,6 +59,7 @@ export default function ChatWindow({
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const t = useAppT("inbox");
+  const user = useAuthStore((s) => s.user);
   const w = t.window;
 
   const isClosed = conversation.status === "closed";
@@ -113,7 +116,13 @@ export default function ChatWindow({
               <span>·</span>
               <span className="flex items-center gap-1">
                 {conversation.handling_mode === "auto" ? <Bot className="size-3" /> : <UserRound className="size-3" />}
-                {conversation.handling_mode === "auto" ? w.aiReplying : w.youReplying}
+                {conversation.handling_mode === "auto"
+                  ? w.aiReplying
+                  : (() => {
+                      const other = handlerName(conversation.assigned_user_id,
+                                                conversation.assigned_user_name, user);
+                      return other ? fmt(w.personReplying, { name: other }) : w.youReplying;
+                    })()}
               </span>
             </div>
           </div>

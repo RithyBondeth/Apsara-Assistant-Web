@@ -139,6 +139,58 @@
       "uploading": "Uploading…",
       "upload": "Upload QR",
       "qrAlt": "{name} QR"
+    },
+    "customerUpdates": {
+      "title": "Order updates to customers",
+      "description": "Your customer gets one short message in their chat when you change their order.",
+      "enabled": "Message customers about their orders",
+      "enabledHelp": "Sent when an order is confirmed, shipped, delivered, cancelled or paid — in Khmer if they write in Khmer. You can skip it for one change from the order.",
+      "save": "Save"
+    },
+    "khqr": {
+      "title": "KHQR payments",
+      "description": "Send each order a KHQR with its exact amount. Bakong tells us when it's paid, so you don't have to check receipts.",
+      "enabled": "Use KHQR for orders",
+      "enabledHelp": "When a customer is ready to pay an order, the assistant sends its KHQR instead of your static QR.",
+      "accountId": "Bakong account ID",
+      "accountIdPlaceholder": "yourname@aclb",
+      "accountIdHelp": "Shown in your bank app's Bakong or KHQR section.",
+      "merchantName": "Name shown to the payer",
+      "merchantCity": "City",
+      "latinOnly": "Latin letters only — bank apps can't show Khmer here.",
+      "merchantId": "Merchant ID (optional)",
+      "acquiringBank": "Acquiring bank (optional)",
+      "merchantHelp": "Only if your bank registered you as a merchant.",
+      "token": "Bakong API token",
+      "tokenSet": "A token is saved. Paste a new one to replace it.",
+      "tokenMissing": "Register at api-bakong.nbc.gov.kh to get a token. It lasts 90 days.",
+      "tokenClear": "Remove token",
+      "invalidAccount": "A Bakong account ID looks like yourname@bank",
+      "save": "Save"
+    },
+    "team": {
+      "title": "Team",
+      "description": "Add the people who answer your customers. They work the same inbox, orders and catalogue under their own name; only you can change channels, payment details and settings.",
+      "owner": "Owner",
+      "staff": "Staff",
+      "removed": "Removed",
+      "resend": "Resend invite",
+      "remove": "Remove",
+      "restore": "Restore",
+      "confirmRemove": "Remove {name} from the team? They are signed out straight away; their notes and confirmations keep their name.",
+      "addTitle": "Add someone",
+      "name": "Name",
+      "email": "Email",
+      "add": "Send invite",
+      "addHelp": "They get an email with a link to choose their password. It works once, for 72 hours.",
+      "invited": "Invite sent to {email}."
+    },
+    "staffProfile": {
+      "title": "Your profile",
+      "yourName": "Your name",
+      "signedInAs": "You work {shop}'s inbox as staff.",
+      "ownerManages": "Shop details, channels, payments and alerts are managed by the shop owner.",
+      "save": "Save changes"
     }
   },
   "inbox": {
@@ -182,7 +234,8 @@
       "apsara": "Apsara: ",
       "noMessages": "No messages yet",
       "ai": "AI",
-      "handledByYou": "You"
+      "handledByYou": "You",
+      "handledBy": "{name}"
     },
     "window": {
       "back": "Back to conversations",
@@ -204,7 +257,8 @@
       "hint": "Enter to send · Shift+Enter for new line",
       "sendsToCustomer": "Sends to the customer",
       "rehearsal": "Rehearsal: Apsara replies automatically",
-      "needsYouNotice": "This customer is waiting for you. The assistant could not answer."
+      "needsYouNotice": "This customer is waiting for you. The assistant could not answer.",
+      "personReplying": "{name} replying"
     },
     "bubble": {
       "you": "You",
@@ -353,7 +407,23 @@
         "not_a_receipt": "Not a payment receipt",
         "unreadable": "Could not read it — check it yourself"
       },
-      "paidInOther": "Paid {paid} ({priced} priced)"
+      "paidInOther": "Paid {paid} ({priced} priced)",
+      "notifyCustomer": "Message the customer about this change",
+      "notifyCustomerHelp": "Confirmed, shipped, delivered and cancelled are sent to the chat they ordered from.",
+      "notified": "Customer told: {events}",
+      "khqr": "KHQR",
+      "khqrMake": "Make KHQR",
+      "khqrRemake": "New KHQR",
+      "khqrCheck": "Check payment",
+      "khqrHelp": "A KHQR for exactly {amount}. The customer scans it in any bank app, and the order is marked paid as soon as Bakong confirms it.",
+      "khqrWaiting": "Waiting for payment · expires {time}",
+      "khqrPaid": "Paid by KHQR — confirmed by Bakong.",
+      "khqrExpired": "This KHQR expired. Make a new one if the customer still wants to pay.",
+      "khqrMismatch": "Bakong shows a payment for a different amount. Check with the customer before confirming.",
+      "khqrAlt": "KHQR for this order",
+      "khqrSetup": "Set up KHQR in Settings to send a code with the exact amount.",
+      "khqrOpen": "Open image",
+      "khqrConfirmed": "Confirmed by Bakong (KHQR)."
     },
     "form": {
       "title": "New order",
@@ -856,7 +926,8 @@
         "step2": "Subscribe it to the checkout.session.completed event.",
         "step3": "Copy the signing secret Stripe shows you into the field above."
       }
-    }
+    },
+    "ownerOnly": "Only the shop owner can connect or change channels and payments."
   },
   "auth": {
     "invalidEmail": "Invalid email address",
