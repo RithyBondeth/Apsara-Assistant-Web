@@ -10,4 +10,7 @@ export const AUTH_API = {
   OTP_REQUEST: `${API_V1}/auth/otp/request`,
   OTP_VERIFY: `${API_V1}/auth/otp/verify`,
   TELEGRAM_LINK: `${API_V1}/auth/telegram-link`,
+  VERIFY_EMAIL: `${API_V1}/auth/verify-email`,
+  RESEND_VERIFICATION: `${API_V1}/auth/verify-email/resend`,
+  DELETE_ACCOUNT: `${API_V1}/auth/delete-account`,
 };
