@@ -20,6 +20,7 @@ import {
 } from "@/utils/interfaces/order/order.interface";
 import EmptyState from "@/components/shared/empty-state";
 import { useAppT, fmt, plural } from "@/hooks/utils/use-app-translations";
+import { IInboxEvent, useInboxEvents } from "@/hooks/utils/use-inbox-events";
 
 export default function OrdersPage() {
   // ── All States
@@ -78,6 +79,20 @@ export default function OrdersPage() {
     void fetchReceipts(order.id);
     setDetailOpen(true);
   }
+
+  // A payment Bakong or Stripe confirms, or a reply that drafted an order,
+  // shows up without a reload.
+  useInboxEvents(
+    useCallback((events: IInboxEvent[]) => {
+      const everything = events.some((e) => e.type === "ready" || e.type === "resync");
+      const orderEvents = events.filter((e) => e.type === "order");
+      if (!everything && orderEvents.length === 0) return;
+      fetchOrders(statusFilter);
+      if (selected && (everything || orderEvents.some((e) => e.id === selected.id))) {
+        fetchOrder(selected.id);
+      }
+    }, [fetchOrders, fetchOrder, selected, statusFilter]),
+  );
 
   async function handleStatusChange(status: TOrderStatus) {
     if (!selected) return false;

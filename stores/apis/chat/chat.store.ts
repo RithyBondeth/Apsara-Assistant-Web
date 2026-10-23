@@ -311,6 +311,7 @@ export const useChatStore = create<IChatStore>((set, get) => ({
                 ...s.activeConversation.messages,
                 data.customer_message,
                 data.ai_message,
+                ...(data.photo_messages ?? []),
                 ...(data.qr_message ? [data.qr_message] : []),
               ],
             }
