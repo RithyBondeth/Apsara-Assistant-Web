@@ -9,6 +9,7 @@ export type TOrderStatus =
 /** Tracked apart from the order status: an order can be paid but not shipped,
  *  or delivered and still unpaid on a cash sale. */
 export type TPaymentStatus = "unpaid" | "pending" | "paid";
+export type TKhqrStatus = "issued" | "paid" | "expired" | "mismatch";
 export type TReceiptReviewStatus = "pending" | "accepted" | "rejected";
 
 export type TReceiptVerdict =
@@ -73,7 +74,7 @@ export interface IOrder {
   notes: string | null;
   reservation_expires_at: string | null;
   payment_status: TPaymentStatus;
-  payment_method: "stripe" | "qr" | null;
+  payment_method: "stripe" | "qr" | "khqr" | null;
   payment_receipt_attachment_id: string | null;
   payment_confirmed_by_user_id: string | null;
   paid_at: string | null;
@@ -81,6 +82,13 @@ export interface IOrder {
   // recorded as it happened, next to what the order was priced in.
   paid_amount?: string | null;
   paid_currency?: string | null;
+  // Order events the customer has been sent a message about.
+  customer_notified_events?: string[];
+  // The order's dynamic KHQR, once issued. Bakong is checked until it is
+  // paid ("paid") or expires; "mismatch" means a different amount arrived.
+  khqr_status?: TKhqrStatus | null;
+  khqr_expires_at?: string | null;
+  khqr_image_url?: string | null;
   created_at: string;
   updated_at: string;
   items: IOrderItem[];
@@ -128,6 +136,8 @@ export interface IOrderUpdate {
   status?: TOrderStatus;
   delivery_address?: string;
   notes?: string;
+  // false changes the status without messaging the customer.
+  notify_customer?: boolean;
 }
 
 /** A hosted Stripe payment page for one order. */
