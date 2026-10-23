@@ -57,8 +57,12 @@ export default function LandingFooter() {
             {/* Company */}
             <div className="flex flex-col gap-3">
               <span className="text-sm font-semibold">{t.company}</span>
-              <p className="text-xs text-muted-foreground">{t.privacy}</p>
-              <p className="text-xs text-muted-foreground">{t.terms}</p>
+              <Link href="/privacy">
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.privacy}</p>
+              </Link>
+              <Link href="/terms">
+                <p className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">{t.terms}</p>
+              </Link>
             </div>
           </div>
         </div>

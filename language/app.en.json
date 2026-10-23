@@ -191,6 +191,15 @@
       "signedInAs": "You work {shop}'s inbox as staff.",
       "ownerManages": "Shop details, channels, payments and alerts are managed by the shop owner.",
       "save": "Save changes"
+    },
+    "danger": {
+      "title": "Delete account",
+      "description": "Permanently delete your shop and everything in it — catalogue, customers, conversations, orders, staff and connections. This cannot be undone.",
+      "password": "Your password",
+      "confirm": "I understand this deletes all of my shop's data",
+      "delete": "Delete my account",
+      "deleting": "Deleting…",
+      "confirmDialog": "Delete {shop} and all of its data permanently?"
     }
   },
   "inbox": {
@@ -951,7 +960,10 @@
       "signingIn": "Signing in…",
       "withCode": "Sign in with a one-time code",
       "noAccount": "Don't have an account?",
-      "registerFree": "Register free"
+      "registerFree": "Register free",
+      "unverified": "Confirm your email first — open the link we sent you.",
+      "resendLink": "Send the link again",
+      "resent": "If that address needs confirming, a new link is on its way."
     },
     "register": {
       "title": "Create your account",
@@ -963,7 +975,16 @@
       "businessPlaceholder": "Sophea Shop",
       "creating": "Creating account…",
       "create": "Create account",
-      "haveAccount": "Already have an account?"
+      "haveAccount": "Already have an account?",
+      "consentBefore": "By creating an account you agree to the ",
+      "terms": "Terms of Service",
+      "and": " and ",
+      "privacy": "Privacy Policy",
+      "checkTitle": "Check your email",
+      "checkBody": "We sent a link to {email}. Open it to confirm your address, then sign in.",
+      "resend": "Send the link again",
+      "resent": "If that address needs confirming, a new link is on its way.",
+      "goToSignIn": "Go to sign in"
     },
     "forgot": {
       "title": "Forgot password?",
@@ -1015,6 +1036,16 @@
       "question": "bong thlai ponman?",
       "answer": "$12 — free delivery in Phnom Penh 🚚",
       "toast": "New order confirmed"
+    },
+    "verify": {
+      "checking": "Confirming your email…",
+      "doneTitle": "Email confirmed",
+      "doneBody": "Your account is ready. Sign in to set up your shop.",
+      "signIn": "Sign in",
+      "failedTitle": "This link doesn't work",
+      "failedBody": "It may have expired or been used already. Enter your email and we'll send a new one.",
+      "send": "Send a new link",
+      "sent": "If that address needs confirming, a new link is on its way."
     }
   },
   "pay": {
