@@ -68,7 +68,7 @@ export default function PrivacyPage() {
       <h2>Who it is shared with</h2>
       <p>Only the services needed to do the above:</p>
       <ul>
-        <li><strong>OpenAI</strong> — conversation text and catalogue to write replies; receipt images to read the amount paid.</li>
+        <li><strong>Anthropic (Claude)</strong> — conversation text and catalogue to write replies and draft orders; receipt images to read the amount paid.</li>
         <li><strong>Meta (Messenger) and Telegram</strong> — to receive and send the shop&rsquo;s messages.</li>
         <li><strong>Stripe</strong> — only when a shop takes card payments through its own Stripe account.</li>
         <li><strong>National Bank of Cambodia (Bakong)</strong> — the code of a KHQR payment, to check whether it was paid.</li>
