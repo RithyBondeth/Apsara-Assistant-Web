@@ -14,6 +14,24 @@
 
 </div>
 
+<!-- product-images:start -->
+
+## Product preview
+
+<p align="center">
+  <img src="docs/product-images/hero.png" alt="Apsara Assistant — Catalogue, conversations, and orders for Cambodian sellers." width="100%">
+</p>
+
+<table>
+<tr>
+  <td width="33%"><img src="docs/product-images/feature-01.png" alt="Your shop. One workspace. — Manage the catalogue, customers, inbox, and orders from one dashboard." width="100%"></td>
+  <td width="33%"><img src="docs/product-images/feature-02.png" alt="Two channels. One inbox. — Bring Messenger and Telegram conversations into a shared seller workflow." width="100%"></td>
+  <td width="33%"><img src="docs/product-images/feature-03.png" alt="From a question to an order. — Keep product information, customer conversations, and order details connected." width="100%"></td>
+</tr>
+</table>
+
+<!-- product-images:end -->
+
 ---
 
 ## Overview
@@ -35,15 +53,15 @@ Apsara Assistant Web is the seller-facing dashboard for [Apsara Assistant](https
 
 ## Tech Stack
 
-| Area | Technology |
-| --- | --- |
-| Framework | Next.js 16 (App Router), React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS 4, shadcn/ui |
-| State management | Zustand (one store per API area) |
-| HTTP | Axios |
-| Animation | GSAP, Lenis |
-| Testing and CI | Vitest, ESLint, GitHub Actions |
+| Area             | Technology                        |
+| ---------------- | --------------------------------- |
+| Framework        | Next.js 16 (App Router), React 19 |
+| Language         | TypeScript                        |
+| Styling          | Tailwind CSS 4, shadcn/ui         |
+| State management | Zustand (one store per API area)  |
+| HTTP             | Axios                             |
+| Animation        | GSAP, Lenis                       |
+| Testing and CI   | Vitest, ESLint, GitHub Actions    |
 
 ## Getting Started
 
@@ -65,21 +83,21 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment Variables
 
-| Variable | Purpose |
-| --- | --- |
+| Variable              | Purpose                                                |
+| --------------------- | ------------------------------------------------------ |
 | `NEXT_PUBLIC_API_URL` | Backend API base URL (default `http://localhost:8000`) |
 
 The API's `CORS_ORIGINS` must include this app's origin.
 
 ### Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Create a production build |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run the Vitest suite |
-| `npx tsc --noEmit` | Type-check the project |
+| Command            | Description                  |
+| ------------------ | ---------------------------- |
+| `npm run dev`      | Start the development server |
+| `npm run build`    | Create a production build    |
+| `npm run lint`     | Run ESLint                   |
+| `npm test`         | Run the Vitest suite         |
+| `npx tsc --noEmit` | Type-check the project       |
 
 ## Project Structure
 
